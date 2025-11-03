@@ -251,4 +251,53 @@ const applyJobs = async (req, res) => {
   });
 };
 
-module.exports = { register, login, logout, updateProfile, applyJobs };
+const bookmark = async (req, res) => {
+  const id = req.id;
+  if (!id) {
+    return res
+      .status(400)
+      .json({ success: false, message: "User is not authenticated" });
+  }
+
+  const { jobId } = req.body;
+
+  const job = await Job.findById(jobId);
+  if (!job)
+    return res.status(400).json({ success: false, message: "No Job Found." });
+
+  const user = await User.findById(id);
+
+  if (user.savedJobs.includes(jobId)) {
+    user.savedJobs.pull(jobId);
+    await user.save();
+
+    const populatedUser = await user.populate("savedJobs");
+    const allJobs = await Job.find();
+
+    return res.status(201).json({
+      success: true,
+      message: "Job Unsaved",
+      savedJobs: populatedUser.savedJobs,
+      allJobs,
+      job,
+    });
+  }
+
+  user.savedJobs.push(jobId);
+  await user.save();
+
+
+  const populatedUser = await user.populate("savedJobs");
+
+  const allJobs = await Job.find();
+
+  return res.status(202).json({
+    success: true,
+    message: "Saved",
+    savedJobs: populatedUser.savedJobs,
+    allJobs,
+    job,
+  });
+};
+
+module.exports = { register, login, logout, updateProfile, applyJobs, bookmark };

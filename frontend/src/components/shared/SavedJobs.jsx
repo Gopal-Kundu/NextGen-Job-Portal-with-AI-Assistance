@@ -5,7 +5,7 @@ import Footer from "./Footer";
 import { useSelector } from "react-redux";
 
 export default function SavedJobs() {
-  const jobs = useSelector((store) => store.job.jobs);
+  const jobs = useSelector((store) => store.auth.user);
   return (
     <>
       <div className="min-h-screen">
@@ -14,14 +14,11 @@ export default function SavedJobs() {
           <Navbar />
         </div>
         <div className="container mx-auto p-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-8">Saved Jobs</h1>
+          <h1 className="text-3xl font-bold text-gray-800 mb-8">{jobs.savedJobs.length==0 ? "No Saved Jobs":"Saved Jobs"}</h1>
 
           <div className="flex justify-center">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
-              {!jobs?.savedJobs ? (
-                <h1>No Saved Jobs</h1>
-              ) : (
-                jobs.savedJobs.map((job, idx) => (
+              {jobs.savedJobs.map((job, idx) => (
                   <JobCard
                     key={idx}
                     jobType={job.jobType}
@@ -35,7 +32,7 @@ export default function SavedJobs() {
                     id={job._id}
                   />
                 ))
-              )}
+              }
             </div>
           </div>
         </div>

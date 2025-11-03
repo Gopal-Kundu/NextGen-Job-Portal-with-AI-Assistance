@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import axios from "axios";
 import LoadingOverlay from "../ui/LoadingOverlay";
 import { setJobs } from "@/redux/jobSlice";
+import { useState } from "react";
 
 const cutwords = (word) => {
   const words = word.split(" ");
@@ -35,6 +36,59 @@ export default function JobCard({
   const dispatch = useDispatch();
   const user = useSelector((store) => store.auth.user);
   const loading = useSelector((store) => store.auth.loading);
+
+  async function bookmarkHandler() {
+    if (!user) {
+      return toast.error("You must login first..", {
+        duration: 2000,
+        position: "top-center",
+      });
+    }
+
+    dispatch(setLoading(true));
+
+    try {
+      const res = await axios.post(
+        `${USER_API_END_POINT}/bookmark`,
+        { jobId: id },
+        {
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true,
+        }
+      );
+
+      if (res.status === 201) {
+        toast.success(res.data.message || "Job unsaved", {
+          position: "top-center",
+          duration: 2000,
+        });
+      }
+      if (res.status === 202) {
+        toast.success(res.data.message || "Job saved", {
+          position: "top-center",
+          duration: 2000,
+        });
+      }
+
+      dispatch(
+        setUser({
+          ...user,
+          savedJobs: res.data.savedJobs,
+        })
+      );
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response?.data?.message || "Something went wrong", {
+        position: "top-center",
+        duration: 2000,
+      });
+    } finally {
+      setTimeout(() => {
+        dispatch(setLoading(false));
+      }, 500);
+    }
+  }
+
   async function applyHandler() {
     if (!user) {
       return toast.error("You must login first..", {
@@ -106,8 +160,12 @@ export default function JobCard({
         <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">
           Posted on {formattedDate}
         </span>
-        <button className="cursor-pointer active:scale-110 text-gray-400 hover:text-indigo-600 transition-colors">
-          <Bookmark />
+        <button
+          className={`cursor-pointer active:scale-110  hover:text-indigo-600 ${
+            user?.savedJobs.some((job) => job._id === id) ? "text-indigo-600" : "text-gray-400"
+          } transition-colors`}
+        >
+          <Bookmark onClick={bookmarkHandler} />
         </button>
       </div>
 
