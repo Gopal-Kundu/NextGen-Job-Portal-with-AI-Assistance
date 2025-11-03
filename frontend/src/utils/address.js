@@ -1,6 +1,6 @@
 //Local Host
-// const USER = "http://localhost:3001";
-const USER = "http://10.49.232.240:3001";
+const USER = "http://localhost:3001";
+// const USER = "http://10.49.232.240:3001";
 
 
 //NGROK 

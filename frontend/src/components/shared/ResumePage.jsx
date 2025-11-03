@@ -6,21 +6,12 @@ import EnterResumeForm from "../ui/EnterResumeForm";
 import LoadingOverlay from "../ui/LoadingOverlay";
 import { useSelector } from "react-redux";
 import { toast } from "sonner";
+import { Link } from "react-router-dom";
 
 export default function ResumePage() {
   const loading = useSelector((store) => store.auth.loading);
   const user = useSelector((store) => store.auth.user);
   const [hideForm, setHideForm] = useState(true);
-
-  const viewResume = () => {
-    if (!user?.profile?.resume) {
-      toast.error("No Resume available...", {
-        position: "top-end",
-        duration: 2000,
-      });
-      return;
-    }
-  };
 
   return (
     <>
@@ -62,13 +53,12 @@ export default function ResumePage() {
                       <div className="mt-4 flex flex-col justify-center gap-4 ">
                         {user?.profile?.resume && (
                           <button
-                            onClick={viewResume}
                             className="btn-secondary cursor-pointer flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors"
                           >
                             <span className="cursor-pointer material-icons text-base">
                               visibility
                             </span>
-                            <span>View Resume</span>
+                            <Link to={user?.profile?.resume}><span>View Resume</span></Link>
                           </button>
                         )}
                         <button
