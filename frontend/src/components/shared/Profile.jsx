@@ -13,7 +13,7 @@ export default function Profile() {
   const skillsArray = user.profile.skills
     .split(",")
     .map((skill) => skill.trim());
-
+    
   return (
     <>
       <div className="w-full min-h-screen relative z-0">

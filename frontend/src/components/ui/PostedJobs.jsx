@@ -50,16 +50,25 @@ export default function PostedJobs({ postedJobs }) {
               {postedJobs.map((job, index) => (
                 <tr key={index}>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">
-                      {job.company}
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={job.logo}
+                        alt="company logo"
+                        className="h-10 w-10 object-cover rounded-md border"
+                      />
+                      <span className="text-sm font-medium text-gray-900">
+                        {job.company}
+                      </span>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-600">{job.role}</div>
+                    <div className="text-sm text-gray-600">{job.jobType}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-center">
                     <div className="text-sm text-gray-600">
-                      {job.applicants}
+                      <button className="bg-blue-300 px-2 py-1 rounded-2xl hover:bg-blue-500 hover:text-white border border-black cursor-pointer">
+                        View
+                      </button>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-center">

@@ -21,15 +21,15 @@ export default function SavedJobs() {
               {jobs.savedJobs.map((job, idx) => (
                   <JobCard
                     key={idx}
-                    jobType={job.jobType}
-                    salary={job.salary}
-                    vacancy={job.vacancy}
-                    description={job.description}
-                    location={job.location}
-                    companyName={job.companyName}
-                    role={job.role}
-                    datePosted={job.createdAt}
-                    id={job._id}
+                  jobType={job.jobType}
+                  salary={job.salary}
+                  vacancy={job.vacancy}
+                  description={job.description}
+                  location={job.location}
+                  companyName={job.company}
+                  role={job.role}
+                  datePosted={job.createdAt}
+                  id={job._id}
                   />
                 ))
               }

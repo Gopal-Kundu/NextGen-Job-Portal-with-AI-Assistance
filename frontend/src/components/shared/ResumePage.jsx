@@ -75,7 +75,7 @@ export default function ResumePage() {
 
                     <div className="w-full flex-shrink-0 sm:w-56">
                       <div
-                        className="aspect-[3/4] w-full rounded-md border border-gray-200 bg-cover bg-center shadow-inner"
+                        className="h-[50vh] w-full rounded-md border border-gray-200 bg-cover bg-center shadow-inner"
                         style={{
                           backgroundImage: !user?.profile?.resume
                             ? `url("https://lh3.googleusercontent.com/aida-public/AB6AXuBsm2iggcb30sJ6Iup-eXrdHUZkcpn6816XfkiRfCQj4_uJxRDSMnH_KSmSYHd5Rf73dEkkXex6TKkzfZ3sS7SqFso7wlueqGGCSfRcAenYii6EZ8bH8J2n81CE5jYGR2CN3_V9aqJRRIQypA385mZWqplNjlckItBkwjTUDqDKiW6VfRfDeMnHTI1Y8AM8410oDlICo5em5jAH0lNPjrXqBp8dhKxuc4ObbRoa8iKL7WEqEbWxWhYCX9IppDay2TxyAMY9-x1sqYE")`

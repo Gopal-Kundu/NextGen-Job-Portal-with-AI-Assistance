@@ -2,12 +2,13 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { JOB_API_END_POINT } from "@/utils/address";
-import { setLoading } from "@/redux/authSlice";
+import { setLoading, setUser } from "@/redux/authSlice";
 import { toast } from "sonner";
 import { setJobs } from "@/redux/jobSlice";
 
 export default function AddJobBtn({ hide }) {
   const jobs = useSelector((store) => store.job.jobs);
+  const user = useSelector((store) => store.auth.user);
   const dispatch = useDispatch();
   const [data, setData] = useState({
     title: "",
@@ -16,9 +17,9 @@ export default function AddJobBtn({ hide }) {
     location: "",
     requirements: "",
     experience: 0,
-    jobType: "full-time",
-    vacancy: 0,
-    company: "",
+    jobType: "Full-time",
+    vacancy: 1,
+    company: "Tcs",
   });
 
   const handleChange = (e) => {
@@ -40,16 +41,17 @@ export default function AddJobBtn({ hide }) {
 
       if (res.data.success) {
         toast.success("Job Posted Successfully", {
-          position: "top-end",
+          position: "top-center",
           duration: 2000,
         });
       }
 
       dispatch(setJobs([...jobs, res.data.job]));
+      dispatch(setUser(res.data.user));
     } catch (error) {
       console.error("Axios error:", error);
-      toast.error("Server Error",{
-        position: "top-center"
+      toast.error("Server Error", {
+        position: "top-center",
       });
     } finally {
       setTimeout(() => {
@@ -59,7 +61,7 @@ export default function AddJobBtn({ hide }) {
   };
 
   return (
-    <div className="bg-gray-50 font-sans w-full max-w-4xl mx-auto rounded-xl shadow-lg overflow-y-auto max-h-[90vh]">
+    <div className="bg-gray-50 font-sans w-full max-w-4xl mx-auto shadow-lg overflow-y-auto max-h-[90vh]">
       <div className="p-6">
         {/* Header */}
         <div className="flex justify-between items-center">
@@ -117,14 +119,22 @@ export default function AddJobBtn({ hide }) {
 
           <label className="flex flex-col">
             <span className="text-gray-700 font-medium mb-1">Company Name</span>
-            <input
-              type="text"
+            <select
               name="company"
-              placeholder="Eg: Google"
               value={data.company}
               onChange={handleChange}
-              className="form-input p-3 border rounded-md focus:ring-blue-500"
-            />
+              className="form-select p-3 border rounded-md focus:ring-blue-500"
+            >
+              {user?.createdCompanies?.length === 0 ? (
+                <option disabled>You must create a company</option>
+              ) : (
+                user?.createdCompanies?.map((company, idx) => (
+                  <option key={idx} value={company?.name}>
+                    {company?.name}
+                  </option>
+                ))
+              )}
+            </select>
           </label>
 
           <label className="flex flex-col">
@@ -207,7 +217,7 @@ export default function AddJobBtn({ hide }) {
               type="submit"
               className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 active:scale-90 cursor-pointer transition-transform duration-200"
             >
-              Save Changes
+              Post Job
             </button>
           </div>
         </form>

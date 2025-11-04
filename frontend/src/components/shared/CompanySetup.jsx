@@ -65,8 +65,8 @@ export default function CompanySetup({ cancel }) {
   };
 
   return (
-    <div className="backdrop-brightness-50 fixed inset-0 z-20 bg-opacity-50 flex items-center justify-center">
-      <div className="scale-70 w-full max-w-3xl p-6 bg-white shadow-md rounded-lg">
+    <div className="fixed inset-0 z-20 flex items-center justify-center bg-white/30 bg-opacity-30 backdrop-blur-sm">
+      <div className="w-full max-w-3xl p-6 bg-white shadow-lg rounded-xl">
         <h2 className="text-2xl font-semibold mb-6 text-center">
           Company Setup
         </h2>

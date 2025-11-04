@@ -12,7 +12,7 @@ import axios from "axios";
 import LoadingOverlay from "./components/ui/LoadingOverlay";
 import { useEffect, useState } from "react";
 import { JOB_API_END_POINT } from "./utils/address";
-import { setJobs } from "./redux/jobSlice";
+import {  setJobs } from "./redux/jobSlice";
 import { toast } from "sonner";
 import CompanyListPage from "./components/shared/CompanyListPage";
 import LoadingPage from "./components/ui/LoadingPage";

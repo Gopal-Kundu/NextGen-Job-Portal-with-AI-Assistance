@@ -1,4 +1,6 @@
+const Company = require("../models/company.model");
 const Job = require("../models/job.model");
+const User = require("../models/user.model");
 
 const postJob = async (req, res) => {
   try {
@@ -13,23 +15,16 @@ const postJob = async (req, res) => {
       company,
       vacancy,
     } = req.body;
-    const userId = req.id; 
-    if (
-      !userId ||
-      !title ||
-      !description ||
-      !requirements ||
-      !salary ||
-      !location ||
-      !jobType ||
-      !experience ||
-      !vacancy
-    ) {
+    const userId = req.id;
+    if (!userId) {
       return res.status(400).json({
-        message: "Something is missing",
+        message: "Unauthenticated user",
         success: false,
       });
     }
+    const companyData = await Company.findOne({
+      name: { $regex: `^${company}$`, $options: "i" },
+    });
 
     const job = await Job.create({
       title,
@@ -41,14 +36,22 @@ const postJob = async (req, res) => {
       experience,
       vacancy,
       company,
-      createdBy: userId, 
+      logo: companyData.logo || "",
+      createdBy: userId,
       applications: [],
     });
-
+    const user = await User.findById(userId);
+    user.postedJobs.push(job._id);
+    await user.save();
+    await user.populate("postedJobs");
+    await user.populate("appliedJobs");
+    await user.populate("savedJobs");
+    await user.populate("createdCompanies");
     return res.status(201).json({
       message: "Job posted successfully",
       success: true,
       job,
+      user,
     });
   } catch (error) {
     return res.status(500).json({
@@ -57,7 +60,6 @@ const postJob = async (req, res) => {
     });
   }
 };
-
 
 const getAllJobs = async (req, res) => {
   try {
@@ -89,8 +91,8 @@ const getAllJobs = async (req, res) => {
 
 const getJobById = async (req, res) => {
   try {
-    const {id} = req.params;
-    const job = await Job.find({_id: id});
+    const { id } = req.params;
+    const job = await Job.find({ _id: id });
 
     if (!job) {
       return res.status(404).json({
@@ -110,7 +112,7 @@ const getJobById = async (req, res) => {
     });
   }
 };
-    
+
 const getAdminJobs = async (req, res) => {
   const adminId = req.id;
   const jobs = await Job.find({ created_By: adminId });

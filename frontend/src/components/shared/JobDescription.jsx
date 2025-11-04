@@ -19,6 +19,7 @@ const JobDescription = () => {
   const loading = useSelector((store) => store.auth.loading);
   const user = useSelector((store) => store.auth.user);
   const allJobs = useSelector((store) => store.job.Jobs);
+  const [refresh , setRefresh] = useState(false);
   useEffect(() => {
     dispatch(setLoading(true));
     async function fetchJob() {
@@ -34,13 +35,13 @@ const JobDescription = () => {
       }
     }
     fetchJob();
-  }, []);
+  }, [refresh]);
 
   if (loading) {
     return <LoadingOverlay message="Loading job details... wait a sec..." />;
   }
 
- async function applyHandler() {
+  async function applyHandler() {
     if (!user) {
       return toast.error("You must login first..", {
         duration: 2000,
@@ -90,6 +91,7 @@ const JobDescription = () => {
         })
       );
       dispatch(setJobs(res.data.allJobs));
+      setRefresh(!refresh);
     } catch (error) {
       console.log(error);
       toast.error(error.response?.data?.message || "Something went wrong", {
@@ -171,7 +173,7 @@ const JobDescription = () => {
             <div className="space-y-6">
               <div className="bg-red-50 border border-red-200 rounded-lg p-5 text-center">
                 <h4 className="font-semibold text-red-800">
-                  {job.applications?.length} Applicants
+                  {job?.applications?.length ? `${job.applications.length} Applicants` : "No Applicants"} 
                 </h4>
               </div>
 

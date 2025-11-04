@@ -19,7 +19,6 @@ const registerCompany = async (req, res) => {
       });
     }
 
-    // 1. Check if companyName is provided
     if (!companyName || companyName.trim() === "") {
       return res.status(400).json({
         message: "Company name is required",
@@ -27,7 +26,7 @@ const registerCompany = async (req, res) => {
       });
     }
 
-    // 2. Check if company already exists
+
     const existingCompany = await Company.findOne({ name: companyName });
     if (existingCompany) {
       return res.status(400).json({
@@ -36,7 +35,7 @@ const registerCompany = async (req, res) => {
       });
     }
 
-    // 3. Create new company
+
     const newCompany = await Company.create({
       name: companyName,
       userId: req.id,
@@ -50,7 +49,7 @@ const registerCompany = async (req, res) => {
     user.createdCompanies.push(newCompany._id);
     await user.save();
     await user.populate("createdCompanies");
-    // 4. Return success response
+
     return res.status(201).json({
       message: "Company registered successfully",
       success: true,
@@ -67,8 +66,7 @@ const registerCompany = async (req, res) => {
 
 const getCompany = async (req, res) => {
   try {
-    const userId = req.id; // assuming req.id is set via auth middleware
-    // Find company for this user
+    const userId = req.id; 
     const company = await Company.findOne({ userId });
     if (!company) {
       return res.status(404).json({
@@ -76,7 +74,7 @@ const getCompany = async (req, res) => {
         success: false,
       });
     }
-    // Return company details
+
     return res.status(200).json({
       success: true,
       company: {
@@ -94,8 +92,7 @@ const getCompany = async (req, res) => {
 
 const getCompanyById = async (req, res) => {
   try {
-    const { id } = req.params; // get company ID from URL params
-    // Find company by ID
+    const { id } = req.params; 
     const company = await Company.findById(id);
 
     if (!company) {
@@ -104,7 +101,7 @@ const getCompanyById = async (req, res) => {
         success: false,
       });
     }
-    // Return company details
+
     return res.status(200).json({
       success: true,
       company,
@@ -121,12 +118,8 @@ const getCompanyById = async (req, res) => {
 const updateCompany = async (req, res) => {
   try {
     const { name, description, website, location } = req.body;
-    const file = req.file; // if you are using cloudinary for file upload
-
-    // Prepare update data
-    const updateData = { name, description, website, location }; // adjust based on how you store file path
-
-    // Find and update company
+    const file = req.file; 
+    const updateData = { name, description, website, location };
     const updatedCompany = await Company.findByIdAndUpdate(
       req.params.id,
       updateData,
