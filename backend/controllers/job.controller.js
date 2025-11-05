@@ -89,7 +89,6 @@ const getAllJobs = async (req, res) => {
   }
 };
 
-
 const getAdminJobs = async (req, res) => {
   const adminId = req.id;
   const jobs = await Job.find({ created_By: adminId });
@@ -104,4 +103,22 @@ const getAdminJobs = async (req, res) => {
   });
 };
 
-module.exports = { postJob, getAllJobs, getAdminJobs };
+const deleteJobById = async (req, res) =>{
+  try{
+    const id = req.id;
+  const jobId = req.params.id;
+  await Job.findByIdAndDelete(jobId);
+  return res.status(200).json({
+    message: "Job Deleted",
+    success: true,
+  })
+  }catch(err){
+    return res.status(400).json({
+      message: "Failed to delete Job",
+      success: false,
+    })
+  }
+  
+}
+
+module.exports = { postJob, getAllJobs, getAdminJobs, deleteJobById };

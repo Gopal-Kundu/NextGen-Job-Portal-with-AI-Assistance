@@ -19,7 +19,7 @@ export default function AddJobBtn({ hide }) {
     experience: 0,
     jobType: "Full-time",
     vacancy: 1,
-    company: "Tcs",
+    company: user?.createdCompanies?.[0]?.name || "Unknown Company",
   });
 
   const handleChange = (e) => {

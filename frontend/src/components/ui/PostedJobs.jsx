@@ -1,9 +1,34 @@
 import React, { useState } from "react";
 import AddJobBtn from "./AddJobBtn";
 import { Link } from "react-router-dom";
+import { Trash2 } from "lucide-react";
+import { JOB_API_END_POINT } from "@/utils/address";
+import { toast } from "sonner";
+import axios from "axios";
 
 export default function PostedJobs({ postedJobs }) {
   const [open, setOpen] = useState(false);
+
+  async function deleteJob(id) {
+    try {
+      const res = await axios.get(`${JOB_API_END_POINT}/delete/${id}`, {
+        withCredentials: true,
+      });
+      if (res.data.success) {
+        toast.success("Job successfully deleted!", {
+          position: "top-center",
+          duration: 1000,
+        });
+      }
+      window.location.reload();
+    } catch (err) {
+      console.log(err.response);
+      toast.error("Failed to deleted!", {
+        position: "top-center",
+        duration: 1000,
+      });
+    }
+  }
 
   return (
     <div className="md:col-span-2">
@@ -43,7 +68,7 @@ export default function PostedJobs({ postedJobs }) {
                   Applicants
                 </th>
                 <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider text-gray-500 text-center">
-                  Status
+                  Action
                 </th>
               </tr>
             </thead>
@@ -72,21 +97,11 @@ export default function PostedJobs({ postedJobs }) {
                       </button>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-center">
-                    <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        job.status === "Open" ? "bg-green-300" : "bg-gray-300"
-                      }`}
-                    >
-                      <svg
-                        className="w-2 h-2 mr-1.5"
-                        fill="currentColor"
-                        viewBox="0 0 8 8"
-                      >
-                        <circle cx="4" cy="4" r="3" />
-                      </svg>
-                      {job.status}
-                    </span>
+                  <td className="px-6 py-4 whitespace-nowrap flex justify-center items-center">
+                    <Trash2
+                      className="cursor-pointer"
+                      onClick={() => deleteJob(job?._id)}
+                    />
                   </td>
                 </tr>
               ))}
