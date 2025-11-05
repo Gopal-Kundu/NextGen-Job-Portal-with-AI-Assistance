@@ -89,29 +89,6 @@ const getAllJobs = async (req, res) => {
   }
 };
 
-const getJobById = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const job = await Job.find({ _id: id });
-
-    if (!job) {
-      return res.status(404).json({
-        success: false,
-        message: "Job not found",
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      job,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
-};
 
 const getAdminJobs = async (req, res) => {
   const adminId = req.id;
@@ -127,4 +104,4 @@ const getAdminJobs = async (req, res) => {
   });
 };
 
-module.exports = { postJob, getAllJobs, getJobById, getAdminJobs };
+module.exports = { postJob, getAllJobs, getAdminJobs };

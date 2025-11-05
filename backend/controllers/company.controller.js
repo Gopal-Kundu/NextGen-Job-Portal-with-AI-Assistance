@@ -88,46 +88,6 @@ const getCompanyById = async (req, res) => {
   }
 };
 
-const updateCompany = async (req, res) => {
-  try {
-    const { name, description, website, location } = req.body;
-    const file = req.file;
-
-    const company = await Company.findById(req.params.id);
-    if (!company) {
-      return res
-        .status(404)
-        .json({ message: "Company not found", success: false });
-    }
-
-    if (file) {
-      const fileUri = getDataUri(file);
-      const cloudResponse = await cloudinary.uploader.upload(fileUri.content, {
-        folder: "Job Portal Uploads/Company logo",
-      });
-      company.logo = cloudResponse.secure_url;
-    }
-
-    if (name) company.name = name;
-    if (description) company.description = description;
-    if (website) company.website = website;
-    if (location) company.location = location;
-
-    await company.save();
-
-    return res.status(200).json({
-      message: "Company updated successfully",
-      success: true,
-      company,
-    });
-  } catch (error) {
-    console.error("Error in updateCompany:", error);
-    return res
-      .status(500)
-      .json({ message: "Internal server error", success: false });
-  }
-};
-
 const deleteCompany = async (req, res) => {
   try {
     const company = await Company.findById(req.params.id);
@@ -164,6 +124,5 @@ const deleteCompany = async (req, res) => {
 module.exports = {
   registerCompany,
   getCompanyById,
-  updateCompany,
-  deleteCompany,
+  deleteCompany
 };

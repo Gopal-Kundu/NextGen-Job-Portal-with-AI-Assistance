@@ -6,7 +6,6 @@ const cloudinary = require("../utils/cloudinary");
 const Job = require("../models/job.model");
 require("dotenv").config({ quiet: true });
 
-// REGISTER
 const register = async (req, res) => {
   try {
     const { fullname, email, phonenumber, password, role } = req.body;
@@ -46,7 +45,6 @@ const register = async (req, res) => {
   }
 };
 
-// LOGIN
 const login = async (req, res) => {
   try {
     const { email, password, role } = req.body;
@@ -123,7 +121,6 @@ const login = async (req, res) => {
   }
 };
 
-// LOGOUT
 const logout = async (req, res) => {
   try {
     return res.status(200).cookie("token", "", { maxAge: 0 }).json({
