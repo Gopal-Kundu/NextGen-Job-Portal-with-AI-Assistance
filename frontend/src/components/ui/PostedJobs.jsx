@@ -54,7 +54,7 @@ export default function PostedJobs({ postedJobs }) {
           </button>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto max-h-96 overflow-y-auto">
           <table className="w-full text-left">
             <thead className="bg-gray-50">
               <tr>

@@ -5,7 +5,7 @@ import { Link, useParams } from "react-router-dom";
 import axios from "axios";
 import { JOB_API_END_POINT, USER_API_END_POINT } from "@/utils/address";
 import LoadingOverlay from "../ui/LoadingOverlay";
-import { Check, CheckCircle, IndianRupee } from "lucide-react";
+import { Check, CheckCircle, IndianRupee, TrendingUpDownIcon } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { setLoading, setUser } from "@/redux/authSlice";
 import { toast } from "sonner";
@@ -24,8 +24,11 @@ const JobDescription = () => {
     dispatch(setLoading(true));
     async function fetchJob() {
       try {
-        const res = await axios.get(`${JOB_API_END_POINT}/get/${id}`);
+        const res = await axios.get(`${JOB_API_END_POINT}/get/${id}`,{
+          withCredentials: true
+        });
         if (res.data.success) {
+          console.log(res.data);
           setJob(res.data.job[0]);
         }
       } catch (error) {
@@ -49,7 +52,7 @@ const JobDescription = () => {
       });
     }
 
-    if (user?.role !== "student") {
+    if (user.role !== "student") {
       return toast.error("You must be a student to apply...", {
         duration: 2000,
         position: "top-center",
@@ -142,7 +145,7 @@ const JobDescription = () => {
                 onClick={applyHandler}
                 className="cursor-pointer active:scale-90 transform-transition duration-200 bg-purple-700 text-white rounded-lg h-12 px-6 shadow hover:bg-purple-800 font-semibold"
               >
-                {user?.appliedJobs?.some((job) => job._id === id) ? (
+                {user?.appliedJobs.some((job) => job._id === id) ? (
                   <>
                     <CheckCircle className="inline text-white" /> Applied
                   </>

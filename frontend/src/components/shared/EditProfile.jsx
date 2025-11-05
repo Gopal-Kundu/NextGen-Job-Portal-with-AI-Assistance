@@ -22,19 +22,29 @@ export function EditProfile() {
   const dispatch = useDispatch();
 
   const [formData, setFormData] = useState({
-    fullname: user?.fullname || "Anonymous User",
-    role: user?.role || "student",
-    phonenumber: user?.phonenumber || 12345,
-    bio: user?.profile?.bio || "No Bio Given",
-    skills: user?.profile?.skills || "",
+    fullname: "",
+    role: "",
+    phonenumber: "",
+    bio: "",
+    skills: "",
   });
+
   const [profilePhoto, setprofilePhoto] = useState("");
 
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        fullname: user.fullname || "",
+        role: user.role || "student",
+        phonenumber: user.phonenumber || "",
+        bio: user.profile?.bio || "",
+        skills: user.profile?.skills || "",
+      });
+    }
+  }, [user]);
+
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
@@ -46,9 +56,7 @@ export function EditProfile() {
     form.append("phonenumber", formData.phonenumber);
     form.append("bio", formData.bio);
     form.append("skills", formData.skills);
-    if (profilePhoto) {
-      form.append("profilePhoto", profilePhoto);
-    }
+    if (profilePhoto) form.append("profilePhoto", profilePhoto);
 
     try {
       dispatch(setLoading(true));
@@ -62,23 +70,19 @@ export function EditProfile() {
       );
 
       if (res.data.success) {
-        const updatedUser = res.data.user;
-        dispatch(setUser(updatedUser));
         toast.success("Profile updated successfully!", {
           position: "top-center",
           duration: 2000,
         });
+        window.location.reload();
       }
     } catch (error) {
-      console.error("Update failed:", error.response?.data || error.message);
       toast.error("Failed to update profile", {
         position: "top-center",
         duration: 2000,
       });
     } finally {
-      setTimeout(() => {
-        dispatch(setLoading(false));
-      }, 2000);
+      setTimeout(() => dispatch(setLoading(false)), 2000);
     }
   };
 
@@ -103,11 +107,8 @@ export function EditProfile() {
           className="grid gap-3 sm:grid-cols-1 md:grid-cols-2"
         >
           <div className="flex flex-col gap-1">
-            <label htmlFor="fullname" className="text-sm">
-              Full Name
-            </label>
+            <label className="text-sm">Full Name</label>
             <input
-              id="fullname"
               name="fullname"
               value={formData.fullname}
               onChange={handleChange}
@@ -116,49 +117,37 @@ export function EditProfile() {
           </div>
 
           <div className="flex flex-col gap-1">
-            <label htmlFor="email" className="text-sm">
-              Email
-            </label>
+            <label className="text-sm">Email</label>
             <input
-              id="email"
-              name="email"
-              type="email"
-              value={user?.email || "abc@gmail.com"}
               disabled
-              className="border rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-gray-100"
+              value={user?.email || ""}
+              className="border rounded px-2 py-1 text-sm bg-gray-100"
             />
           </div>
 
           <div className="flex flex-col gap-1">
-            <label htmlFor="phone" className="text-sm">
-              Phone Number
-            </label>
+            <label className="text-sm">Phone Number</label>
             <input
               name="phonenumber"
-              type="tel"
               value={formData.phonenumber}
               onChange={handleChange}
               className="border rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
             />
           </div>
+
           <div className="flex flex-col gap-1">
-            <label htmlFor="photo" className="text-sm">
-              Profile-Photo
-            </label>
+            <label className="text-sm">Profile Photo</label>
             <input
-              name="profilePhoto"
               type="file"
-              accept=".png, .jpg, .jpeg"
+              accept=".png,.jpg,.jpeg"
               onChange={(e) => setprofilePhoto(e.target.files[0])}
               className="border rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
             />
           </div>
+
           <div className="flex flex-col gap-1 md:col-span-2">
-            <label htmlFor="bio" className="text-sm">
-              Bio
-            </label>
+            <label className="text-sm">Bio</label>
             <textarea
-              id="bio"
               name="bio"
               value={formData.bio}
               onChange={handleChange}
@@ -167,11 +156,8 @@ export function EditProfile() {
           </div>
 
           <div className="flex flex-col gap-1 md:col-span-2">
-            <label htmlFor="skills" className="text-sm">
-              Skills
-            </label>
+            <label className="text-sm">Skills</label>
             <textarea
-              id="skills"
               name="skills"
               value={formData.skills}
               onChange={handleChange}
@@ -187,9 +173,8 @@ export function EditProfile() {
                   type="radio"
                   name="role"
                   value="student"
-                  onChange={handleChange}
                   checked={formData.role === "student"}
-                  className="focus:ring-primary-500"
+                  onChange={handleChange}
                 />
                 Student
               </label>
@@ -198,9 +183,8 @@ export function EditProfile() {
                   type="radio"
                   name="role"
                   value="recruiter"
-                  onChange={handleChange}
                   checked={formData.role === "recruiter"}
-                  className="focus:ring-primary-500"
+                  onChange={handleChange}
                 />
                 Recruiter
               </label>
@@ -209,18 +193,12 @@ export function EditProfile() {
 
           <DialogFooter className="pt-3 md:col-span-2 flex justify-end gap-2">
             <DialogClose>
-              <Button
-                variant="outline"
-                size="sm"
-                className="hover:scale-90 cursor-pointer"
-              >
+              <Button variant="outline" size="sm">
                 Cancel
               </Button>
-              <Button
-                type="submit"
-                size="sm"
-                className="hover:scale-90 cursor-pointer"
-              >
+            </DialogClose>
+            <DialogClose>
+              <Button type="submit" size="sm">
                 Save
               </Button>
             </DialogClose>

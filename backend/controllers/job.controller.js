@@ -89,36 +89,64 @@ const getAllJobs = async (req, res) => {
   }
 };
 
-const getAdminJobs = async (req, res) => {
-  const adminId = req.id;
-  const jobs = await Job.find({ created_By: adminId });
-  if (!jobs)
-    return res.status(401).json({
-      message: "No jobs found",
-      success: "false",
-    });
-  return res.status(200).json({
-    jobs,
-    success: true,
-  });
-};
 
-const deleteJobById = async (req, res) =>{
-  try{
-    const id = req.id;
-  const jobId = req.params.id;
-  await Job.findByIdAndDelete(jobId);
-  return res.status(200).json({
-    message: "Job Deleted",
-    success: true,
-  })
-  }catch(err){
+const deleteJobById = async (req, res) => {
+  try {
+    const userId = req.id;
+    const jobId = req.params.id;
+    await Job.findByIdAndDelete(jobId);
+
+    await User.updateOne(
+      { _id: userId },
+      { $pull: { postedJobs: jobId } }
+    );
+
+    await User.updateMany(
+      { savedJobs: jobId },
+      { $pull: { savedJobs: jobId } }
+    );
+
+    await User.updateMany(
+      { appliedJobs: jobId },
+      { $pull: { appliedJobs: jobId } }
+    );
+
+    return res.status(200).json({
+      message: "Job Deleted Successfully",
+      success: true,
+    });
+
+  } catch (err) {
+    console.log(err);
     return res.status(400).json({
       message: "Failed to delete Job",
       success: false,
-    })
+    });
   }
-  
-}
+};
 
-module.exports = { postJob, getAllJobs, getAdminJobs, deleteJobById };
+const getJobById = async (req, res) => {
+  try {
+    const {id} = req.params;
+    const job = await Job.find({_id: id});
+
+    if (!job) {
+      return res.status(404).json({
+        success: false,
+        message: "Job not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      job,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+module.exports = { postJob, getAllJobs, getJobById, deleteJobById };
