@@ -49,7 +49,7 @@ const JobDescription = () => {
       });
     }
 
-    if (user.role !== "student") {
+    if (user?.role !== "student") {
       return toast.error("You must be a student to apply...", {
         duration: 2000,
         position: "top-center",
@@ -142,7 +142,7 @@ const JobDescription = () => {
                 onClick={applyHandler}
                 className="cursor-pointer active:scale-90 transform-transition duration-200 bg-purple-700 text-white rounded-lg h-12 px-6 shadow hover:bg-purple-800 font-semibold"
               >
-                {user?.appliedJobs.some((job) => job._id === id) ? (
+                {user?.appliedJobs?.some((job) => job._id === id) ? (
                   <>
                     <CheckCircle className="inline text-white" /> Applied
                   </>

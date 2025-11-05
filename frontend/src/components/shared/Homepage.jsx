@@ -1,34 +1,8 @@
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "../ui/carousel";
-
-import Autoplay from "embla-carousel-autoplay";
 import Footer from "./Footer";
 import Navbar from "./Navbar";
 import JobsListing from "./JobsListing";
 import Sidebar from "./Sidebar";
 
-const roles = [
-  "Frontend Developer",
-  "Backend Developer",
-  "Full Stack Developer",
-  "Mobile App Developer",
-  "UI/UX Designer",
-  "Data Engineer",
-  "Data Scientist",
-  "Machine Learning Engineer",
-  "DevOps Engineer",
-  "Cloud Engineer",
-  "QA Engineer",
-  "Product Manager",
-  "Business Analyst",
-  "Cybersecurity Specialist",
-  "Blockchain Developer",
-];
 
 export default function Homepage() {
 
@@ -66,33 +40,6 @@ export default function Homepage() {
               </div>
             </div>
 
-            {/* Categories */}
-            <div className="mt-12 flex justify-center items-center">
-              <Carousel
-                className="w-3/4"
-                plugins={[
-                  Autoplay({
-                    delay: 3000,
-                  }),
-                ]}
-              >
-                <CarouselContent className="-ml-0 gap-2">
-                  {roles.map((role, idx) => (
-                    <CarouselItem
-                      key={idx}
-                      className="basis-1/1 md:basis-1/2 lg:basis-1/3"
-                    >
-                      <div className="active:scale-90 p-3 hover:bg-gray-100 rounded-2xl border border-black cursor-pointer transition-transform duration-300 select-none">
-                        {role}
-                      </div>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-
-                <CarouselPrevious className="hover:scale-140 transition-transform duration-200 scale-130 p-3 rounded-xl border border-gray-900 shadow-md" />
-                <CarouselNext className="hover:scale-140 transition-transform duration-200 scale-125 p-3 rounded-xl border border-gray-900 shadow-md" />
-              </Carousel>
-            </div>
           </main>
 
           {/* Job Openings */}

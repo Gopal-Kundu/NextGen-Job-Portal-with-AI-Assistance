@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import AddJobBtn from "./AddJobBtn";
+import { Link } from "react-router-dom";
 
 export default function PostedJobs({ postedJobs }) {
   const [open, setOpen] = useState(false);
@@ -8,7 +9,7 @@ export default function PostedJobs({ postedJobs }) {
     <div className="md:col-span-2">
       {/* Modal */}
       {open && (
-        <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="absolute inset-0 p-10 bg-black/50 z-50">
           <AddJobBtn hide={() => setOpen(false)} />
         </div>
       )}
@@ -47,14 +48,14 @@ export default function PostedJobs({ postedJobs }) {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {postedJobs.map((job, index) => (
+              {postedJobs?.map((job, index) => (
                 <tr key={index}>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center gap-3">
                       <img
                         src={job.logo}
                         alt="company logo"
-                        className="h-10 w-10 object-cover rounded-md border"
+                        className="h-10 w-10 object-contain rounded-md border"
                       />
                       <span className="text-sm font-medium text-gray-900">
                         {job.company}
@@ -62,12 +63,12 @@ export default function PostedJobs({ postedJobs }) {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-600">{job.jobType}</div>
+                    <div className="text-sm text-gray-600">{job.title}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-center">
                     <div className="text-sm text-gray-600">
                       <button className="bg-blue-300 px-2 py-1 rounded-2xl hover:bg-blue-500 hover:text-white border border-black cursor-pointer">
-                        View
+                        <Link to={`/applications/${job?._id}`}>view</Link>
                       </button>
                     </div>
                   </td>

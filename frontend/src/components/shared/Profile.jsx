@@ -10,7 +10,7 @@ import PostedJobs from "../ui/PostedJobs";
 export default function Profile() {
   const user = useSelector((store) => store.auth.user);
   const loading = useSelector((store) => store.auth.loading);
-  const skillsArray = user.profile.skills
+  const skillsArray = user?.profile?.skills
     .split(",")
     .map((skill) => skill.trim());
     
@@ -30,12 +30,12 @@ export default function Profile() {
                 <div className="relative md:col-span-1">
                   <div
                     className={`absolute z-2 flex items-center border w-min px-2 text-white font-semibold shadow-md rounded-2xl gap-1 ${
-                      user.role === "recruiter"
+                      user?.role === "recruiter"
                         ? "bg-gradient-to-r from-red-400 to-red-600 border-red-700"
                         : "bg-gradient-to-r from-blue-400 to-blue-600 border-blue-700"
                     }`}
                   >
-                    <ShieldCheck className="w-4 h-4" /> {user.role}
+                    <ShieldCheck className="w-4 h-4" /> {user?.role}
                   </div>
 
                   <div className="bg-white rounded-lg shadow-md p-6 text-center">
@@ -44,7 +44,7 @@ export default function Profile() {
                         className="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-32 w-32 mx-auto mb-4 ring-4 ring-primary-100"
                         style={{
                           backgroundImage: `url("${
-                            user.profile?.profilePhoto ||
+                            user?.profile?.profilePhoto ||
                             "https://www.refugee-action.org.uk/wp-content/uploads/2016/10/anonymous-user.png"
                           }")`,
                         }}
@@ -53,15 +53,15 @@ export default function Profile() {
                     </div>
 
                     <h2 className="text-2xl font-bold text-gray-900">
-                      {user.fullname || "Anonymous User"}
+                      {user?.fullname || "Anonymous User"}
                     </h2>
                     <p className="text-md text-gray-600">
-                      {user.profile?.bio || "No bio available"}
+                      {user?.profile?.bio || "No bio available"}
                     </p>
 
                     <div className="mt-6">
                       <div className="flex justify-center flex-wrap gap-2">
-                        {user.profile?.skills
+                        {user?.profile?.skills
                           ? skillsArray.map((skill, i) => (
                               <span
                                 key={i}
@@ -77,8 +77,8 @@ export default function Profile() {
                 </div>
 
                 {/* Applied Jobs Table */}
-                {user.role != "student" ? (
-                  <PostedJobs postedJobs={user.postedJobs} />
+                {user?.role != "student" ? (
+                  <PostedJobs postedJobs={user?.postedJobs} />
                 ) : (
                   <div className="md:col-span-2">
                     <div className="bg-white rounded-lg shadow-md">
@@ -104,7 +104,7 @@ export default function Profile() {
                           </thead>
 
                           <tbody className="divide-y divide-gray-200">
-                            {user?.appliedJobs.map((job, i) => (
+                            {user?.appliedJobs?.map((job, i) => (
                               <tr key={i}>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                   <div className="text-sm font-medium text-gray-900">

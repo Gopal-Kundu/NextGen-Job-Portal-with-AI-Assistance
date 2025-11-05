@@ -28,7 +28,7 @@ export default function Navbar() {
         </div>
 
         <nav className="hidden md:flex items-center gap-10 text-2xl font-semibold">
-          {navLinks.map((link, idx) => {
+          {navLinks?.map((link, idx) => {
             if (!user && (idx === 2 || idx === 3 || idx ===4)) return null;
             else if( user?.role === "student" && (idx === 4)) return null;
             else if( user?.role === "recruiter" && (idx===2)) return null;
@@ -52,7 +52,7 @@ export default function Navbar() {
                   alt="User Avatar"
                   className="w-10 h-10 rounded-full"
                   src={
-                    user.profile?.profilePhoto ||
+                    user?.profile?.profilePhoto ||
                     "https://www.refugee-action.org.uk/wp-content/uploads/2016/10/anonymous-user.png"
                   }
                 />
@@ -62,7 +62,7 @@ export default function Navbar() {
             {/* Ensure popover is on top using z-index */}
             <PopoverContent className="bg-white rounded-lg shadow-md p-4 w-56 relative z-30">
               <div className="py-2 border-b">
-                <p className="font-semibold text-gray-800">{user.fullname}</p>
+                <p className="font-semibold text-gray-800">{user?.fullname}</p>
                 <p className="text-sm text-gray-500">
                   {user?.profile?.bio || "No Bio"}
                 </p>

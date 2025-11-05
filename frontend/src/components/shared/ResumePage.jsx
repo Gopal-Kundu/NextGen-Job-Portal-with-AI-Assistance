@@ -84,7 +84,7 @@ export default function ResumePage() {
                       >
                         {user?.profile?.resume && (
                           <iframe
-                            src={user.profile.resume}
+                            src={user?.profile?.resume}
                             title="Resume Preview"
                             className="w-full h-full"
                           />

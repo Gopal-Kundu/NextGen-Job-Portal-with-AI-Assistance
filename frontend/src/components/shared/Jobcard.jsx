@@ -97,7 +97,7 @@ export default function JobCard({
       });
     }
 
-    if (user.role !== "student") {
+    if (user?.role !== "student") {
       return toast.error("You must be a student to apply...", {
         duration: 2000,
         position: "top-center",
@@ -152,7 +152,7 @@ export default function JobCard({
     }
   }
   if (loading) {
-    return <LoadingOverlay message="Loading job details... wait a sec..." />;
+    return <LoadingOverlay message="Loading... wait a sec..." />;
   }
   return (
     <div className="grid grid-col-1 bg-white p-5 rounded-xl shadow-lg max-w-sm w-full transition-all duration-300 hover:shadow-xl">
@@ -162,7 +162,7 @@ export default function JobCard({
         </span>
         <button
           className={`cursor-pointer active:scale-110  hover:text-indigo-600 ${
-            user?.savedJobs.some((job) => job._id === id) ? "text-indigo-600" : "text-gray-400"
+            user?.savedJobs?.some((job) => job._id === id) ? "text-indigo-600" : "text-gray-400"
           } transition-colors`}
         >
           <Bookmark onClick={bookmarkHandler} />
@@ -219,7 +219,7 @@ export default function JobCard({
           onClick={applyHandler}
           className="cursor-pointer active:scale-110 flex items-center justify-center bg-[#8200db] text-white font-semibold py-2 rounded-lg hover:bg-[#591188] transition-all duration-300 px-2"
         >
-          {user?.appliedJobs.some((job) => job._id === id) ? (
+          {user?.appliedJobs?.some((job) => job._id === id) ? (
             <>
               <CheckCircle className="inline text-white" /> Applied
             </>

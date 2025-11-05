@@ -36,7 +36,7 @@ const postJob = async (req, res) => {
       experience,
       vacancy,
       company,
-      logo: companyData.logo || "",
+      logo: companyData?.logo || "https://media.wired.com/photos/65e88c25b8b2544099643d3d/master/w_1600,c_limit/aaaoriginal.jpg",
       createdBy: userId,
       applications: [],
     });

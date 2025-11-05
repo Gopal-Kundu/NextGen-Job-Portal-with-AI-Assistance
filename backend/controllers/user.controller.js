@@ -300,4 +300,32 @@ const bookmark = async (req, res) => {
   });
 };
 
-module.exports = { register, login, logout, updateProfile, applyJobs, bookmark };
+const remember = async (req, res) => {
+  try {
+    const userId = req.id;
+
+    const user = await User.findById(userId)
+      .populate("createdCompanies")
+      .populate("savedJobs")
+      .populate("appliedJobs")
+      .populate("postedJobs");
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+    const allJobs = await Job.find();
+    return res.status(200).json({
+      success: true,
+      user,
+      allJobs,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "Server Error"
+    });
+  }
+};
+
+module.exports = { register, login, logout, updateProfile, applyJobs, bookmark, remember };

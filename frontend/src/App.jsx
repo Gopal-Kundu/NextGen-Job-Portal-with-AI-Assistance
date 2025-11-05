@@ -11,12 +11,15 @@ import JobDescription from "./components/shared/JobDescription";
 import axios from "axios";
 import LoadingOverlay from "./components/ui/LoadingOverlay";
 import { useEffect, useState } from "react";
-import { JOB_API_END_POINT } from "./utils/address";
-import {  setJobs } from "./redux/jobSlice";
+import { JOB_API_END_POINT, USER_API_END_POINT } from "./utils/address";
+import { setJobs } from "./redux/jobSlice";
 import { toast } from "sonner";
 import CompanyListPage from "./components/shared/CompanyListPage";
 import LoadingPage from "./components/ui/LoadingPage";
 import { useDispatch } from "react-redux";
+import ApplicationsList from "./components/shared/ApplicationList";
+import CompanyPage from "./components/shared/CompanyPage";
+import { setUser } from "./redux/authSlice";
 
 const appRouter = createBrowserRouter([
   { path: "/", element: <Homepage />, errorElement: <ErrorPage /> },
@@ -28,6 +31,8 @@ const appRouter = createBrowserRouter([
   { path: "/profile", element: <Profile /> },
   { path: "/resumepage", element: <ResumePage /> },
   { path: "/savedjobs", element: <SavedJobs /> },
+  { path: "/applications/:id", element: <ApplicationsList /> },
+  { path: "/company/:id", element: <CompanyPage /> },
 ]);
 
 function App() {
@@ -46,18 +51,41 @@ function App() {
           duration: 2000,
         });
       } finally {
-        setTimeout(() => {
-          setLoading(false);
-        }, 2000);
+        setLoading(false);
       }
     };
     fetchJobs();
   }, [dispatch]);
 
+  useEffect(() => {
+    const fetchUserIfLoggedIn = async () => {
+      setLoading(true);
+      try {
+        const res = await axios.get(`${USER_API_END_POINT}/remember`, {
+          withCredentials: true,
+        });
+        console.log(res.data);
+        if (res.data.success) {
+          dispatch(setUser(res.data.user));
+          dispatch(setJobs(res.data.allJobs));
+        } else {
+          const jobRes = await axios.get(`${JOB_API_END_POINT}/get`);
+          dispatch(setJobs(jobRes.data.jobs));
+        }
+      } catch (err) {
+        toast.error("Something is wrong", {
+          position: "top-center",
+          duration: 2000,
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUserIfLoggedIn();
+  }, []);
+
   return (
-    <>
-      {loading ? <LoadingPage /> : <RouterProvider router={appRouter} />}
-    </>
+    <>{loading ? <LoadingPage /> : <RouterProvider router={appRouter} />}</>
   );
 }
 

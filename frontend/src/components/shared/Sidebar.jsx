@@ -90,7 +90,7 @@ export default function Sidebar({ highlightIndex }) {
                   Saved Jobs
                 </Link>
               )}
-              {(user?.role && user.role==="recruiter") && (
+              {(user?.role && user?.role==="recruiter") && (
                 <Link
                   to="/companies"
                   className={`flex items-center px-4 py-3 rounded-lg font-semibold ${

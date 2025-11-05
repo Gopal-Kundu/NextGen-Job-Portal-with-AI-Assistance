@@ -123,7 +123,7 @@ export function EditProfile() {
               id="email"
               name="email"
               type="email"
-              value={user.email}
+              value={user?.email || "abc@gmail.com"}
               disabled
               className="border rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-gray-100"
             />

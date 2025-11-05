@@ -7,6 +7,7 @@ const {
   updateProfile,
   applyJobs,
   bookmark,
+  remember,
 } = require("../controllers/user.controller");
 const upload = require("../middleware/multer");
 const router = express.Router();
@@ -28,4 +29,5 @@ router.post(
 );
 router.post("/apply", isAuthenticated, applyJobs);
 router.post("/bookmark", isAuthenticated, bookmark);
+router.get("/remember", isAuthenticated, remember);
 module.exports = router;
