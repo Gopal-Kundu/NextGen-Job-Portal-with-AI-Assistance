@@ -20,6 +20,7 @@ import { useDispatch } from "react-redux";
 import ApplicationsList from "./components/shared/ApplicationList";
 import CompanyPage from "./components/shared/CompanyPage";
 import { setUser } from "./redux/authSlice";
+import ApplicationPage from "./components/ui/ApplicationPage";
 
 const appRouter = createBrowserRouter([
   { path: "/", element: <Homepage />, errorElement: <ErrorPage /> },
@@ -33,6 +34,7 @@ const appRouter = createBrowserRouter([
   { path: "/savedjobs", element: <SavedJobs /> },
   { path: "/applications/:id", element: <ApplicationsList /> },
   { path: "/company/:id", element: <CompanyPage /> },
+  { path: "/view-application/:id", element: <ApplicationPage/>}
 ]);
 
 function App() {

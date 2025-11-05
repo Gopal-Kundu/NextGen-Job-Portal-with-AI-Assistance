@@ -30,6 +30,7 @@ export default function SavedJobs() {
                   role={job.role}
                   datePosted={job.createdAt}
                   id={job._id}
+                  companyLogo={job.logo}
                   />
                 ))
               }

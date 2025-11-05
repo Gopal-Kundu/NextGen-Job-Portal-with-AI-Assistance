@@ -34,7 +34,7 @@ const userSchema = new mongoose.Schema(
       bio: { type: String, trim: true, default: "No bio provided." },
       skills: { type: String, default: "Not specified" },
       resume: { type: String, default: "" },  
-      profilePhoto: { type: String, default: "" },
+      profilePhoto: { type: String, default: "https://www.refugee-action.org.uk/wp-content/uploads/2016/10/anonymous-user.png" },
     },
     savedJobs: [
       {

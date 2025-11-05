@@ -26,7 +26,7 @@ export default function CompanyPage() {
   if (!user)
     return (
       <div className="text-center mt-10 text-gray-500 text-lg">
-        Loading user...
+        Loading...
       </div>
     );
 

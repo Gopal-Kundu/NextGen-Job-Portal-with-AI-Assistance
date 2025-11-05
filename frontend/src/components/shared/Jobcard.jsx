@@ -13,13 +13,7 @@ import { toast } from "sonner";
 import axios from "axios";
 import LoadingOverlay from "../ui/LoadingOverlay";
 import { setJobs } from "@/redux/jobSlice";
-import { useState } from "react";
 
-const cutwords = (word) => {
-  const words = word.split(" ");
-  if (words.length > 50) return words.slice(0, 50).join(" ") + "...";
-  return words.join(" ");
-};
 
 export default function JobCard({
   id,
@@ -31,6 +25,7 @@ export default function JobCard({
   companyName,
   role,
   datePosted,
+  companyLogo,
 }) {
   const formattedDate = new Date(datePosted).toISOString().split("T")[0];
   const dispatch = useDispatch();
@@ -155,80 +150,89 @@ export default function JobCard({
     return <LoadingOverlay message="Loading... wait a sec..." />;
   }
   return (
-    <div className="grid grid-col-1 bg-white p-5 rounded-xl shadow-lg max-w-sm w-full transition-all duration-300 hover:shadow-xl">
-      <div className="flex justify-between items-center mb-3">
+    <div className="bg-white p-5 rounded-xl shadow-lg max-w-sm w-full transition-all duration-300 hover:shadow-xl flex flex-col gap-4">
+      
+      <div className="flex justify-between items-center">
         <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">
           Posted on {formattedDate}
         </span>
+
         <button
-          className={`cursor-pointer active:scale-110  hover:text-indigo-600 ${
-            user?.savedJobs?.some((job) => job._id === id) ? "text-indigo-600" : "text-gray-400"
+          className={`cursor-pointer hover:text-indigo-600 ${
+            user?.savedJobs?.some((job) => job._id === id)
+              ? "text-indigo-600"
+              : "text-gray-400"
           } transition-colors`}
         >
           <Bookmark onClick={bookmarkHandler} />
         </button>
       </div>
 
-      <div className="flex items-center mb-4">
+      <div className="flex items-center gap-4">
+        <div className="w-14 h-14 flex justify-center items-center bg-gray-100 border rounded-xl overflow-hidden">
+          <img
+            src={
+              companyLogo ||
+              "https://cdn-icons-png.flaticon.com/512/6858/6858504.png"
+            }
+            alt="company logo"
+            className="object-contain w-full h-full"
+          />
+        </div>
+
         <div>
-          <h2 className="text-xl font-bold text-gray-800">{role}</h2>
+          <h2 className="text-lg font-bold text-gray-800">{role}</h2>
           <p className="text-gray-500 text-sm">
-            {companyName} - {location}
+            {companyName} • {location}
           </p>
         </div>
       </div>
 
-      <p className="grid grid-cols-1 gap-2 text-[14px] text-gray-600 mb-4 text-sm leading-relaxed">
-        {cutwords(description)}
+      <p className="text-sm text-gray-600 h-22 leading-relaxed overflow-hidden">
+        {description}
       </p>
 
-      <div className="grid grid-col-3 border-t-2 border-b-2 border-dashed border-gray-200 py-4 mb-4 mt-auto">
-        <div className="flex items-center justify-between text-center text-sm">
-          <div className="flex-1">
-            <p className="uppercase text-gray-500">Vacancy</p>
-            <p className="font-semibold text-gray-800">{vacancy}</p>
-          </div>
-          <div className="w-px h-8 bg-gray-200 mx-2"></div>
-          <div className="flex-1">
-            <p className="uppercase text-gray-500">Type</p>
-            <p className="font-semibold text-indigo-600">{jobType}</p>
-          </div>
-          <div className="w-px h-8 bg-gray-200 mx-2"></div>
-          <div className="flex-1">
-            <p className="uppercase text-gray-500">Salary</p>
-            <p className="font-semibold text-gray-800">{salary}</p>
-          </div>
+      <div className="flex justify-between items-center border-y border-dashed py-3 text-sm">
+        <div className="text-center flex-1">
+          <p className="text-gray-500 uppercase">Vacancy</p>
+          <p className="font-semibold">{vacancy}</p>
+        </div>
+        <div className="w-px h-8 bg-gray-200"></div>
+        <div className="text-center flex-1">
+          <p className="text-gray-500 uppercase">Type</p>
+          <p className="font-semibold text-indigo-600">{jobType}</p>
+        </div>
+        <div className="w-px h-8 bg-gray-200"></div>
+        <div className="text-center flex-1">
+          <p className="text-gray-500 uppercase">Salary</p>
+          <p className="font-semibold">{salary}</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-3 text-[14px] mt-auto">
+      <div className="grid grid-cols-3 gap-3 text-sm">
         <Link to={`/jobs/${id}`}>
-          <button className="cursor-pointer active:scale-110 flex items-center justify-center bg-gray-100 font-semibold py-2 rounded-lg hover:bg-gray-200 transition-all duration-300 px-2">
-            <Info />
+          <button className="flex items-center justify-center bg-gray-100 py-2 px-4 rounded-lg hover:bg-gray-200 transition-all duration-200">
+            <Info className="mr-1" size={16} />
             Details
           </button>
         </Link>
 
-        <button className="cursor-pointer active:scale-110 flex items-center justify-center bg-gray-100 font-semibold py-2 rounded-lg hover:bg-gray-200 transition-all duration-300 px-2">
-          <Share />
+        <button className="flex items-center justify-center bg-gray-100 py-2 rounded-lg hover:bg-gray-200 transition-all duration-200">
+          <Share className="mr-1" size={16} />
           Share
         </button>
 
         <button
           type="button"
           onClick={applyHandler}
-          className="cursor-pointer active:scale-110 flex items-center justify-center bg-[#8200db] text-white font-semibold py-2 rounded-lg hover:bg-[#591188] transition-all duration-300 px-2"
+          className="flex items-center justify-center bg-[#8200db] text-white py-2 rounded-lg hover:bg-[#591188] transition-all duration-200"
         >
           {user?.appliedJobs?.some((job) => job._id === id) ? (
-            <>
-              <CheckCircle className="inline text-white" /> Applied
-            </>
+            <CheckCircle size={16} className="mr-1" />
           ) : (
-            <>
-              <ArrowRightIcon />
-              Apply
-            </>
+            <ArrowRightIcon size={16} className="mr-1" />
           )}
+          {user?.appliedJobs?.some((job) => job._id === id) ? "Applied" : "Apply"}
         </button>
       </div>
     </div>

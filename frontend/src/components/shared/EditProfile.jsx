@@ -14,7 +14,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { USER_API_END_POINT } from "@/utils/address";
 import { toast } from "sonner";
 import axios from "axios";
-import { setLoading, setUser } from "@/redux/authSlice";
+import { setLoading } from "@/redux/authSlice";
 
 export function EditProfile() {
   const user = useSelector((store) => store.auth.user);
@@ -43,6 +43,17 @@ export function EditProfile() {
     }
   }, [user]);
 
+  const resetForm = () => {
+    setFormData({
+      fullname: user.fullname || "",
+      role: user.role || "student",
+      phonenumber: user.phonenumber || "",
+      bio: user.profile?.bio || "",
+      skills: user.profile?.skills || "",
+    });
+    setprofilePhoto("");
+  };
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -60,14 +71,10 @@ export function EditProfile() {
 
     try {
       dispatch(setLoading(true));
-      const res = await axios.post(
-        `${USER_API_END_POINT}/profile/update`,
-        form,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-          withCredentials: true,
-        }
-      );
+      const res = await axios.post(`${USER_API_END_POINT}/profile/update`, form, {
+        headers: { "Content-Type": "multipart/form-data" },
+        withCredentials: true,
+      });
 
       if (res.data.success) {
         toast.success("Profile updated successfully!", {
@@ -102,10 +109,7 @@ export function EditProfile() {
           <DialogTitle className="text-xl">Edit Profile</DialogTitle>
         </DialogHeader>
 
-        <form
-          onSubmit={handleSubmit}
-          className="grid gap-3 sm:grid-cols-1 md:grid-cols-2"
-        >
+        <form onSubmit={handleSubmit} className="grid gap-3 sm:grid-cols-1 md:grid-cols-2">
           <div className="flex flex-col gap-1">
             <label className="text-sm">Full Name</label>
             <input
@@ -139,7 +143,7 @@ export function EditProfile() {
             <label className="text-sm">Profile Photo</label>
             <input
               type="file"
-              accept=".png,.jpg,.jpeg"
+              accept=".png,.jpg,.jpeg,.webp"
               onChange={(e) => setprofilePhoto(e.target.files[0])}
               className="border rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
             />
@@ -192,16 +196,15 @@ export function EditProfile() {
           </div>
 
           <DialogFooter className="pt-3 md:col-span-2 flex justify-end gap-2">
-            <DialogClose>
-              <Button variant="outline" size="sm">
+            <DialogClose asChild>
+              <Button variant="outline" size="sm" onClick={resetForm}>
                 Cancel
               </Button>
             </DialogClose>
-            <DialogClose>
-              <Button type="submit" size="sm">
-                Save
-              </Button>
-            </DialogClose>
+
+            <Button type="submit" size="sm">
+              Save
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>
