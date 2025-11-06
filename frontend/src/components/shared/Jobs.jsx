@@ -37,7 +37,7 @@ export default function Jobs() {
             onChange={(e) => setSearchValue(e.target.value)}
             onKeyDown={handleKeyPress}
             placeholder="Search jobs..."
-            className="w-1/3 h-10 p-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-2/3 h-10 p-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
           <button
             onClick={handleSearch}
@@ -61,7 +61,7 @@ export default function Jobs() {
         </div>
 
         {/* Job cards */}
-        <div className="p-10">
+        <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
             {jobs?.map((job, idx) => (
               <JobCard

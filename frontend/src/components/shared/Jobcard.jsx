@@ -14,7 +14,6 @@ import axios from "axios";
 import LoadingOverlay from "../ui/LoadingOverlay";
 import { setJobs } from "@/redux/jobSlice";
 
-
 export default function JobCard({
   id,
   jobType,
@@ -77,7 +76,7 @@ export default function JobCard({
         duration: 2000,
       });
     } finally {
-        dispatch(setLoading(false));
+      dispatch(setLoading(false));
     }
   }
 
@@ -137,7 +136,7 @@ export default function JobCard({
         duration: 2000,
       });
     } finally {
-        dispatch(setLoading(false));
+      dispatch(setLoading(false));
     }
   }
   if (loading) {
@@ -145,7 +144,6 @@ export default function JobCard({
   }
   return (
     <div className="bg-white p-5 rounded-xl shadow-lg max-w-sm w-full transition-all duration-300 hover:shadow-xl flex flex-col gap-4">
-      
       <div className="flex justify-between items-center">
         <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">
           Posted on {formattedDate}
@@ -203,15 +201,15 @@ export default function JobCard({
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-3 text-sm">
+      <div className="grid grid-cols-3 gap-3 mt-3 text-sm">
         <Link to={`/jobs/${id}`}>
-          <button className="flex items-center justify-center bg-gray-100 py-2 px-4 rounded-lg hover:bg-gray-200 transition-all duration-200">
+          <button className="w-full flex items-center justify-center bg-gray-100 py-2 rounded-lg hover:bg-gray-200 transition-colors duration-200">
             <Info className="mr-1" size={16} />
             Details
           </button>
         </Link>
 
-        <button className="flex items-center justify-center bg-gray-100 py-2 rounded-lg hover:bg-gray-200 transition-all duration-200">
+        <button className="w-full flex items-center justify-center bg-gray-100 py-2 rounded-lg hover:bg-gray-200 transition-colors duration-200">
           <Share className="mr-1" size={16} />
           Share
         </button>
@@ -219,14 +217,16 @@ export default function JobCard({
         <button
           type="button"
           onClick={applyHandler}
-          className="flex items-center justify-center bg-[#8200db] text-white py-2 rounded-lg hover:bg-[#591188] transition-all duration-200"
+          className="w-full flex items-center justify-center bg-[#8200db] text-white py-2 rounded-lg hover:bg-[#591188] transition-colors duration-200"
         >
           {user?.appliedJobs?.some((job) => job._id === id) ? (
             <CheckCircle size={16} className="mr-1" />
           ) : (
             <ArrowRightIcon size={16} className="mr-1" />
           )}
-          {user?.appliedJobs?.some((job) => job._id === id) ? "Applied" : "Apply"}
+          {user?.appliedJobs?.some((job) => job._id === id)
+            ? "Applied"
+            : "Apply"}
         </button>
       </div>
     </div>

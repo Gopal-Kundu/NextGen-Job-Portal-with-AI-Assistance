@@ -56,7 +56,7 @@ export default function Homepage() {
           </main>
 
           {/* Job Openings */}
-          <h3 className="text-3xl font-bold text-gray-800 mt-10">
+          <h3 className="text-2xl mb-3 md:text-3xl font-bold text-gray-800 mt-10">
             <span className="text-purple-700">Latest and Top</span> Job Openings
           </h3>
           <JobsListing showJobs={3} smallDevice={"hidden md:block"} />

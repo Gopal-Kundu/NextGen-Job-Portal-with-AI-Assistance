@@ -54,27 +54,25 @@ export default function AddJobBtn({ hide }) {
         position: "top-center",
       });
     } finally {
-        dispatch(setLoading(false));
+      dispatch(setLoading(false));
     }
   };
 
   return (
-    <div className="bg-gray-50 font-sans w-full max-w-4xl mx-auto shadow-lg overflow-y-auto max-h-[90vh]">
+    <div className="bg-gray-50 font-sans w-full max-w-4xl mx-auto shadow-xl rounded-xl overflow-y-auto max-h-[90vh]">
       <div className="p-6">
-        {/* Header */}
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center border-b border-gray-200 pb-4">
           <h2 className="text-2xl font-semibold text-gray-800">
-            Add a new Job
+            Add a New Job
           </h2>
           <button
-            className="bg-blue-500 px-4 py-2 text-white rounded-xl cursor-pointer active:scale-90 transition-transform duration-200"
+            className="bg-blue-500 px-4 py-2 text-white rounded-xl cursor-pointer active:scale-95 transition-transform duration-200 hover:bg-blue-600"
             onClick={hide}
           >
             Close
           </button>
         </div>
 
-        {/* Form */}
         <form
           onSubmit={handleSubmit}
           className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-6"
@@ -87,7 +85,7 @@ export default function AddJobBtn({ hide }) {
               placeholder="Eg: Frontend Developer"
               value={data.title}
               onChange={handleChange}
-              className="form-input p-3 border rounded-md focus:ring-blue-500"
+              className="p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm"
             />
           </label>
 
@@ -99,7 +97,7 @@ export default function AddJobBtn({ hide }) {
               placeholder="Eg: 50000"
               value={data.salary}
               onChange={handleChange}
-              className="form-input p-3 border rounded-md focus:ring-blue-500"
+              className="p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm"
             />
           </label>
 
@@ -111,7 +109,7 @@ export default function AddJobBtn({ hide }) {
               placeholder="Eg: West Bengal"
               value={data.location}
               onChange={handleChange}
-              className="form-input p-3 border rounded-md focus:ring-blue-500"
+              className="p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm"
             />
           </label>
 
@@ -121,7 +119,7 @@ export default function AddJobBtn({ hide }) {
               name="company"
               value={data.company}
               onChange={handleChange}
-              className="form-select p-3 border rounded-md focus:ring-blue-500"
+              className="p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm"
             >
               {user?.createdCompanies?.length === 0 ? (
                 <option disabled>You must create a company</option>
@@ -145,7 +143,7 @@ export default function AddJobBtn({ hide }) {
               placeholder="2"
               value={data.experience}
               onChange={handleChange}
-              className="form-input p-3 border rounded-md focus:ring-blue-500"
+              className="p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm"
             />
           </label>
 
@@ -155,7 +153,7 @@ export default function AddJobBtn({ hide }) {
               name="jobType"
               value={data.jobType}
               onChange={handleChange}
-              className="form-select p-3 border rounded-md focus:ring-blue-500"
+              className="p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm"
             >
               <option value="full-time">Full-time</option>
               <option value="part-time">Part-time</option>
@@ -171,7 +169,7 @@ export default function AddJobBtn({ hide }) {
               placeholder="3"
               value={data.vacancy}
               onChange={handleChange}
-              className="form-input p-3 border rounded-md focus:ring-blue-500"
+              className="p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm"
             />
           </label>
 
@@ -185,7 +183,7 @@ export default function AddJobBtn({ hide }) {
               rows="4"
               value={data.description}
               onChange={handleChange}
-              className="form-textarea p-3 border rounded-md focus:ring-blue-500 resize-none"
+              className="p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm resize-none"
             ></textarea>
           </label>
 
@@ -197,23 +195,22 @@ export default function AddJobBtn({ hide }) {
               rows="4"
               value={data.requirements}
               onChange={handleChange}
-              className="form-textarea p-3 border rounded-md focus:ring-blue-500 resize-none"
+              className="p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm resize-none"
             ></textarea>
           </label>
 
-          {/* Actions */}
-          <div className="flex md:col-span-2 justify-end gap-5">
+          <div className="flex md:col-span-2 justify-end gap-4 mt-4">
             <button
               type="button"
               onClick={hide}
-              className="bg-gray-600 text-white px-6 py-2 rounded hover:bg-gray-700 active:scale-90 cursor-pointer transition-transform duration-200"
+              className="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 active:scale-95 cursor-pointer transition-transform duration-200"
             >
               Cancel
             </button>
 
             <button
               type="submit"
-              className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 active:scale-90 cursor-pointer transition-transform duration-200"
+              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 active:scale-95 cursor-pointer transition-transform duration-200"
             >
               Post Job
             </button>
