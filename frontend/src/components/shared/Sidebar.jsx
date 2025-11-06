@@ -30,7 +30,7 @@ export default function Sidebar({ highlightIndex }) {
           <aside className="w-64 bg-gray-50 shadow-lg flex flex-col">
             {/* Logo */}
             <div className="flex items-center justify-between px-10 space-y-3 mt-4 border-b border-gray-200">
-              <h1 className="text-2xl font-bold text-purple-700">JobHunt</h1>
+              <h1 className="text-2xl font-bold text-purple-700">JobPortal</h1>
               <SidebarClose
                 className="cursor-pointer mb-3"
                 onClick={() => setIsOpen(false)}

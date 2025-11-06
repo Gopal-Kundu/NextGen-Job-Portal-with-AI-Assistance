@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import Footer from "../shared/Footer";
-import Jobhunt from "../shared/Jobhunt";
+import JobPortal from "../shared/JobPortal";
 import LoadingOverlay from "../ui/LoadingOverlay";
 
 export default function Login() {
@@ -61,7 +61,7 @@ export default function Login() {
       <div className="relative h-screen w-screen">
     {loading ? <LoadingOverlay message="Logging you in... Please wait."/> : null}
         <div className="md:hidden p-5 flex justify-center select-none md:select-auto">
-         <Link to="/"> <Jobhunt /></Link>
+         <Link to="/"> <JobPortal /></Link>
         </div>
         <div className="h-full w-full flex md:items-center justify-center bg-gray-50 select-none md:select-auto">
           <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-lg">

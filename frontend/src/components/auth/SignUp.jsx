@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import Footer from "../shared/Footer";
-import Jobhunt from "../shared/Jobhunt";
+import JobPortal from "../shared/JobPortal";
 import { useDispatch, useSelector } from "react-redux";
 import { setLoading } from "@/redux/authSlice";
 import LoadingOverlay from "../ui/LoadingOverlay";
@@ -70,7 +70,7 @@ export default function SignUp() {
       <div className="relative min-h-screen min-w-screen">
         {loading ? <LoadingOverlay message="Signing Up..."/> : null}
         <div className="md:hidden p-5 flex justify-center select-none md:select-auto ">
-          <Link to="/"><Jobhunt /></Link>
+          <Link to="/"><JobPortal /></Link>
         </div>
         <div className="flex items-center justify-center bg-gray-50 select-none md:select-auto">
           <form

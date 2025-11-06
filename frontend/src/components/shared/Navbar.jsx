@@ -1,4 +1,4 @@
-import Jobhunt from "./Jobhunt";
+import JobPortal from "./JobPortal";
 import {
   Popover,
   PopoverContent,
@@ -24,7 +24,7 @@ export default function Navbar() {
     <div className="bg-gray-50 select-none w-full ">
       <header className="flex justify-between items-center px-4 py-2 relative z-10">
         <div className="relative z-20">
-          <Jobhunt />
+          <JobPortal />
         </div>
 
         <nav className="hidden md:flex items-center gap-10 text-2xl font-semibold">
