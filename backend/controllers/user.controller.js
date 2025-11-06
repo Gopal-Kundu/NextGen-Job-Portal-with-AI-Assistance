@@ -122,10 +122,18 @@ const login = async (req, res) => {
 
 const logout = async (req, res) => {
   try {
-    return res.status(200).cookie("token", "", { maxAge: 0 }).json({
-      message: "Logged out successfully.",
-      success: true,
-    });
+    return res
+      .status(200)
+      .cookie("token", "", {
+        maxAge: 0,
+        httpOnly: true,
+        sameSite: "none",
+        secure: true,
+      })
+      .json({
+        message: "Logged out successfully.",
+        success: true,
+      });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Server error", success: false });
@@ -282,7 +290,6 @@ const bookmark = async (req, res) => {
   user.savedJobs.push(jobId);
   await user.save();
 
-
   const populatedUser = await user.populate("savedJobs");
 
   const allJobs = await Job.find();
@@ -307,7 +314,9 @@ const remember = async (req, res) => {
       .populate("postedJobs");
 
     if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
     const allJobs = await Job.find();
     return res.status(200).json({
@@ -318,9 +327,17 @@ const remember = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: "Server Error"
+      message: "Server Error",
     });
   }
 };
 
-module.exports = { register, login, logout, updateProfile, applyJobs, bookmark, remember };
+module.exports = {
+  register,
+  login,
+  logout,
+  updateProfile,
+  applyJobs,
+  bookmark,
+  remember,
+};
