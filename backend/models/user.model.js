@@ -16,13 +16,10 @@ const userSchema = new mongoose.Schema(
       trim: true,
       default: "example@example.com",
     },
-    createdCompanies: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Company",
-        default: [],
-      },
-    ],
+    createdCompanies: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Company" }],
+      default: [],
+    },
     phonenumber: { type: Number, required: true, default: 1234567890 },
     password: {
       type: String,
@@ -33,30 +30,38 @@ const userSchema = new mongoose.Schema(
     profile: {
       bio: { type: String, trim: true, default: "No bio provided." },
       skills: { type: String, default: "Not specified" },
-      resume: { type: String, default: "" },  
-      profilePhoto: { type: String, default: "https://www.refugee-action.org.uk/wp-content/uploads/2016/10/anonymous-user.png" },
+      resume: { type: String, default: "" },
+      profilePhoto: {
+        type: String,
+        default:
+          "https://www.refugee-action.org.uk/wp-content/uploads/2016/10/anonymous-user.png",
+      },
     },
-    savedJobs: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Job",
-        default: [],
-      },
-    ],
-    appliedJobs: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Job",
-        default: [],
-      },
-    ],
-    postedJobs: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Job",
-        default: [],
-      },
-    ],
+
+    savedJobs: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Job" }],
+      default: [],
+    },
+
+    approvedJobs: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Job" }],
+      default: [],
+    },
+
+    rejectedJobs: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Job" }],
+      default: [],
+    },
+
+    appliedJobs: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Job" }],
+      default: [],
+    },
+
+    postedJobs: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Job" }],
+      default: [],
+    },
   },
   { timestamps: true }
 );

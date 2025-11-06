@@ -34,7 +34,7 @@ export default function JobsListing({ showJobs, smallDevice }) {
                   description={job.description}
                   location={job.location}
                   companyName={job.company}
-                  role={job.role}
+                  role={job.title}
                   datePosted={job.createdAt}
                   id={job._id}
                   companyLogo={job.logo}

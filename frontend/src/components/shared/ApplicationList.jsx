@@ -9,7 +9,7 @@ import { toast } from "sonner";
 export default function ApplicationsList() {
   const applications = useSelector((state) => state.applicant.applicants);
   const dispatch = useDispatch();
-  const { id } = useParams();
+  const { id } = useParams(); //JobId
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -28,30 +28,42 @@ export default function ApplicationsList() {
     fetchApplicants();
   }, []);
 
-  const handleAction = async (applicationId, status) => {
+  const approve = async (userId) => {
     try {
       const res = await axios.post(
-        `${JOB_API_END_POINT}/applicant/${status}/${applicationId}`,
-        {},
+        `${JOB_API_END_POINT}/approve/${id}`,
+        { id: userId },
         { withCredentials: true }
       );
       if (res.data.success) {
-        dispatch(
-          setApplicants(
-            applications.map((a) =>
-              a._id === applicationId ? { ...a, status } : a
-            )
-          )
-        );
-        toast.success(`Application ${status}`);
+        window.location.reload();
+        toast.success(`Application approved`);
       }
     } catch {
-      toast.error("Action failed");
+      toast.error("Server error");
+    }
+  };
+
+  const reject = async (userId) => {
+    try {
+      const res = await axios.post(
+        `${JOB_API_END_POINT}/reject/${id}`,
+        { id: userId },
+        { withCredentials: true }
+      );
+      if (res.data.success) {
+        window.location.reload();
+        toast.success(`Application Rejected`);
+      }
+    } catch {
+      toast.error("Server error");
     }
   };
 
   if (!applications || applications.length === 0) {
-    return <div className="p-6 text-center text-gray-500">No applications yet.</div>;
+    return (
+      <div className="p-6 text-center text-gray-500">No applications yet.</div>
+    );
   }
 
   return (
@@ -77,30 +89,38 @@ export default function ApplicationsList() {
                 <p className="font-semibold text-lg">{app?.fullname}</p>
                 <p className="text-gray-600 text-sm">{app?.email}</p>
                 <p className="text-sm text-gray-500 capitalize">
-                  Status: {app?.status || "pending"}
+                  Status: {app?.approvedJobs.includes(id) ? "approved" : "Pending" || app?.rejectedJobs.includes(id) ? "Rejected":"Pending"}
                 </p>
               </div>
             </div>
 
             <div className="flex flex-wrap gap-2 sm:gap-3">
-              <button
-                className="cursor-pointer px-3 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm w-full sm:w-auto"
-              >
+              <button className="cursor-pointer px-3 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm w-full sm:w-auto">
                 <Link to={`/view-application/${app._id}`}>View Profile</Link>
               </button>
 
               <button
-                onClick={() => handleAction(app._id, "approved")}
-                className="cursor-pointer px-3 py-1.5 bg-green-600 text-white rounded hover:bg-green-700 text-sm w-full sm:w-auto"
+                onClick={() => approve(app._id)}
+                className={`cursor-pointer px-3 py-1.5 text-white rounded text-sm w-full sm:w-auto ${
+                  app?.approvedJobs.includes(id)
+                    ? "bg-green-800 cursor-default"
+                    : "bg-green-600 hover:bg-green-700 cursor-pointer"
+                }`}
+                disabled={app?.approvedJobs.includes(id)}
               >
-                Approve
+                {app?.approvedJobs.includes(id) ? "Approved" : "Approve"}
               </button>
 
               <button
-                onClick={() => handleAction(app._id, "rejected")}
-                className="cursor-pointer px-3 py-1.5 bg-red-400 text-white rounded hover:bg-red-700 text-sm w-full sm:w-auto"
+                onClick={() => reject(app._id)}
+                className={`cursor-pointer px-3 py-1.5 text-white rounded text-sm w-full sm:w-auto ${
+                  app?.rejectedJobs.includes(id)
+                    ? "bg-red-800 cursor-default"
+                    : "bg-red-500 hover:bg-red-700"
+                }`}
+                disabled={app?.rejectedJobs.includes(id)}
               >
-                Reject
+                {app?.rejectedJobs.includes(id) ? "Rejected" : "Reject"}
               </button>
             </div>
           </div>

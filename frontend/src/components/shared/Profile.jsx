@@ -9,11 +9,12 @@ import PostedJobs from "../ui/PostedJobs";
 
 export default function Profile() {
   const user = useSelector((store) => store.auth.user);
+  const id = user._id;
   const loading = useSelector((store) => store.auth.loading);
   const skillsArray = user?.profile?.skills
     .split(",")
     .map((skill) => skill.trim());
-    
+
   return (
     <>
       <div className="w-full min-h-screen relative z-0">
@@ -117,22 +118,19 @@ export default function Profile() {
                                   </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-center">
-                                  <span
-                                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium active:scale-90 transition-transform duration 100 ${
-                                      job.status === "Accepted"
-                                        ? "accepted-status bg-green-300"
-                                        : "pending-status bg-blue-300"
-                                    }`}
-                                  >
-                                    <svg
-                                      className="w-2 h-2 mr-1.5"
-                                      fill="currentColor"
-                                      viewBox="0 0 8 8"
-                                    >
-                                      <circle cx="4" cy="4" r="3" />
-                                    </svg>
-                                    {job.status}
-                                  </span>
+                                  {job?.approvedApplicant.includes(id) ? (
+                                    <span className="bg-green-100 text-green-700 px-3 py-1 rounded-xl font-semibold">
+                                      Approved
+                                    </span>
+                                  ) : job?.rejectedApplicant.includes(id) ? (
+                                    <span className="bg-red-100 text-red-700 px-3 py-1 rounded-xl font-semibold">
+                                      Rejected
+                                    </span>
+                                  ) : (
+                                    <span className="bg-gray-200 text-gray-700 px-3 py-1 rounded-xl font-semibold">
+                                      Pending
+                                    </span>
+                                  )}
                                 </td>
                               </tr>
                             ))}
@@ -147,7 +145,7 @@ export default function Profile() {
           </div>
         </div>
       </div>
-      <Footer/>
+      <Footer />
     </>
   );
 }
