@@ -28,7 +28,6 @@ const JobDescription = () => {
           withCredentials: true
         });
         if (res.data.success) {
-          console.log(res.data);
           setJob(res.data.job[0]);
         }
       } catch (error) {
@@ -96,7 +95,6 @@ const JobDescription = () => {
       dispatch(setJobs(res.data.allJobs));
       setRefresh(!refresh);
     } catch (error) {
-      console.log(error);
       toast.error(error.response?.data?.message || "Something went wrong", {
         position: "top-center",
         duration: 2000,

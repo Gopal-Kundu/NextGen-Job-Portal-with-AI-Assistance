@@ -11,7 +11,6 @@ const multer = require("multer");
 
 const PORT = process.env.SERVER_PORT;
 const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
-console.log(CLIENT_URL);
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -34,5 +33,4 @@ app.get("/", (req, res) => {
 // Start server
 app.listen(PORT, () => {
   connectDB();
-  console.log(`Server running at http://localhost:${PORT}`);
 });

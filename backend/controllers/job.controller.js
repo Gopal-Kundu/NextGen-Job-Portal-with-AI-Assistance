@@ -114,7 +114,6 @@ const deleteJobById = async (req, res) => {
       success: true,
     });
   } catch (err) {
-    console.log(err);
     return res.status(400).json({
       message: "Failed to delete Job",
       success: false,

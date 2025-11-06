@@ -22,7 +22,6 @@ export default function PostedJobs({ postedJobs }) {
       }
       window.location.reload();
     } catch (err) {
-      console.log(err.response);
       toast.error("Failed to deleted!", {
         position: "top-center",
         duration: 1000,

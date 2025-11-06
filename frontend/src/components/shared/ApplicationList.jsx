@@ -22,7 +22,6 @@ export default function ApplicationsList() {
           dispatch(setApplicants(res.data.applicants));
         }
       } catch (err) {
-        console.log(err);
       }
     };
     fetchApplicants();

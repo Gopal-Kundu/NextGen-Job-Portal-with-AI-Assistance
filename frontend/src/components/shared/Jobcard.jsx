@@ -72,7 +72,6 @@ export default function JobCard({
         })
       );
     } catch (error) {
-      console.log(error);
       toast.error(error.response?.data?.message || "Something went wrong", {
         position: "top-center",
         duration: 2000,
@@ -135,7 +134,6 @@ export default function JobCard({
       );
       dispatch(setJobs(res.data.allJobs));
     } catch (error) {
-      console.log(error);
       toast.error(error.response?.data?.message || "Something went wrong", {
         position: "top-center",
         duration: 2000,

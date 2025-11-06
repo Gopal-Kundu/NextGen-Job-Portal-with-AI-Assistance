@@ -68,7 +68,6 @@ function App() {
         const res = await axios.get(`${USER_API_END_POINT}/remember`, {
           withCredentials: true,
         });
-        console.log(res.data);
         if (res.data.success) {
           dispatch(setUser(res.data.user));
           dispatch(setJobs(res.data.allJobs));
