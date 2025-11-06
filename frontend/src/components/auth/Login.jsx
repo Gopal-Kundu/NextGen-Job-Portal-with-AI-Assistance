@@ -51,9 +51,7 @@ export default function Login() {
         duration: 1000,
       });
     } finally {
-      setTimeout(()=>{
         dispatch(setLoading(false));
-      },2000);
     }
   };
   return (

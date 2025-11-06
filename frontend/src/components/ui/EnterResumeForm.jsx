@@ -51,9 +51,7 @@ export default function EnterResumeForm({ isHide }) {
             duration: 2000
         })
     } finally {
-      setTimeout(()=>{
         dispatch(setLoading(false));
-      },2000);
     }
   };
 

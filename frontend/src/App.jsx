@@ -76,10 +76,7 @@ function App() {
           dispatch(setJobs(jobRes.data.jobs));
         }
       } catch (err) {
-        toast.error("Something is wrong", {
-          position: "top-center",
-          duration: 2000,
-        });
+          
       } finally {
         setLoading(false);
       }

@@ -54,9 +54,7 @@ export default function AddJobBtn({ hide }) {
         position: "top-center",
       });
     } finally {
-      setTimeout(() => {
         dispatch(setLoading(false));
-      }, 2000);
     }
   };
 

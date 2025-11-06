@@ -49,7 +49,7 @@ export default function SignUp() {
           duration: 1000,
         });
 
-        navigate("/login"); // redirect to login page
+        navigate("/login"); 
       }
     } catch (error) {
 
@@ -59,9 +59,7 @@ export default function SignUp() {
         { position: "top-center", duration: 1000 }
       );
     }finally{
-      setTimeout(()=>{
               dispatch(setLoading(false));
-      },2000);
     }
   };
 

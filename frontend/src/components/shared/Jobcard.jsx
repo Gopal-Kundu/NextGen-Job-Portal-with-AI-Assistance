@@ -77,9 +77,7 @@ export default function JobCard({
         duration: 2000,
       });
     } finally {
-      setTimeout(() => {
         dispatch(setLoading(false));
-      }, 500);
     }
   }
 
@@ -139,9 +137,7 @@ export default function JobCard({
         duration: 2000,
       });
     } finally {
-      setTimeout(() => {
         dispatch(setLoading(false));
-      }, 500);
     }
   }
   if (loading) {

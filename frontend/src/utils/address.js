@@ -1,5 +1,5 @@
 //Local Host
-const USER = "http://localhost:3001";
+const USER = "https://job-portal-backend-eugr.onrender.com";
 // const USER = "http://10.49.232.240:3001";
 
 

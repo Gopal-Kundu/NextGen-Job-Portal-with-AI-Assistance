@@ -100,9 +100,7 @@ const JobDescription = () => {
         duration: 2000,
       });
     } finally {
-      setTimeout(() => {
         dispatch(setLoading(false));
-      }, 500);
     }
   }
 

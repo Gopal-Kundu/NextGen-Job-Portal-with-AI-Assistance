@@ -89,7 +89,7 @@ export function EditProfile() {
         duration: 2000,
       });
     } finally {
-      setTimeout(() => dispatch(setLoading(false)), 2000);
+      dispatch(setLoading(false))
     }
   };
 
