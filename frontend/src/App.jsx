@@ -6,7 +6,6 @@ import Profile from "./components/shared/Profile";
 import Jobs from "./components/shared/Jobs";
 import ResumePage from "./components/shared/ResumePage";
 import SavedJobs from "./components/shared/SavedJobs";
-import ErrorPage from "./components/shared/errorPage";
 import JobDescription from "./components/shared/JobDescription";
 import axios from "axios";
 import LoadingOverlay from "./components/ui/LoadingOverlay";
@@ -22,6 +21,7 @@ import CompanyPage from "./components/shared/CompanyPage";
 import { setUser } from "./redux/authSlice";
 import ApplicationPage from "./components/ui/ApplicationPage";
 import SearchJob from "./components/shared/SearchJob";
+import ErrorPage from "./components/shared/ErrorPage";
 
 const appRouter = createBrowserRouter([
   { path: "/", element: <Homepage />, errorElement: <ErrorPage /> },
@@ -76,7 +76,7 @@ function App() {
           dispatch(setJobs(jobRes.data.jobs));
         }
       } catch (err) {
-          
+
       } finally {
         setLoading(false);
       }
