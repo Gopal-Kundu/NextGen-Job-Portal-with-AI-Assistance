@@ -11,13 +11,12 @@ const {
 } = require("../controllers/user.controller");
 const upload = require("../middleware/multer");
 const router = express.Router();
-const isAuth = require("../middleware/isAuthenticated");
 const isAuthenticated = require("../middleware/isAuthenticated");
 
 
 router.post("/register", upload.single("profilePhoto"), register);
 router.post("/login", login);
-router.get("/logout", logout);
+router.get("/logout", isAuthenticated ,logout);
 router.post(
   "/profile/update",
   isAuth,

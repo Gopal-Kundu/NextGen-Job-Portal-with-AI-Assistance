@@ -11,7 +11,9 @@ export const useLogout = () => {
 
   const logout = async () => {
     try {
-      const res = await axios.get(`${USER_API_END_POINT}/logout`);
+      const res = await axios.get(`${USER_API_END_POINT}/logout`,{
+        withCredentials: true,
+      });
       if (res.data.success) {
         dispatch(setUser(null));
          toast.success("Logout Successful!", { position: "top-center", duration: 2000 });
