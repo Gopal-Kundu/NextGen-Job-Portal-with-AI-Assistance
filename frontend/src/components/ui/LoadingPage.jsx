@@ -7,7 +7,6 @@ export default function LoadingPage() {
       <div className="text-center">
         <Loader2 className="animate-spin text-white mx-auto mb-4" size={64} />
         <h1 className="text-white text-3xl font-bold mb-2">Loading, please wait...</h1>
-        <p className="text-white text-lg opacity-90">Preparing awesome experience just for you</p>
       </div>
     </div>
   );
