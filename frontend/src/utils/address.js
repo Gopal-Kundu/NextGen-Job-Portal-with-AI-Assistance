@@ -1,5 +1,5 @@
 //Local Host
-const USER = "https://job-portal-backend-eugr.onrender.com";
+const USER = "https://job-portal-pearl-gamma-23.vercel.app";
 // const USER = "http://10.49.232.240:3001";
 
 
