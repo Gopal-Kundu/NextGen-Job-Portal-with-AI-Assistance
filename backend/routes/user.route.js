@@ -19,7 +19,7 @@ router.post("/login", login);
 router.get("/logout", isAuthenticated ,logout);
 router.post(
   "/profile/update",
-  isAuth,
+  isAuthenticated,
   upload.fields([
     { name: "profilePhoto", maxCount: 1 },
     { name: "resume", maxCount: 1 },
