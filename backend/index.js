@@ -9,7 +9,7 @@ const jobRoute = require("./routes/job.route");
 const app = express();
 const multer = require("multer");
 
-const PORT = process.env.SERVER_PORT;
+const PORT = process.env.SERVER_PORT || 5000;
 const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
 // Middleware
 app.use(express.json());
