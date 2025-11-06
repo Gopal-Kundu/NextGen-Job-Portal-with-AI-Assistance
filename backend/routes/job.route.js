@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.post("/post", isAuthenticated, postJob);
 router.get("/get", getAllJobs);
-router.get("/get/:id", isAuthenticated, getJobById);
+router.get("/get/:id", getJobById);
 router.get("/delete/:id", isAuthenticated, deleteJobById);
 router.get("/applicant/:id",isAuthenticated, getApplicants);
 router.get("/search", searchJobs);
