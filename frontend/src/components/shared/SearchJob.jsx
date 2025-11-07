@@ -61,7 +61,7 @@ export default function SearchJob() {
             onChange={(e) => setSearchValue(e.target.value)}
             onKeyDown={handleKeyPress}
             placeholder="Search jobs..."
-            className="cursor-pointer w-1/3 h-10 p-3 rounded-full border border-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="cursor-pointer w-2/3 h-10 p-3 rounded-full border border-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
           <button
             onClick={handleSearch}
