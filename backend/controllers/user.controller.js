@@ -104,7 +104,7 @@ const login = async (req, res) => {
     return res
       .status(200)
       .cookie("token", token, {
-        domain: "https://job-portal-red-two.vercel.app",
+        domain: "job-portal-red-two.vercel.app",
         maxAge: 2 * 24 * 60 * 60 * 1000,
         httpOnly: true,
         sameSite: "none",
@@ -124,7 +124,7 @@ const login = async (req, res) => {
 const logout = async (req, res) => {
   try {
     return res.clearCookie("token",{
-      domain: "https://job-portal-red-two.vercel.app",
+      domain: "job-portal-red-two.vercel.app",
       httpOnly: true,
         sameSite: "none",
         secure: true,
