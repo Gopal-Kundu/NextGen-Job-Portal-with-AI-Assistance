@@ -221,14 +221,14 @@ export default function JobCard({
           </button>
         </Link>
 
-        <button onClick={handleShare} className="w-full flex items-center justify-center bg-gray-100 py-2 rounded-lg hover:bg-gray-200 transition-colors duration-200">
+        <button onClick={()=>handleShare(id)} className="w-full flex items-center justify-center bg-gray-100 py-2 rounded-lg hover:bg-gray-200 transition-colors duration-200">
           <Share className="mr-1" size={16} />
           Share
         </button>
 
         <button
           type="button"
-          onClick={applyHandler(id)}
+          onClick={applyHandler}
           className="w-full flex items-center justify-center bg-[#8200db] text-white py-2 rounded-lg hover:bg-[#591188] transition-colors duration-200"
         >
           {user?.appliedJobs?.some((job) => job._id === id) ? (
