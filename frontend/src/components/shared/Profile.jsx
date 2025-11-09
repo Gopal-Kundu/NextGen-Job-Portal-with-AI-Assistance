@@ -9,7 +9,7 @@ import PostedJobs from "../ui/PostedJobs";
 
 export default function Profile() {
   const user = useSelector((store) => store.auth.user);
-  const id = user._id;
+  const id = user?._id;
   const loading = useSelector((store) => store.auth.loading);
   const skillsArray = user?.profile?.skills
     .split(",")
@@ -109,12 +109,12 @@ export default function Profile() {
                               <tr key={i}>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                   <div className="text-sm font-medium text-gray-900">
-                                    {job.company}
+                                    {job?.company}
                                   </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                   <div className="text-sm text-gray-600">
-                                    {job.title}
+                                    {job?.title}
                                   </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-center">
