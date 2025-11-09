@@ -30,7 +30,19 @@ export default function JobCard({
   const dispatch = useDispatch();
   const user = useSelector((store) => store.auth.user);
   const loading = useSelector((store) => store.auth.loading);
-
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: "Apply to this job",
+          text: "Here is the link",
+          url: window.location.href,
+        });
+      } catch (err) {
+        console.error("Error sharing:", err);
+      }
+    }
+  };
   async function bookmarkHandler() {
     if (!user) {
       return toast.error("You must login first..", {
@@ -209,7 +221,7 @@ export default function JobCard({
           </button>
         </Link>
 
-        <button className="w-full flex items-center justify-center bg-gray-100 py-2 rounded-lg hover:bg-gray-200 transition-colors duration-200">
+        <button onClick={handleShare} className="w-full flex items-center justify-center bg-gray-100 py-2 rounded-lg hover:bg-gray-200 transition-colors duration-200">
           <Share className="mr-1" size={16} />
           Share
         </button>
