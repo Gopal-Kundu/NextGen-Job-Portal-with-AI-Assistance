@@ -71,7 +71,7 @@ export default function ApplicationsList() {
   }
 
   if (loading) {
-    return <LoadingOverlay message="Loading Applicants details... wait a sec..." />;
+    return <LoadingOverlay message="Loading Applications details... wait a sec..." />;
   }
 
   return (
