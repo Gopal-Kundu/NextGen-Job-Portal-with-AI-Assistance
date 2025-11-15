@@ -1,19 +1,22 @@
 import { setApplicants } from "@/redux/applicantSlice";
+import { setLoading } from "@/redux/authSlice";
 import { JOB_API_END_POINT } from "@/utils/address";
 import axios from "axios";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
+import LoadingOverlay from "../ui/LoadingOverlay";
 
 export default function ApplicationsList() {
   const applications = useSelector((state) => state.applicant.applicants);
   const dispatch = useDispatch();
   const { id } = useParams(); //JobId
   const navigate = useNavigate();
-
+  const loading = useSelector((state)=>state.auth.loading);
   useEffect(() => {
     const fetchApplicants = async () => {
+      dispatch(setLoading(true));
       try {
         const res = await axios.get(`${JOB_API_END_POINT}/applicant/${id}`, {
           withCredentials: true,
@@ -22,6 +25,8 @@ export default function ApplicationsList() {
           dispatch(setApplicants(res.data.applicants));
         }
       } catch (err) {
+      }finally{
+        dispatch(setLoading(false));
       }
     };
     fetchApplicants();
@@ -63,6 +68,10 @@ export default function ApplicationsList() {
     return (
       <div className="p-6 text-center text-gray-500">No applications yet.</div>
     );
+  }
+
+  if (loading) {
+    return <LoadingOverlay message="Loading Applicants details... wait a sec..." />;
   }
 
   return (
