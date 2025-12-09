@@ -22,7 +22,7 @@ import { setUser } from "./redux/authSlice";
 import ApplicationPage from "./components/ui/ApplicationPage";
 import SearchJob from "./components/shared/SearchJob";
 import ErrorPage from "./components/shared/ErrorPage";
-import ResumeBuilder from "./components/shared/ResumeBuilder/resumeBuilder";
+import ResumeBuilder from "./components/shared/ResumeBuilder/ResumeBuilder";
 
 const appRouter = createBrowserRouter([
   { path: "/", element: <Homepage />, errorElement: <ErrorPage /> },
