@@ -12,5 +12,5 @@ function ResumeBuilder() {
     </div>
   );
 }
-
+ 
 export default ResumeBuilder;
