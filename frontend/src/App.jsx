@@ -39,7 +39,7 @@ const appRouter = createBrowserRouter([
   { path: "/view-application/:id", element: <ApplicationPage/>},
   {path: "/search", element: <SearchJob/>},
   {path: "/resumemaker", element: <ResumeBuilder/>}
-]);
+]);   
 
 function App() {
   const [loading, setLoading] = useState(false);
