@@ -7,7 +7,7 @@ function ResumeBuilder() {
     <div>
       <div className="h-full relative flex items-center">
         <Sidebar highlightIndex={5} className="bg-gray-500" />
-        <Navbar />
+        <Navbar /> 
       </div>
     </div>
   );
