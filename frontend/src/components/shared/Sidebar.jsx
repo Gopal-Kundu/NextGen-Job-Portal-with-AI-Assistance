@@ -90,11 +90,24 @@ export default function Sidebar({ highlightIndex }) {
                   Saved Jobs
                 </Link>
               )}
+              {user && (
+                <Link
+                  to="/resumemaker"
+                  className={`flex items-center px-4 py-3 rounded-lg font-semibold ${
+                    highlightIndex === 5
+                      ? "bg-purple-100 text-purple-700"
+                      : "text-gray-600 hover:bg-gray-300 transition duration-200"
+                  }`}
+                >
+                  <span className="material-icons mr-3">description</span>
+                  Resume Builder
+                </Link>
+              )}
               {(user?.role && user?.role==="recruiter") && (
                 <Link
                   to="/companies"
                   className={`flex items-center px-4 py-3 rounded-lg font-semibold ${
-                    highlightIndex === 5
+                    highlightIndex === 6
                       ? "bg-purple-100 text-purple-700"
                       : "text-gray-600 hover:bg-gray-300 transition duration-200"
                   }`}
