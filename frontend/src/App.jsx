@@ -22,7 +22,7 @@ import { setUser } from "./redux/authSlice";
 import ApplicationPage from "./components/ui/ApplicationPage";
 import SearchJob from "./components/shared/SearchJob";
 import ErrorPage from "./components/shared/ErrorPage";
-import ResumeBuilder from "./components/shared/ResumeBuilder/ResumeBuilder";
+import ResumeBuilderStartingPage from "./components/shared/ResumeBuilder/Starting Page/ResumeBuilderStartingPage";
 
 const appRouter = createBrowserRouter([
   { path: "/", element: <Homepage />, errorElement: <ErrorPage /> },
@@ -38,7 +38,7 @@ const appRouter = createBrowserRouter([
   { path: "/company/:id", element: <CompanyPage /> },
   { path: "/view-application/:id", element: <ApplicationPage/>},
   {path: "/search", element: <SearchJob/>},
-  {path: "/resumemaker", element: <ResumeBuilder/>}
+  {path: "/resumemaker", element: <ResumeBuilderStartingPage/>}
 ]);   
 
 function App() {
