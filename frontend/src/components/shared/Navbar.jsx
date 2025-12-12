@@ -22,7 +22,7 @@ export default function Navbar() {
   const user = useSelector((store) => store.auth.user);
 
   return (
-    <div className="bg-gray-50 select-none w-full ">
+    <div className="bg-gray-50 select-none w-full h-14">
       <header className="flex justify-between items-center px-4 py-2 relative z-10">
         <div className="relative z-20">
           <JobPortal />

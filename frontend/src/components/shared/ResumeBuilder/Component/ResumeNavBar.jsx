@@ -24,7 +24,7 @@ function ResumeNavBar({ flag1 = false, flag2 = false, flag3 = false }) {
       <header className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 border-b-0">
         <div className="flex justify-between items-center">
           {/* Logo */}
-          <div className="flex items-center space-x-2">
+          <div className="hidden md:block flex items-center space-x-2">
             <JobPortal />
           </div>
 
