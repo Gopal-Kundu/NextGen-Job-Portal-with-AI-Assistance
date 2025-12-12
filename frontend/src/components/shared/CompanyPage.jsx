@@ -60,7 +60,7 @@ export default function CompanyPage() {
         {company?.website && (
           <a
             href={
-              `https://${company?.website}`
+              `${company?.website}`
             }
             className="text-indigo-600 font-medium hover:text-indigo-800 underline text-lg"
           >
