@@ -12,10 +12,10 @@ export default function Sidebar({ highlightIndex }) {
   return (
     <>
       {/* Menu Button */}
-      <div className="bg-gray-50">
+      <div className="bg-transparent">
         <Menu
         onClick={() => setIsOpen(true)}
-        className="bg-gray-50 cursor-pointer text-xl m-3 md:hidden"
+        className="bg-transparent cursor-pointer text-xl m-3 md:hidden"
       />
       </div>
 

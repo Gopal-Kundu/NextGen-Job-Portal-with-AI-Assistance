@@ -3,6 +3,7 @@ import Sidebar from "../../Sidebar";
 import Navbar from "../../Navbar";
 import resumePic from "../../../../assets/resumebuilder-staringpage-pic.png";
 import Footer from "../../Footer";
+import { Link } from "react-router-dom";
 
 function ResumeBuilderStartingPage() {
   return (
@@ -32,12 +33,14 @@ function ResumeBuilderStartingPage() {
 
             {/* Buttons */}
             <div className="mt-8 flex flex-col sm:flex-row gap-4">
+              <Link to="/resumemaker/choose-template">
               <button className="cursor-pointer flex items-center justify-center px-8 py-3 rounded-lg shadow-lg bg-purple-600 text-white font-medium hover:bg-purple-700 transition">
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 Create New Resume
               </button>
+              </Link>
 
               <button className="cursor-pointer flex items-center justify-center px-8 py-3 rounded-lg border border-purple-300 bg-white text-purple-600 font-medium hover:bg-purple-50 transition">
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

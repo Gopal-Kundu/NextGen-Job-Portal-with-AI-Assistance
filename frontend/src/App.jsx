@@ -23,6 +23,8 @@ import ApplicationPage from "./components/ui/ApplicationPage";
 import SearchJob from "./components/shared/SearchJob";
 import ErrorPage from "./components/shared/ErrorPage";
 import ResumeBuilderStartingPage from "./components/shared/ResumeBuilder/Starting Page/ResumeBuilderStartingPage";
+import Resume1 from "./components/shared/ResumeBuilder/Resume Pages/Resume1";
+import { ChooseTemplatePage } from "./components/shared/ResumeBuilder/Starting Page/ChooseTemplatePage";
 
 const appRouter = createBrowserRouter([
   { path: "/", element: <Homepage />, errorElement: <ErrorPage /> },
@@ -38,7 +40,9 @@ const appRouter = createBrowserRouter([
   { path: "/company/:id", element: <CompanyPage /> },
   { path: "/view-application/:id", element: <ApplicationPage/>},
   {path: "/search", element: <SearchJob/>},
-  {path: "/resumemaker", element: <ResumeBuilderStartingPage/>}
+  {path: "/resumemaker", element: <ResumeBuilderStartingPage/>},
+  {path: "/resumemaker/choose-template", element: <ChooseTemplatePage/>},
+  {path: "resumemaker/resume-template-1", element: <Resume1/>}
 ]);   
 
 function App() {

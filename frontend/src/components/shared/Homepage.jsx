@@ -20,7 +20,7 @@ export default function Homepage() {
   return (
     <>
         <div className="h-full relative flex items-center">
-        <Sidebar highlightIndex={1} className="bg-gray-500"/><Navbar/>
+        <Sidebar highlightIndex={1}/><Navbar/>
       </div>
        
         <div className="min-h-[800px] h-full bg-gray-50 p-4 select-none md:select-auto w-full">
