@@ -17,6 +17,9 @@ const navLinks = [
   { name: "Resume Maker", path: "/resumemaker"}
 ];
 
+
+
+
 export default function Navbar() {
   const logout = useLogout();
   const user = useSelector((store) => store.auth.user);
@@ -51,7 +54,7 @@ export default function Navbar() {
               <div className="flex items-center cursor-pointer hover:scale-105 transition-transform duration-200 relative z-20">
                 <img
                   alt="User Avatar"
-                  className="w-10 h-8 rounded-full"
+                  className="w-8 h-8 rounded-full"
                   src={
                     user?.profile?.profilePhoto ||
                     "https://www.refugee-action.org.uk/wp-content/uploads/2016/10/anonymous-user.png"
