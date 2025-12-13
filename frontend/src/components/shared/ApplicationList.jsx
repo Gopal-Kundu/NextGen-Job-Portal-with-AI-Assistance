@@ -26,7 +26,7 @@ export default function ApplicationsList() {
         }
       } catch (err) {
       }finally{
-        dispatch(setLoading(false));
+          dispatch(setLoading(false));
       }
     };
     fetchApplicants();
@@ -64,14 +64,14 @@ export default function ApplicationsList() {
     }
   };
 
-  if (!applications || applications.length === 0) {
+  if (loading) {
+    return <LoadingOverlay message="Loading Applications details... wait a sec..." />;
+  }
+
+    if (!applications || applications.length === 0 && loading === false) {
     return (
       <div className="p-6 text-center text-gray-500">No applications yet.</div>
     );
-  }
-
-  if (loading) {
-    return <LoadingOverlay message="Loading Applications details... wait a sec..." />;
   }
 
   return (

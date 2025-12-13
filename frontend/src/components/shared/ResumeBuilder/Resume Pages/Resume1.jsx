@@ -6,13 +6,6 @@ export default function Resume1() {
       <div className="bg-white shadow-2xl p-10 rounded-2xl w-[800px] min-h-[1120px] border border-gray-200">
         {/* Header */}
         <header className="flex items-center gap-6 border-b pb-6 bg-gradient-to-r from-indigo-600 to-purple-600 p-6 rounded-xl text-white shadow-md">
-          <div className="w-28 h-28 bg-white/20 rounded-full overflow-hidden border-2 border-white">
-            <img
-              src="https://via.placeholder.com/150"
-              alt="profile"
-              className="w-full h-full object-cover"
-            />
-          </div>
           <div>
             <h1 className="text-4xl font-bold tracking-tight">Gopal Kundu</h1>
             <p className="text-lg opacity-90">Full Stack Developer</p>

@@ -5,7 +5,7 @@ function ResumeNavBar({ flag1 = false, flag2 = false, flag3 = false }) {
   const Step = ({ number, text, isActive }) => (
     <div className="flex items-center space-x-2">
       <div
-        className={`w-6 h-6 flex items-center justify-center rounded-full text-white text-sm font-bold 
+        className={`w-10 md:h-10 flex items-center justify-center rounded-full text-white text-sm font-bold 
                             ${isActive ? "bg-purple-500" : "bg-gray-300"}`}
       >
         {number}
