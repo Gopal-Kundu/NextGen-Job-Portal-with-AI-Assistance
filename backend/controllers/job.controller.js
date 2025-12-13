@@ -303,6 +303,33 @@ const reject = async (req, res) => {
   }
 };
 
+const getJobsByType = async (req, res) => {
+  try {
+    const { jobType } = req.params;
+
+    if (!jobType) {
+      return res.status(400).json({
+        success: false,
+        message: "Job type is required",
+      });
+    }
+
+    const jobs = await Job.find({
+      jobType: { $regex: `^${jobType}$`, $options: "i" },
+    });
+
+    return res.status(200).json({
+      success: true,
+      count: jobs.length,
+      jobs,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Server error",
+    });
+  }
+};
 
 module.exports = {
   postJob,
@@ -312,5 +339,6 @@ module.exports = {
   deleteJobById,
   searchJobs,
   approve,
-  reject
+  reject,
+  getJobsByType
 };

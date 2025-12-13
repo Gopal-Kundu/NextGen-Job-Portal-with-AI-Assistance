@@ -33,7 +33,7 @@ export default function PostedJobs({ postedJobs }) {
     <div className="md:col-span-2">
       {/* Modal */}
       {open && (
-        <div className="absolute inset-0 p-10 bg-black/50 z-50">
+        <div className="absolute inset-0 p-10 bg-black/50 z-50 flex items-center justify-center">
           <AddJobBtn hide={() => setOpen(false)} />
         </div>
       )}

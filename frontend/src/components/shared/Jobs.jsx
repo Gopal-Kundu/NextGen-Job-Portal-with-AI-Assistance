@@ -48,16 +48,21 @@ export default function Jobs() {
         </div>
 
         {/* Job listings title */}
-        <div className="mt-6 ml-8">
-          <h3 className="text-3xl font-bold text-gray-800">
-            {jobs?.length === 0 ? (
-              "No Jobs available"
-            ) : (
-              <>
-                <span className="text-purple-700">All</span> Job Openings
-              </>
-            )}
-          </h3>
+        <div className="flex justify-between">
+          <div className="mt-6 ml-8">
+            <h3 className="text-3xl font-bold text-gray-800">
+              {jobs?.length === 0 ? (
+                "No Jobs available"
+              ) : (
+                <>
+                  <span className="text-purple-700">All</span> Job Openings
+                </>
+              )}
+            </h3>
+          </div>
+          <button className="cursor-pointer w-auto mr-5 bg-gray-400 px-5 py-2 rounded-xl whitespace-nowrap text-white font-bold hover:scale-105 transition-transform duration-200 select-none focus:scale-105 mt-5">
+            Filter
+          </button>
         </div>
 
         {/* Job cards */}
