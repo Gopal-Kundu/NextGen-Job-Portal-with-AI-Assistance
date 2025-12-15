@@ -91,6 +91,22 @@ const getAllJobs = async (req, res) => {
   }
 };
 
+const getTrendingJobs = async (req, res) => {
+  try {
+    const jobs = await Job.find({}).sort({salary: -1}).limit(6);
+
+    res.status(200).json({
+      success: true,
+      jobs,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 const deleteJobById = async (req, res) => {
   try {
     const userId = req.id;
@@ -303,30 +319,80 @@ const reject = async (req, res) => {
   }
 };
 
-const getJobsByType = async (req, res) => {
-  try {
-    const { jobType } = req.params;
 
-    if (!jobType) {
-      return res.status(400).json({
-        success: false,
-        message: "Job type is required",
-      });
+const pagination = async (req, res)=>{
+  try{
+    const {pageno} = req.params;
+  if(!pageno){
+    return res.status(400).json({
+      success: false,
+      message: "No page Found"
+    })
+  }
+  const jobs = await Job.find().skip((pageno-1)*10).limit(10);
+  return res.status(200).json({
+    success: true,
+    jobs
+  })
+  }catch(err){
+    return res.status(400).json({
+      success: false,
+      message: err
+    })
+  }
+}
+
+const countJobs = async (req, res) =>{
+  try{
+    const totalJobs = await Job.find().countDocuments();
+  return res.status(200).json({
+    totalJobs,
+    success: true
+  })
+  }catch(err){
+    return res.status(400).json({
+      success: false,
+      message: err
+    })
+  }
+}
+
+const applyFilter = async (req, res) => {
+  try {
+    const { vacancy, salary, jobType, location } = req.body;
+
+    let query = {};
+    let sort = {};
+
+    if (jobType) {
+      query.jobType = { $regex: jobType, $options: "i" };
     }
 
-    const jobs = await Job.find({
-      jobType: { $regex: `^${jobType}$`, $options: "i" },
-    });
+    if (location) {
+      query.location = { $regex: location, $options: "i" };
+    }
 
+    if (vacancy === "ascending") {
+      sort.vacancy = 1;
+    } else if (vacancy === "descending") {
+      sort.vacancy = -1;
+    }
+
+    if (salary === "low-high") {
+      sort.salary = 1;
+    } else if (salary === "high-low") {
+      sort.salary = -1;
+    }
+
+    const jobs = await Job.find(query).sort(sort);
     return res.status(200).json({
       success: true,
-      count: jobs.length,
       jobs,
     });
-  } catch (error) {
+  } catch (err) {
     return res.status(500).json({
       success: false,
-      message: error.message || "Server error",
+      message: err.message,
     });
   }
 };
@@ -340,5 +406,8 @@ module.exports = {
   searchJobs,
   approve,
   reject,
-  getJobsByType
+  pagination,
+  countJobs,
+  applyFilter,
+  getTrendingJobs
 };

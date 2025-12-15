@@ -155,10 +155,10 @@ export default function AddJobBtn({ hide }) {
               onChange={handleChange}
               className="p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm"
             >
-              <option value="full-time">Full-time</option>
+              <option value="Full-Time">Full-time</option>
               <option value="Internship">Internship</option>
-              <option value="part-time">Part-time</option>
-              <option value="contract">Contract</option>
+              <option value="Part-Time">Part-time</option>
+              <option value="Contract">Contract</option>
             </select>
           </label>
 

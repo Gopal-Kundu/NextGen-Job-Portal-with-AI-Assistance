@@ -26,6 +26,7 @@ import ResumeBuilderStartingPage from "./components/shared/ResumeBuilder/Startin
 import Resume1 from "./components/shared/ResumeBuilder/Resume Pages/Resume1";
 import { ChooseTemplatePage } from "./components/shared/ResumeBuilder/Starting Page/ChooseTemplatePage";
 
+const url = "/resumemaker/choose-template";
 const appRouter = createBrowserRouter([
   { path: "/", element: <Homepage />, errorElement: <ErrorPage /> },
   { path: "/login", element: <Login /> },
@@ -42,30 +43,12 @@ const appRouter = createBrowserRouter([
   {path: "/search", element: <SearchJob/>},
   {path: "/resumemaker", element: <ResumeBuilderStartingPage/>},
   {path: "/resumemaker/choose-template", element: <ChooseTemplatePage/>},
-  {path: "resumemaker/resume-template-1", element: <Resume1/>}
+  {path: `${url}/resume-template-1`, element: <Resume1/>},
 ]);   
 
 function App() {
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
-
-  useEffect(() => {
-    const fetchJobs = async () => {
-      setLoading(true);
-      try {
-        const res = await axios.get(`${JOB_API_END_POINT}/get`);
-        dispatch(setJobs(res.data.jobs));
-      } catch (err) {
-        toast.error("Something is wrong", {
-          position: "top-center",
-          duration: 2000,
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchJobs();
-  }, [dispatch]);
 
   useEffect(() => {
     const fetchUserIfLoggedIn = async () => {

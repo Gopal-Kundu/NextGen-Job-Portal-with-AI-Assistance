@@ -3,10 +3,17 @@ import Navbar from "./Navbar";
 import JobsListing from "./JobsListing";
 import Sidebar from "./Sidebar";
 import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { JOB_API_END_POINT } from "@/utils/address";
+import LoadingOverlay from "../ui/LoadingOverlay";
+import { useDispatch } from "react-redux";
 
 
 export default function Homepage() {
+    const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   function search(query){
     if (query.trim() !== "")
@@ -17,6 +24,28 @@ export default function Homepage() {
   const handleKeyPress = (e) => {
     if (e.key === "Enter") search(value);
   };
+
+  const fetchTrendingJobs = async () => {
+    try {
+      setLoading(true);
+      const res = await axios.get(`${JOB_API_END_POINT}/trending`);
+
+      if (res.data.success) {
+        setJobs(res.data.jobs);
+      }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  
+  useEffect(() => {
+    fetchTrendingJobs();
+  }, []);
+
+if(loading) return <LoadingOverlay message="Wait a Second"/>
   return (
     <>
         <div className="h-full relative flex items-center">
@@ -59,7 +88,7 @@ export default function Homepage() {
           <h3 className="text-2xl mb-3 md:text-3xl font-bold text-gray-800 mt-10">
             <span className="text-purple-700">Latest and Top</span> Job Openings
           </h3>
-          <JobsListing showJobs={3} smallDevice={"hidden md:block"} />
+          <JobsListing jobs={jobs}/>
         </div>
           <Footer/>
     </>

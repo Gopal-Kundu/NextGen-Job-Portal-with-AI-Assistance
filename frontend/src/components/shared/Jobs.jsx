@@ -5,6 +5,7 @@ import JobCard from "./Jobcard";
 import { useSelector } from "react-redux";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import FilterJobs from "../ui/FilterJobs";
 
 export default function Jobs() {
   const jobs = useSelector((state) => state.job.jobs);
@@ -21,6 +22,7 @@ export default function Jobs() {
     if (e.key === "Enter") handleSearch();
   };
 
+  const [openFilter, setOpenFilter] = useState(false)
   return (
     <>
       <div className="bg-gray-100 min-h-screen">
@@ -60,9 +62,12 @@ export default function Jobs() {
               )}
             </h3>
           </div>
-          <button className="cursor-pointer w-auto mr-5 bg-gray-400 px-5 py-2 rounded-xl whitespace-nowrap text-white font-bold hover:scale-105 transition-transform duration-200 select-none focus:scale-105 mt-5">
-            Filter
-          </button>
+          <div>
+            <button onClick={()=> setOpenFilter(true)} className="cursor-pointer w-auto mr-5 bg-gray-400 px-5 py-2 rounded-xl whitespace-nowrap text-white font-bold hover:scale-105 transition-transform duration-200 select-none focus:scale-105 mt-5">
+              Filter
+            </button>
+              <FilterJobs isOpen = {openFilter} setIsOpen = {()=>setOpenFilter(false)}/>
+          </div>
         </div>
 
         {/* Job cards */}
