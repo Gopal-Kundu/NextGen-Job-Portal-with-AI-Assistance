@@ -108,7 +108,6 @@ const login = async (req, res) => {
         httpOnly: true,
         sameSite: "none",
         secure: true,
-        path: "/",
       })
       .json({
         message: `Welcome back ${user.fullname}`,
@@ -123,15 +122,10 @@ const login = async (req, res) => {
 
 const logout = async (req, res) => {
   try {
-    return res.clearCookie("token",{
-      httpOnly: true,
-        sameSite: "none",
-        secure: true,
-        path: "/"
-    }).status(200).json({
-      message: "Logged out successfully.",
+    res.status(200).cookie("token", "", {maxAge: 0}).json({
+      message: "Logged Out Successfully",
       success: true,
-    });
+    })
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Server error", success: false });
