@@ -11,7 +11,7 @@ import axios from "axios";
 import LoadingOverlay from "./components/ui/LoadingOverlay";
 import { useEffect, useState } from "react";
 import { JOB_API_END_POINT, USER_API_END_POINT } from "./utils/address";
-import { setJobs } from "./redux/jobSlice";
+import { setJobs, setTotalJobs } from "./redux/jobSlice";
 import { toast } from "sonner";
 import CompanyListPage from "./components/shared/CompanyListPage";
 import LoadingPage from "./components/ui/LoadingPage";
@@ -59,13 +59,8 @@ function App() {
         });
         if (res.data.success) {
           dispatch(setUser(res.data.user));
-          dispatch(setJobs(res.data.allJobs));
-        } else {
-          const jobRes = await axios.get(`${JOB_API_END_POINT}/get`);
-          dispatch(setJobs(jobRes.data.jobs));
         }
       } catch (err) {
-
       } finally {
         setLoading(false);
       }

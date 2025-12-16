@@ -319,46 +319,9 @@ const reject = async (req, res) => {
   }
 };
 
-
-const pagination = async (req, res)=>{
-  try{
-    const {pageno} = req.params;
-  if(!pageno){
-    return res.status(400).json({
-      success: false,
-      message: "No page Found"
-    })
-  }
-  const jobs = await Job.find().skip((pageno-1)*10).limit(10);
-  return res.status(200).json({
-    success: true,
-    jobs
-  })
-  }catch(err){
-    return res.status(400).json({
-      success: false,
-      message: err
-    })
-  }
-}
-
-const countJobs = async (req, res) =>{
-  try{
-    const totalJobs = await Job.find().countDocuments();
-  return res.status(200).json({
-    totalJobs,
-    success: true
-  })
-  }catch(err){
-    return res.status(400).json({
-      success: false,
-      message: err
-    })
-  }
-}
-
 const applyFilter = async (req, res) => {
   try {
+    const {pageno} = req.params;
     const { vacancy, salary, jobType, location } = req.body;
 
     let query = {};
@@ -383,9 +346,10 @@ const applyFilter = async (req, res) => {
     } else if (salary === "high-low") {
       sort.salary = -1;
     }
-
-    const jobs = await Job.find(query).sort(sort);
+    const countJobs = await Job.find(query).countDocuments();
+    const jobs = await Job.find(query).sort(sort).skip((pageno-1)*6).limit(6);
     return res.status(200).json({
+      countJobs,
       success: true,
       jobs,
     });
@@ -397,6 +361,7 @@ const applyFilter = async (req, res) => {
   }
 };
 
+
 module.exports = {
   postJob,
   getAllJobs,
@@ -406,8 +371,6 @@ module.exports = {
   searchJobs,
   approve,
   reject,
-  pagination,
-  countJobs,
   applyFilter,
-  getTrendingJobs
+  getTrendingJobs,
 };

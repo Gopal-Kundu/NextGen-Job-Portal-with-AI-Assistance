@@ -310,11 +310,9 @@ const remember = async (req, res) => {
         .status(404)
         .json({ success: false, message: "User not found" });
     }
-    const allJobs = await Job.find();
     return res.status(200).json({
       success: true,
-      user,
-      allJobs,
+      user
     });
   } catch (error) {
     return res.status(500).json({

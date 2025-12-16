@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import LoadingOverlay from "./LoadingOverlay";
 import { setLoading } from "@/redux/authSlice";
-import { setJobs } from "@/redux/jobSlice";
+import { setFilterSlice, setJobs } from "@/redux/jobSlice";
 import axios from "axios";
 import { toast } from "sonner";
 import { JOB_API_END_POINT } from "@/utils/address";
@@ -19,24 +19,8 @@ function FilterJobs({ isOpen, setIsOpen }) {
 
   const applyFilter = async () => {
     setIsOpen();
-    dispatch(setLoading(true));
-
-    try {
-      const res = await axios.post(`${JOB_API_END_POINT}/filter`, filter, {
-        headers: { "Content-Type": "application/json" },
-      });
-
-      if (res.data.success) {
-        dispatch(setJobs(res.data.jobs));
-      }
-    } catch (error) {
-      toast.error("Server Error", {
-        position: "top-center",
-        message: "Something Wrong"
-      });
-    } finally {
-      dispatch(setLoading(false));
-    }
+    console.log(filter);
+    dispatch(setFilterSlice(filter));
   };
 
   if(loading) return <LoadingOverlay message="Please Wait... Applying Filters"/>
@@ -156,7 +140,7 @@ function FilterJobs({ isOpen, setIsOpen }) {
                 <p className="text-sm font-medium mb-2">Location</p>
                 <input
                   type="text"
-                  placeholder="Enter location"
+                  placeholder={`${filter.location === "" ? "Enter Location" : filter.location}`}
                   className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"
                   onChange={(e) =>
                     setFilter((prev) => ({
@@ -164,6 +148,7 @@ function FilterJobs({ isOpen, setIsOpen }) {
                       location: e.target.value,
                     }))
                   }
+                  value={`${filter.location === "" ? "" : filter.location}`}
                 />
               </div>
               <div className="flex justify-end pt-4">

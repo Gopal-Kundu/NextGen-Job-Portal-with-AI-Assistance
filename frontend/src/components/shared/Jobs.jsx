@@ -6,6 +6,7 @@ import { useSelector } from "react-redux";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import FilterJobs from "../ui/FilterJobs";
+import PaginationRounded from "../ui/PaginationRounded";
 
 export default function Jobs() {
   const jobs = useSelector((state) => state.job.jobs);
@@ -89,6 +90,9 @@ export default function Jobs() {
               />
             ))}
           </div>
+        </div>
+        <div className="flex justify-center mb-3">
+          <PaginationRounded/>
         </div>
       </div>
       <Footer />
