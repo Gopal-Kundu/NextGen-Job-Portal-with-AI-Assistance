@@ -152,7 +152,7 @@ export default function JobCard({
     }
   }
   if (loading) {
-    return <LoadingOverlay message="Loading... wait a sec..." />;
+    return <LoadingOverlay message="Wait a sec..." />;
   }
   return (
     <div className="bg-white p-5 rounded-xl shadow-lg max-w-sm w-full transition-all duration-300 hover:shadow-xl flex flex-col gap-4">

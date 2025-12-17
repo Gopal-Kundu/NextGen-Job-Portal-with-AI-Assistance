@@ -5,7 +5,8 @@ const jobSlice = createSlice({
   initialState: {
     jobs: [],
     totalJobs: 0,
-    filter: {}
+    filter: {},
+    filterApplied: false,
   },
   reducers: {
     setJobs: (state, action) => {
@@ -16,9 +17,12 @@ const jobSlice = createSlice({
     },
      setFilterSlice: (state,action) => {
       state.filter = action.payload;
+    },
+    setFilterApplied: (state, action) => {
+      state.filterApplied = action.payload;
     }
   },
 });
 
-export const { setJobs, setTotalJobs,setFilterSlice  } = jobSlice.actions;
+export const { setJobs, setTotalJobs,setFilterSlice, setFilterApplied } = jobSlice.actions;
 export default jobSlice.reducer;

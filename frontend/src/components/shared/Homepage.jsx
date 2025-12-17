@@ -45,7 +45,7 @@ export default function Homepage() {
     fetchTrendingJobs();
   }, []);
 
-if(loading) return <LoadingOverlay message="Wait a Second"/>
+if(loading) return <LoadingOverlay message="Wait a Second..."/>
   return (
     <>
         <div className="h-full relative flex items-center">

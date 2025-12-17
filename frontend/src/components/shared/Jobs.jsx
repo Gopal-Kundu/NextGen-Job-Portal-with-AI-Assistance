@@ -91,7 +91,7 @@ export default function Jobs() {
             ))}
           </div>
         </div>
-        <div className="flex justify-center mb-3">
+        <div className="flex justify-center items-center p-5">
           <PaginationRounded/>
         </div>
       </div>

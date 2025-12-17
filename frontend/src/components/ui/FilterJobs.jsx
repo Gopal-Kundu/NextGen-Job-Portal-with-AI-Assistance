@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import LoadingOverlay from "./LoadingOverlay";
 import { setLoading } from "@/redux/authSlice";
-import { setFilterSlice, setJobs } from "@/redux/jobSlice";
+import { setFilterApplied, setFilterSlice, setJobs } from "@/redux/jobSlice";
 import axios from "axios";
 import { toast } from "sonner";
 import { JOB_API_END_POINT } from "@/utils/address";
@@ -19,11 +19,10 @@ function FilterJobs({ isOpen, setIsOpen }) {
 
   const applyFilter = async () => {
     setIsOpen();
-    console.log(filter);
-    dispatch(setFilterSlice(filter));
+    dispatch(setFilterSlice(filter)); 
+    dispatch(setFilterApplied(true));
   };
 
-  if(loading) return <LoadingOverlay message="Please Wait... Applying Filters"/>
   return (
     <>
       {isOpen ? (
