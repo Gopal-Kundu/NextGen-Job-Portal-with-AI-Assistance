@@ -6,10 +6,12 @@ import Stack from "@mui/material/Stack";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import LoadingOverlay from "./LoadingOverlay";
 
 export default function PaginationRounded() {
   let totalJobs = useSelector((state) => state.job.totalJobs);
   let filter = useSelector((state) => state.job.filter);
+    let loading = useSelector((state)=> state.auth.loading);
   let isFilterApplied = useSelector((state) => state.job.filterApplied);
   const dispatch = useDispatch();
   totalJobs = Math.ceil(totalJobs / 6);
@@ -41,7 +43,7 @@ export default function PaginationRounded() {
 
     getJobs(page);
   }, [page, filter]);
-
+if(loading) return <LoadingOverlay/>
   return (
     <Stack spacing={2}>
       <Pagination
