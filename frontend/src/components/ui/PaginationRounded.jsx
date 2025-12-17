@@ -4,56 +4,68 @@ import { JOB_API_END_POINT } from "@/utils/address";
 import Pagination from "@mui/material/Pagination";
 import Stack from "@mui/material/Stack";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 export default function PaginationRounded() {
   let totalJobs = useSelector((state) => state.job.totalJobs);
   let filter = useSelector((state) => state.job.filter);
   let isFilterApplied = useSelector((state) => state.job.filterApplied);
+
   const dispatch = useDispatch();
   totalJobs = Math.ceil(totalJobs / 6);
+
   const [page, setPageNo] = useState(1);
   const [defaultPage, setDefaultPage] = useState(1);
+
+  const topRef = useRef(null);
+
   useEffect(() => {
-  async function getJobs() {
-    try {
-      dispatch(setLoading(true));
-      if(isFilterApplied){
-        setDefaultPage(1);
-        setPageNo(1);
-        console.log(isFilterApplied, page);
-        dispatch(setFilterApplied(false));
-      }else{
-        setDefaultPage(page);
+    async function getJobs() {
+      try {
+        dispatch(setLoading(true));
+
+        if (isFilterApplied) {
+          setDefaultPage(1);
+          setPageNo(1);
+          dispatch(setFilterApplied(false));
+        } else {
+          setDefaultPage(page);
+        }
+
+        const res = await axios.post(
+          `${JOB_API_END_POINT}/filter/${page}`,
+          filter
+        );
+
+        dispatch(setTotalJobs(res.data.countJobs));
+        dispatch(setJobs(res.data.jobs));
+      } catch (error) {
+        console.error(error);
+      } finally {
+        dispatch(setLoading(false));
       }
-      console.log(isFilterApplied, page);
-      const res = await axios.post(
-        `${JOB_API_END_POINT}/filter/${page}`,
-        filter
-      );
-
-      dispatch(setTotalJobs(res.data.countJobs));
-      dispatch(setJobs(res.data.jobs));
-
-    } catch (error) {
-
-    } finally {
-      dispatch(setLoading(false));
     }
-  }
 
-  getJobs(page);
-}, [page, filter]);
+    getJobs();
+  }, [page, filter]);
 
-return (
-    <Stack spacing={2}>
-      <Pagination
-        count={totalJobs}
-        shape="rounded"
-        page = {defaultPage}
-        onChange={(e, pageno) => setPageNo(pageno)}
-      />
-    </Stack>
+  useEffect(() => {
+    if (topRef.current) {
+      topRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [page]);
+
+  return (
+    <div ref={topRef}>
+      <Stack spacing={2}>
+        <Pagination
+          count={totalJobs}
+          shape="rounded"
+          page={defaultPage}
+          onChange={(e, pageno) => setPageNo(pageno)}
+        />
+      </Stack>
+    </div>
   );
 }
