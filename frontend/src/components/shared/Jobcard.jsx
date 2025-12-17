@@ -26,9 +26,7 @@ export default function JobCard({
   datePosted,
   companyLogo,
 }) {
-  const formattedDate = datePosted
-  ? new Date(datePosted).toLocaleDateString()
-  : "17 Dec 2025";
+  const formattedDate = new Date(datePosted).toLocaleDateString();
 
   const dispatch = useDispatch();
   const user = useSelector((store) => store.auth.user);
