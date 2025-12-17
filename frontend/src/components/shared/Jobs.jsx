@@ -7,9 +7,11 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import FilterJobs from "../ui/FilterJobs";
 import PaginationRounded from "../ui/PaginationRounded";
+import LoadingOverlay from "../ui/LoadingOverlay";
 
 export default function Jobs() {
   const jobs = useSelector((state) => state.job.jobs);
+  const loading = useSelector((state)=> state.auth.loading);
   const [searchValue, setSearchValue] = useState("");
   const navigate = useNavigate();
 
@@ -24,6 +26,8 @@ export default function Jobs() {
   };
 
   const [openFilter, setOpenFilter] = useState(false)
+  
+  if(loading) return <LoadingOverlay/>
   return (
     <>
       <div className="bg-gray-100 min-h-screen">
