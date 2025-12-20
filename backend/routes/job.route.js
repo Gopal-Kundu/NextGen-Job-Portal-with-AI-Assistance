@@ -1,7 +1,7 @@
 // routes/user.route.js
 const express = require("express");
 const isAuthenticated = require("../middleware/isAuthenticated");
-const { postJob, getAllJobs, deleteJobById, getJobById, getApplicants, searchJobs, approve, reject, pagination, countJobs, applyFilter, getTrendingJobs } = require("../controllers/job.controller");
+const { postJob, getAllJobs, deleteJobById, getJobById, getApplicants, searchJobs, approve, reject , applyFilter, getTrendingJobs } = require("../controllers/job.controller");
 
 const router = express.Router();
 

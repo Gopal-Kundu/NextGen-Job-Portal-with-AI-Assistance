@@ -142,7 +142,7 @@ export default function JobCard({
           appliedJobs: res.data.appliedJobs,
         })
       );
-      dispatch(setJobs(res.data.allJobs));
+      // dispatch(setJobs(res.data.allJobs));
     } catch (error) {
       toast.error(error.response?.data?.message || "Something went wrong", {
         position: "top-center",
@@ -156,7 +156,7 @@ export default function JobCard({
     return <LoadingOverlay message="Wait a sec..." />;
   }
   return (
-    <div className="bg-white p-5 rounded-xl shadow-lg max-w-sm w-full transition-all duration-300 hover:shadow-xl flex flex-col gap-4">
+    <div className="bg-white p-5 rounded-xl shadow-lg max-w-sm w-full transition-all duration-300 hover:shadow-xl flex flex-col gap-4 justify-between">
       <div className="flex justify-between items-center">
         <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">
           Posted on {formattedDate}

@@ -6,7 +6,11 @@ import Sidebar from "../../Sidebar";
 import Navbar from "../../Navbar";
 import Footer from "../../Footer";
 import { Link } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setTemplateSrc } from "@/redux/resumeSlice";
 export const ChooseTemplatePage = () => {
+  const dispatch = useDispatch();
+  const url = "/resumemaker/choose-template/resume-template";
   return (
     <div>
       <div className="min-h-screen bg-white">
@@ -42,11 +46,10 @@ export const ChooseTemplatePage = () => {
       items-center
     "
   >
-    {[1].map((number, i) => (
-      <Link to={`resume-template-${number}`}><img
-        key={i}
+      <Link to={"/resumemaker/fill-details"}><img
         src={template1}
-        alt="template"
+        alt="template-1"
+        onClick={dispatch(setTemplateSrc(`${url}-1`))}   //Set link later
         className="
           cursor-pointer
           h-60
@@ -56,7 +59,6 @@ export const ChooseTemplatePage = () => {
           transition
         "
       /></Link>
-    ))}
   </div>
 </div>
 

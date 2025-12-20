@@ -25,6 +25,7 @@ import ErrorPage from "./components/shared/ErrorPage";
 import ResumeBuilderStartingPage from "./components/shared/ResumeBuilder/Starting Page/ResumeBuilderStartingPage";
 import Resume1 from "./components/shared/ResumeBuilder/Resume Pages/Resume1";
 import { ChooseTemplatePage } from "./components/shared/ResumeBuilder/Starting Page/ChooseTemplatePage";
+import ResumeDetails from "./components/shared/ResumeBuilder/ResumeDetailsPage/ResumeDetails";
 
 const url = "/resumemaker/choose-template";
 const appRouter = createBrowserRouter([
@@ -44,6 +45,7 @@ const appRouter = createBrowserRouter([
   {path: "/resumemaker", element: <ResumeBuilderStartingPage/>},
   {path: "/resumemaker/choose-template", element: <ChooseTemplatePage/>},
   {path: `${url}/resume-template-1`, element: <Resume1/>},
+  {path: "/resumemaker/fill-details", element: <ResumeDetails/>}
 ]);   
 
 function App() {
