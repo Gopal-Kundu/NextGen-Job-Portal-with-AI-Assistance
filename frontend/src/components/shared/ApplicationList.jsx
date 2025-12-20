@@ -13,7 +13,7 @@ export default function ApplicationsList() {
   const dispatch = useDispatch();
   const { id } = useParams(); //JobId
   const navigate = useNavigate();
-  const loading = useSelector((state)=>state.auth.loading);
+  const loading = useSelector((state) => state.auth.loading);
   useEffect(() => {
     const fetchApplicants = async () => {
       dispatch(setLoading(true));
@@ -25,8 +25,8 @@ export default function ApplicationsList() {
           dispatch(setApplicants(res.data.applicants));
         }
       } catch (err) {
-      }finally{
-          dispatch(setLoading(false));
+      } finally {
+        dispatch(setLoading(false));
       }
     };
     fetchApplicants();
@@ -65,10 +65,12 @@ export default function ApplicationsList() {
   };
 
   if (loading) {
-    return <LoadingOverlay message="Loading Applications details... wait a sec..." />;
+    return (
+      <LoadingOverlay message="Loading Applications details... wait a sec..." />
+    );
   }
 
-    if (!applications || applications.length === 0 && loading === false) {
+  if ((!applications || applications.length === 0) && loading === false) {
     return (
       <div className="p-6 text-center text-gray-500">No applications yet.</div>
     );
@@ -97,7 +99,12 @@ export default function ApplicationsList() {
                 <p className="font-semibold text-lg">{app?.fullname}</p>
                 <p className="text-gray-600 text-sm">{app?.email}</p>
                 <p className="text-sm text-gray-500 capitalize">
-                  Status: {app?.approvedJobs.includes(id) ? "approved" : "Pending" || app?.rejectedJobs.includes(id) ? "Rejected":"Pending"}
+                  Status:
+                  {app?.rejectedJobs?.includes(id)
+                    ? "Rejected"
+                    : app?.approvedJobs?.includes(id)
+                    ? "Approved"
+                    : "Pending"}
                 </p>
               </div>
             </div>
