@@ -6,6 +6,7 @@ const connectDB = require("./utils/db");
 const userRoute = require("./routes/user.route");
 const companyRoute = require("./routes/company.route");
 const jobRoute = require("./routes/job.route");
+const rateLimit = require("express-rate-limit");
 
 const app = express();
 const PORT = process.env.SERVER_PORT || 5000;
@@ -18,6 +19,15 @@ app.use(cors({
   origin: CLIENT_URL,
   credentials: true
 }));
+
+const limiter = rateLimit({
+  windowMs: 30 * 60 * 1000,   
+  max: 100,                   
+  message: "Too many requests, try again later",
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use(limiter)
 
 app.use("/api/v1/user", userRoute);
 app.use("/api/v1/company", companyRoute);
