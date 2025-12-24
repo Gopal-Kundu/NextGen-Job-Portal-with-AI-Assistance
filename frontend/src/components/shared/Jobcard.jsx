@@ -130,7 +130,7 @@ export default function JobCard({
         );
       }
       if (res.status === 202) {
-        toast.success(res.data.message || "Successfully applied to the job.", {
+        toast.success(res.data.message || "Successfully applied to the job.\nYour profile has been send.", {
           position: "top-center",
           duration: 2000,
         });
