@@ -87,7 +87,7 @@ export default function PostedJobs({ postedJobs }) {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-600" onClick={()=>navigate(`jobs/${job._id}`)}>{job.title}</div>
+                    <div className="text-sm text-gray-600 cursor-pointer" onClick={()=>navigate(`/jobs/${job?._id}`)}>{job?.title}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-center">
                     <div className="text-sm text-gray-600">
