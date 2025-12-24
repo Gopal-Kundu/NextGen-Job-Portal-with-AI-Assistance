@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import AddJobBtn from "./AddJobBtn";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Trash2 } from "lucide-react";
 import { JOB_API_END_POINT } from "@/utils/address";
 import { toast } from "sonner";
@@ -8,7 +8,7 @@ import axios from "axios";
 
 export default function PostedJobs({ postedJobs }) {
   const [open, setOpen] = useState(false);
-
+  const navigate = useNavigate();
   async function deleteJob(id) {
     try {
       const res = await axios.get(`${JOB_API_END_POINT}/delete/${id}`, {
@@ -87,7 +87,7 @@ export default function PostedJobs({ postedJobs }) {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-600">{job.title}</div>
+                    <div className="text-sm text-gray-600" onClick={()=>navigate(`jobs/${job._id}`)}>{job.title}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-center">
                     <div className="text-sm text-gray-600">
