@@ -6,11 +6,13 @@ import { EditProfile } from "./EditProfile";
 import LoadingOverlay from "../ui/LoadingOverlay";
 import { Badge, ShieldCheck } from "lucide-react";
 import PostedJobs from "../ui/PostedJobs";
+import { useNavigate } from "react-router-dom";
 
 export default function Profile() {
   const user = useSelector((store) => store.auth.user);
   const id = user?._id;
   const loading = useSelector((store) => store.auth.loading);
+  const navigate = useNavigate();
   const skillsArray = user?.profile?.skills
     .split(",")
     .map((skill) => skill.trim());
@@ -108,12 +110,12 @@ export default function Profile() {
                             {user?.appliedJobs?.map((job, i) => (
                               <tr key={i}>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                  <div className="text-sm font-medium text-gray-900">
-                                    {job?.company}
+                                  <div className="text-sm font-medium text-gray-900 flex items-center gap-2">
+                                    <img src={job?.logo} className="h-7"/> {job?.company}
                                   </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                  <div className="text-sm text-gray-600">
+                                  <div className="text-sm text-gray-600 cursor-pointer" onClick={()=>navigate(`/jobs/${job?._id}`)}>
                                     {job?.title}
                                   </div>
                                 </td>
