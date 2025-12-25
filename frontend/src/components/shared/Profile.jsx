@@ -111,7 +111,7 @@ export default function Profile() {
                               <tr key={i}>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                   <div className="text-sm font-medium text-gray-900 flex items-center gap-2">
-                                    <img src={job?.logo} className="h-7"/> {job?.company}
+                                    <img src={job?.logo} className="h-10 w-10 object-contain rounded-md border"/> {job?.company}
                                   </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
