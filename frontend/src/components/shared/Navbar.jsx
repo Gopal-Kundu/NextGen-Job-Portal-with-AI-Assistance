@@ -5,9 +5,11 @@ import {
   PopoverTrigger,
 } from "@radix-ui/react-popover";
 import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useLogout } from "../auth/Logout";
-
+import { Bell } from 'lucide-react';
+import axios from "axios";
+import { USER_API_END_POINT } from "@/utils/address";
 const navLinks = [
   { name: "Home", path: "/" },
   { name: "Jobs", path: "/Jobs" },
@@ -23,6 +25,7 @@ const navLinks = [
 export default function Navbar() {
   const logout = useLogout();
   const user = useSelector((store) => store.auth.user);
+  const navigate = useNavigate();
 
   return (
     <div className="bg-gray-50 select-none w-full h-14">
@@ -49,6 +52,9 @@ export default function Navbar() {
         </nav>
 
         {user ? (
+          <div className="flex items-center gap-5">
+            {user?.role == "student" ? 
+                <Bell className="cursor-pointer" onClick={()=>navigate("/notifications")}/>:""}
           <Popover>
             <PopoverTrigger>
               <div className="flex items-center cursor-pointer hover:scale-105 transition-transform duration-200 relative z-20">
@@ -63,7 +69,6 @@ export default function Navbar() {
               </div>
             </PopoverTrigger>
 
-            {/* Ensure popover is on top using z-index */}
             <PopoverContent className="bg-white rounded-lg shadow-md p-4 w-56 relative z-30">
               <div className="py-2 border-b">
                 <p className="font-semibold text-gray-800">{user?.fullname}</p>
@@ -89,6 +94,7 @@ export default function Navbar() {
               </button>
             </PopoverContent>
           </Popover>
+          </div>
         ) : (
           <div className="flex gap-3 items-center">
             <Link to="/signup">

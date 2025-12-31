@@ -62,6 +62,10 @@ const userSchema = new mongoose.Schema(
       type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Job" }],
       default: [],
     },
+
+    notifications: {
+      type: mongoose.Schema.Types.ObjectId, ref: "Notifications",
+    }
   },
   { timestamps: true }
 );

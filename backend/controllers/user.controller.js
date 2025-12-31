@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const getDataUri = require("../utils/datauri");
 const cloudinary = require("../utils/cloudinary");
 const Job = require("../models/job.model");
+const Notification = require("../models/notification.model");
 require("dotenv").config({ quiet: true });
 
 const register = async (req, res) => {
@@ -326,6 +327,65 @@ const remember = async (req, res) => {
   }
 };
 
+const getNotifications = async (req, res) => {
+  try {
+    const userId = req.id;
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: "User ID is required",
+      });
+    }
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    if (!user.notifications) {
+      return res.status(200).json({
+        success: true,
+        message: "No notifications yet",
+        notifications: {
+          allMessages: [],
+          newMessageCount: 0,
+        },
+      });
+    }
+
+    const notifications = await Notification.findById(user.notifications);
+
+    if (!notifications) {
+      return res.status(200).json({
+        success: true,
+        message: "No notifications found",
+        notifications: {
+          allMessages: [],
+          newMessageCount: 0,
+        },
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Notifications fetched successfully",
+      notifications,
+    });
+
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+    });
+  }
+};
+
 module.exports = {
   register,
   login,
@@ -333,5 +393,6 @@ module.exports = {
   updateProfile,
   applyJobs,
   bookmark,
+  getNotifications,
   remember,
 };

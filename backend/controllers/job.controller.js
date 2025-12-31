@@ -1,5 +1,6 @@
 const Company = require("../models/company.model");
 const Job = require("../models/job.model");
+const Notification = require("../models/notification.model");
 const User = require("../models/user.model");
 
 const postJob = async (req, res) => {
@@ -69,11 +70,11 @@ const getAllJobs = async (req, res) => {
 
     const query = keyword
       ? {
-          $or: [
-            { title: { $regex: keyword, $options: "i" } },
-            { description: { $regex: keyword, $options: "i" } },
-          ],
-        }
+        $or: [
+          { title: { $regex: keyword, $options: "i" } },
+          { description: { $regex: keyword, $options: "i" } },
+        ],
+      }
       : {};
 
     const jobs = await Job.find(query);
@@ -93,7 +94,7 @@ const getAllJobs = async (req, res) => {
 
 const getTrendingJobs = async (req, res) => {
   try {
-    const jobs = await Job.find({}).sort({salary: -1}).limit(6);
+    const jobs = await Job.find({}).sort({ salary: -1 }).limit(6);
 
     res.status(200).json({
       success: true,
@@ -238,11 +239,13 @@ const approve = async (req, res) => {
       (userId) => userId.toString() !== id
     );
 
+    const user = await User.findById(id);
+
     if (!job.approvedApplicant.includes(id)) {
       job.approvedApplicant.push(id);
       await job.save();
 
-      const user = await User.findById(id);
+
 
       user.rejectedJobs = user.rejectedJobs.filter(
         (jobIds) => jobIds.toString() !== jobId
@@ -254,6 +257,32 @@ const approve = async (req, res) => {
 
       await user.save();
     }
+
+    //Send Notification to User.
+    let notificationSchemaId = user.notifications;
+    let notificationSchema = await Notification.findById(notificationSchemaId);
+
+    if (!notificationSchema) {
+      const newNotification = await Notification.create({
+        allMessages: [{
+          message: `${job.company} accepted your application for role ${job.title}`,
+          time: new Date(),
+        }],
+        newMessageCount: 1,
+      })
+      user.notifications = newNotification._id;
+      await user.save();
+      await newNotification.save();
+    } else {
+      notificationSchema.allMessages.push({
+        message: `${job.company} accepted your application for role ${job.title}`,
+        time: new Date(),
+      });
+
+      notificationSchema.newMessageCount += 1;
+      await notificationSchema.save();
+    }
+
 
     return res.status(200).json({
       success: true,
@@ -292,17 +321,42 @@ const reject = async (req, res) => {
     job.approvedApplicant = job.approvedApplicant.filter(
       (userId) => userId.toString() !== id
     );
-
+      const user = await User.findById(id);
     if (!job.rejectedApplicant.includes(id)) {
       job.rejectedApplicant.push(id);
       await job.save();
 
-      const user = await User.findById(id);
       user.approvedJobs = user.approvedJobs.filter(
         (jobIds) => jobIds.toString() !== jobId
       );
       user.rejectedJobs.push(jobId);
       await user.save();
+    }
+
+
+    //Send Notification to User.
+    let notificationSchemaId = user.notifications;
+    let notificationSchema = await Notification.findById(notificationSchemaId);
+
+    if (!notificationSchema) {
+      const newNotification = await Notification.create({
+        allMessages: [{
+          message: `${job.company} rejected your application for role ${job.title}`,
+          time: new Date(),
+        }],
+        newMessageCount: 1,
+      })
+      user.notifications = newNotification._id;
+      await user.save();
+      await newNotification.save();
+    } else {
+      notificationSchema.allMessages.push({
+        message: `${job.company} rejected your application for role ${job.title}`,
+        time: new Date(),
+      });
+
+      notificationSchema.newMessageCount += 1;
+      await notificationSchema.save();
     }
 
     return res.status(200).json({
@@ -321,7 +375,7 @@ const reject = async (req, res) => {
 
 const applyFilter = async (req, res) => {
   try {
-    const {pageno} = req.params;
+    const { pageno } = req.params;
     const { vacancy, salary, jobType, location } = req.body;
 
     let query = {};
@@ -347,7 +401,7 @@ const applyFilter = async (req, res) => {
       sort.salary = -1;
     }
     const countJobs = await Job.find(query).countDocuments();
-    const jobs = await Job.find(query).sort(sort).skip((pageno-1)*6).limit(6);
+    const jobs = await Job.find(query).sort(sort).skip((pageno - 1) * 6).limit(6);
     return res.status(200).json({
       countJobs,
       success: true,
@@ -360,6 +414,7 @@ const applyFilter = async (req, res) => {
     });
   }
 };
+
 
 
 module.exports = {
