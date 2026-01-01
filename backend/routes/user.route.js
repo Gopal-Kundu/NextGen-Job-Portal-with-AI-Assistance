@@ -30,5 +30,5 @@ router.post(
 router.post("/apply", isAuthenticated, applyJobs);
 router.post("/bookmark", isAuthenticated, bookmark);
 router.get("/remember", isAuthenticated, remember);
-router.get('/notification', isAuthenticated, getNotifications);
+router.get('/notification/:userId', isAuthenticated, getNotifications);
 module.exports = router;

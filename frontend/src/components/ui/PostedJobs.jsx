@@ -72,7 +72,7 @@ export default function PostedJobs({ postedJobs }) {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {postedJobs?.map((job, index) => (
+              {postedJobs?.slice().reverse().map((job, index) => (
                 <tr key={index}>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center gap-3">

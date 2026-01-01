@@ -88,7 +88,7 @@ const login = async (req, res) => {
     await user.populate("savedJobs");
     await user.populate("postedJobs");
     await user.populate("appliedJobs");
-
+    await user.populate("notifications");
     const userData = {
       _id: user._id,
       fullname: user.fullname,
@@ -100,6 +100,7 @@ const login = async (req, res) => {
       savedJobs: user.savedJobs,
       postedJobs: user.postedJobs,
       appliedJobs: user.appliedJobs,
+      notifications: user.notifications,
     };
 
     return res
@@ -308,7 +309,8 @@ const remember = async (req, res) => {
       .populate("createdCompanies")
       .populate("savedJobs")
       .populate("appliedJobs")
-      .populate("postedJobs");
+      .populate("postedJobs")
+      .populate("notifications");
 
     if (!user) {
       return res
@@ -329,7 +331,7 @@ const remember = async (req, res) => {
 
 const getNotifications = async (req, res) => {
   try {
-    const userId = req.id;
+    const userId = req.params.userId;
 
     if (!userId) {
       return res.status(400).json({
@@ -358,8 +360,12 @@ const getNotifications = async (req, res) => {
       });
     }
 
-    const notifications = await Notification.findById(user.notifications);
-
+    const notifications = await Notification.findByIdAndUpdate(
+      user.notifications,
+      { $set: { newMessageCount: 0 } },
+      { new: true }
+    );
+    
     if (!notifications) {
       return res.status(200).json({
         success: true,

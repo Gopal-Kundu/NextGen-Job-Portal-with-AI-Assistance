@@ -29,7 +29,6 @@ export default function Profile() {
           <div className="flex-grow -mt-8">
             <main className="w-full mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {/* Profile Card */}
                 <div className="relative md:col-span-1">
                   <div
                     className={`absolute z-2 flex items-center border w-min px-2 text-white font-semibold shadow-md rounded-2xl gap-1 ${
@@ -107,7 +106,7 @@ export default function Profile() {
                           </thead>
 
                           <tbody className="divide-y divide-gray-200">
-                            {user?.appliedJobs?.map((job, i) => (
+                            {user?.appliedJobs?.slice().reverse().map((job, i) => (
                               <tr key={i}>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                   <div className="text-sm font-medium text-gray-900 flex items-center gap-2">

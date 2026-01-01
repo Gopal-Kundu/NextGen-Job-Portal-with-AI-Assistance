@@ -30,7 +30,7 @@ export default function Sidebar({ highlightIndex }) {
           <aside className="w-64 bg-gray-50 shadow-lg flex flex-col">
             {/* Logo */}
             <div className="flex items-center justify-between px-10 space-y-3 mt-4 border-b border-gray-200">
-              <h1 className="text-2xl font-bold text-purple-700">JobPortal</h1>
+              <h1 className="text-2xl font-bold text-purple-700">Job Portal</h1>
               <SidebarClose
                 className="cursor-pointer mb-3"
                 onClick={() => setIsOpen(false)}
@@ -90,24 +90,12 @@ export default function Sidebar({ highlightIndex }) {
                   Saved Jobs
                 </Link>
               )}
-              {user && (
-                <Link
-                  to="/resumemaker"
-                  className={`flex items-center px-4 py-3 rounded-lg font-semibold ${
-                    highlightIndex === 5
-                      ? "bg-purple-100 text-purple-700"
-                      : "text-gray-600 hover:bg-gray-300 transition duration-200"
-                  }`}
-                >
-                  <span className="material-icons mr-3">description</span>
-                  Resume Builder
-                </Link>
-              )}
+             
               {(user?.role && user?.role==="recruiter") && (
                 <Link
                   to="/companies"
                   className={`flex items-center px-4 py-3 rounded-lg font-semibold ${
-                    highlightIndex === 6
+                    highlightIndex === 5
                       ? "bg-purple-100 text-purple-700"
                       : "text-gray-600 hover:bg-gray-300 transition duration-200"
                   }`}

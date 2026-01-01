@@ -8,24 +8,17 @@ import ResumePage from "./components/shared/ResumePage";
 import SavedJobs from "./components/shared/SavedJobs";
 import JobDescription from "./components/shared/JobDescription";
 import axios from "axios";
-import LoadingOverlay from "./components/ui/LoadingOverlay";
 import { useEffect, useState } from "react";
-import { JOB_API_END_POINT, USER_API_END_POINT } from "./utils/address";
-import { setJobs, setTotalJobs } from "./redux/jobSlice";
-import { toast } from "sonner";
+import { USER_API_END_POINT } from "./utils/address";
 import CompanyListPage from "./components/shared/CompanyListPage";
 import LoadingPage from "./components/ui/LoadingPage";
 import { useDispatch } from "react-redux";
 import ApplicationsList from "./components/shared/ApplicationList";
 import CompanyPage from "./components/shared/CompanyPage";
-import { setUser } from "./redux/authSlice";
+import { setNotificationCount, setUser } from "./redux/authSlice";
 import ApplicationPage from "./components/ui/ApplicationPage";
 import SearchJob from "./components/shared/SearchJob";
 import ErrorPage from "./components/shared/ErrorPage";
-import ResumeBuilderStartingPage from "./components/shared/ResumeBuilder/Starting Page/ResumeBuilderStartingPage";
-import Resume1 from "./components/shared/ResumeBuilder/Resume Pages/Resume1";
-import { ChooseTemplatePage } from "./components/shared/ResumeBuilder/Starting Page/ChooseTemplatePage";
-import ResumeDetails from "./components/shared/ResumeBuilder/ResumeDetailsPage/ResumeDetails";
 import NotificationPage from "./components/shared/NotificationPage";
 
 const url = "/resumemaker/choose-template";
@@ -43,10 +36,6 @@ const appRouter = createBrowserRouter([
   { path: "/company/:id", element: <CompanyPage /> },
   { path: "/view-application/:id", element: <ApplicationPage/>},
   {path: "/search", element: <SearchJob/>},
-  {path: "/resumemaker", element: <ResumeBuilderStartingPage/>},
-  {path: "/resumemaker/choose-template", element: <ChooseTemplatePage/>},
-  {path: `${url}/resume-template-1`, element: <Resume1/>},
-  {path: "/resumemaker/fill-details", element: <ResumeDetails/>},
   {path: "/notifications", element: <NotificationPage/>}
 ]);   
 
@@ -63,6 +52,7 @@ function App() {
         });
         if (res.data.success) {
           dispatch(setUser(res.data.user));
+          dispatch(setNotificationCount(res.data.user.notifications.newMessageCount));
         }
       } catch (err) {
       } finally {

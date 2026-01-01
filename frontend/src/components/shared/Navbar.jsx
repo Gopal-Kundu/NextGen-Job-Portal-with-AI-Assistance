@@ -4,27 +4,28 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@radix-ui/react-popover";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { useLogout } from "../auth/Logout";
-import { Bell } from 'lucide-react';
+import { Bell } from "lucide-react";
 import axios from "axios";
 import { USER_API_END_POINT } from "@/utils/address";
+import { useEffect, useState } from "react";
+import LoadingOverlay from "../ui/LoadingOverlay";
+import { setNotificationCount } from "@/redux/authSlice";
 const navLinks = [
   { name: "Home", path: "/" },
   { name: "Jobs", path: "/Jobs" },
   { name: "My resume", path: "/resumepage" },
   { name: "Saved Jobs", path: "/savedjobs" },
   { name: "Companies", path: "/companies" },
-  { name: "Resume Maker", path: "/resumemaker"}
 ];
-
-
-
 
 export default function Navbar() {
   const logout = useLogout();
+  const dispatch = useDispatch();
   const user = useSelector((store) => store.auth.user);
+  const notificationCount = useSelector((store)=> store.auth.notificationCount);
   const navigate = useNavigate();
 
   return (
@@ -36,9 +37,9 @@ export default function Navbar() {
 
         <nav className="hidden md:flex items-center gap-10 text-2xl font-semibold">
           {navLinks?.map((link, idx) => {
-            if (!user && (idx === 2 || idx === 3 || idx ===4)) return null;
-            else if( user?.role === "student" && (idx === 4)) return null;
-            else if( user?.role === "recruiter" && (idx===2)) return null;
+            if (!user && (idx === 2 || idx === 3 || idx === 4)) return null;
+            else if (user?.role === "student" && idx === 4) return null;
+            else if (user?.role === "recruiter" && idx === 2) return null;
             return (
               <Link
                 key={idx}
@@ -53,47 +54,62 @@ export default function Navbar() {
 
         {user ? (
           <div className="flex items-center gap-5">
-            {user?.role == "student" ? 
-                <Bell className="cursor-pointer" onClick={()=>navigate("/notifications")}/>:""}
-          <Popover>
-            <PopoverTrigger>
-              <div className="flex items-center cursor-pointer hover:scale-105 transition-transform duration-200 relative z-20">
-                <img
-                  alt="User Avatar"
-                  className="w-8 h-8 rounded-full"
-                  src={
-                    user?.profile?.profilePhoto ||
-                    "https://www.refugee-action.org.uk/wp-content/uploads/2016/10/anonymous-user.png"
-                  }
-                />
-              </div>
-            </PopoverTrigger>
-
-            <PopoverContent className="bg-white rounded-lg shadow-md p-4 w-56 relative z-30">
-              <div className="py-2 border-b">
-                <p className="font-semibold text-gray-800">{user?.fullname}</p>
-                <p className="text-sm text-gray-500">
-                  {user?.profile?.bio || "No Bio"}
-                </p>
-              </div>
-
-              <Link
-                className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 rounded"
-                to="/profile"
+            {user?.role === "student" && (
+              <div
+                className="relative cursor-pointer"
+                onClick={() => navigate("/notifications")}
               >
-                <span className="material-icons">visibility</span>
-                <span>View Profile</span>
-              </Link>
+                <Bell className="w-6 h-6" onClick={()=>dispatch(setNotificationCount(0))}/>
 
-              <button
-                className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 rounded w-full text-left cursor-pointer"
-                onClick={logout}
-              >
-                <span className="material-icons">logout</span>
-                <span>Logout</span>
-              </button>
-            </PopoverContent>
-          </Popover>
+                {notificationCount > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                    {notificationCount}
+                  </span>
+                )}
+              </div>
+            )}
+
+            <Popover>
+              <PopoverTrigger>
+                <div className="flex items-center cursor-pointer hover:scale-105 transition-transform duration-200 relative z-20">
+                  <img
+                    alt="User Avatar"
+                    className="w-8 h-8 rounded-full"
+                    src={
+                      user?.profile?.profilePhoto ||
+                      "https://www.refugee-action.org.uk/wp-content/uploads/2016/10/anonymous-user.png"
+                    }
+                  />
+                </div>
+              </PopoverTrigger>
+
+              <PopoverContent className="bg-white rounded-lg shadow-md p-4 w-56 relative z-30">
+                <div className="py-2 border-b">
+                  <p className="font-semibold text-gray-800">
+                    {user?.fullname}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    {user?.profile?.bio || "No Bio"}
+                  </p>
+                </div>
+
+                <Link
+                  className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 rounded"
+                  to="/profile"
+                >
+                  <span className="material-icons">visibility</span>
+                  <span>View Profile</span>
+                </Link>
+
+                <button
+                  className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 rounded w-full text-left cursor-pointer"
+                  onClick={logout}
+                >
+                  <span className="material-icons">logout</span>
+                  <span>Logout</span>
+                </button>
+              </PopoverContent>
+            </Popover>
           </div>
         ) : (
           <div className="flex gap-3 items-center">

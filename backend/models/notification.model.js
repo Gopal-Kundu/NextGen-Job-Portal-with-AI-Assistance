@@ -5,12 +5,13 @@ const notificationSchema = new mongoose.Schema({
         type: [{
             message: { type: String },
             time: { type: String },
+            companyLogo: { type: String },
         }]
     },
     newMessageCount: {
         type: Number,
         default: 0
-    }
+    },
 })
 
 const Notification = mongoose.model("Notifications", notificationSchema);

@@ -267,6 +267,7 @@ const approve = async (req, res) => {
         allMessages: [{
           message: `${job.company} accepted your application for role ${job.title}`,
           time: new Date(),
+          companyLogo: job.logo,
         }],
         newMessageCount: 1,
       })
@@ -277,6 +278,7 @@ const approve = async (req, res) => {
       notificationSchema.allMessages.push({
         message: `${job.company} accepted your application for role ${job.title}`,
         time: new Date(),
+        companyLogo: job.logo,
       });
 
       notificationSchema.newMessageCount += 1;
@@ -343,6 +345,7 @@ const reject = async (req, res) => {
         allMessages: [{
           message: `${job.company} rejected your application for role ${job.title}`,
           time: new Date(),
+          companyLogo: job.logo,
         }],
         newMessageCount: 1,
       })
@@ -353,6 +356,7 @@ const reject = async (req, res) => {
       notificationSchema.allMessages.push({
         message: `${job.company} rejected your application for role ${job.title}`,
         time: new Date(),
+        companyLogo: job.logo,
       });
 
       notificationSchema.newMessageCount += 1;

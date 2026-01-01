@@ -1,4 +1,4 @@
-import { setUser, setLoading } from "@/redux/authSlice";
+import { setUser, setLoading, setNotificationCount } from "@/redux/authSlice";
 import { USER_API_END_POINT } from "@/utils/address";
 import axios from "axios";
 import { Loader2 } from "lucide-react";
@@ -43,6 +43,7 @@ export default function Login() {
           duration: 1000,
         });
         dispatch(setUser(res.data.user));
+        dispatch(setNotificationCount(res.data.user?.notifications?.newMessageCount));
         navigate("/");
       }
     } catch (error) {
