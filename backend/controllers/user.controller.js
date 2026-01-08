@@ -124,7 +124,7 @@ const login = async (req, res) => {
 
 const logout = async (req, res) => {
   try {
-    res.status(200).cookie("token", " ", {
+    res.status(200).clearCookie("token", {
       maxAge: 0,
       httpOnly: true,
       sameSite: "none",
