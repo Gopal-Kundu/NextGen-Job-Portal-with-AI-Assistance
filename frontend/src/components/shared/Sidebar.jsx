@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { useLogout } from "../auth/Logout";
 import { Menu, SidebarClose } from "lucide-react";
+import { useLogout } from "../auth/useLogout";
 
 export default function Sidebar({ highlightIndex }) {
   const user = useSelector((store) => store.auth.user);

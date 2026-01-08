@@ -124,10 +124,11 @@ const login = async (req, res) => {
 
 const logout = async (req, res) => {
   try {
-    res.status(200).clearCookie("token", {
+    res.status(200).cookie("token", " ", {
+      maxAge: 0,
       httpOnly: true,
-      secure: true,
       sameSite: "none",
+      secure: true,
     }).json({
       message: "Logged Out Successfully",
       success: true,
@@ -365,7 +366,7 @@ const getNotifications = async (req, res) => {
       { $set: { newMessageCount: 0 } },
       { new: true }
     );
-    
+
     if (!notifications) {
       return res.status(200).json({
         success: true,
