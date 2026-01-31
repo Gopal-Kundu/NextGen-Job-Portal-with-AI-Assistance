@@ -94,7 +94,7 @@ const getAllJobs = async (req, res) => {
 
 const getTrendingJobs = async (req, res) => {
   try {
-    const jobs = await Job.find({}).sort({ salary: -1 }).limit(6);
+    const jobs = await Job.find({}).sort({ salary: -1 }).limit(8);
 
     res.status(200).json({
       success: true,
