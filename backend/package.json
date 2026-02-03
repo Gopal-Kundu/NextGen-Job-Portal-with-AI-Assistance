@@ -2,6 +2,7 @@
   "name": "job-portal-webapp",
   "version": "1.0.0",
   "main": "index.js",
+  "type": "commonjs",
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
@@ -11,6 +12,7 @@
   "license": "ISC",
   "description": "This is Job Portal Project's Backend",
   "dependencies": {
+    "@google/genai": "^1.39.0",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",
     "cloudinary": "^2.7.0",
