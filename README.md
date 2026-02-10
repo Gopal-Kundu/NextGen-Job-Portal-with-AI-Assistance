@@ -14,3 +14,21 @@ A full-stack **Job Portal** for users to **apply for jobs**, **upload resumes**,
 **Backend:** Node.js, Express.js, MongoDB Atlas, Mongoose, Bcrypt, JWT, Cookie-parser  
 **APIs & Integrations:** RESTful APIs, Cloudinary (for file uploads)  
 **Deployment:** Vercel / Render
+
+
+## 📸 Screenshots
+
+### 🏠 Home Page
+![Home](frontend/screenshots/Home.png)
+
+### 🔍 Search Jobs
+![Search](frontend/screenshots/Search.png)
+
+### 👤 Applicant Dashboard
+![Applicant](frontend/screenshots/Applicant.png)
+
+### 💾 Saved Jobs
+![Saved Jobs](frontend/screenshots/SavedJobs.png)
+
+### 👤 Profile Page
+![Profile](frontend/screenshots/Profile.png)
