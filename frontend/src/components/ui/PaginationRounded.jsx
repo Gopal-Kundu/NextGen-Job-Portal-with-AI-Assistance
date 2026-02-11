@@ -43,7 +43,7 @@ export default function PaginationRounded() {
 
     getJobs(page);
   }, [page, filter]);
-if(loading) return <LoadingOverlay/>
+if(loading) return <LoadingOverlay message="Loading Jobs..."/>
   return (
     <Stack spacing={2}>
       <Pagination

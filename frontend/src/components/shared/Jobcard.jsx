@@ -1,4 +1,4 @@
-import { setLoading, setUser } from "@/redux/authSlice";
+import { setUser } from "@/redux/authSlice";
 import { USER_API_END_POINT } from "@/utils/address";
 import {
   ArrowRightIcon,
@@ -11,8 +11,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import axios from "axios";
-import LoadingOverlay from "../ui/LoadingOverlay";
 import { setJobs } from "@/redux/jobSlice";
+import { useState } from "react";
 
 export default function JobCard({
   id,
@@ -30,7 +30,9 @@ export default function JobCard({
 
   const dispatch = useDispatch();
   const user = useSelector((store) => store.auth.user);
-  const loading = useSelector((store) => store.auth.loading);
+  const [isApplying, setIsApplying] = useState(false);
+  const [actionType, setActionType] = useState("");
+
   const handleShare = async (id) => {
     if (navigator.share) {
       try {
@@ -44,6 +46,7 @@ export default function JobCard({
       }
     }
   };
+
   async function bookmarkHandler() {
     if (!user) {
       return toast.error("You must login first..", {
@@ -51,8 +54,6 @@ export default function JobCard({
         position: "top-center",
       });
     }
-
-    dispatch(setLoading(true));
 
     try {
       const res = await axios.post(
@@ -88,8 +89,6 @@ export default function JobCard({
         position: "top-center",
         duration: 2000,
       });
-    } finally {
-      dispatch(setLoading(false));
     }
   }
 
@@ -108,7 +107,9 @@ export default function JobCard({
       });
     }
 
-    dispatch(setLoading(true));
+    const alreadyApplied = user?.appliedJobs?.some((job) => job._id === id);
+    setActionType(alreadyApplied ? "removing" : "applying");
+    setIsApplying(true);
 
     try {
       const res = await axios.post(
@@ -130,10 +131,14 @@ export default function JobCard({
         );
       }
       if (res.status === 202) {
-        toast.success(res.data.message || "Successfully applied to the job.\nYour profile has been send.", {
-          position: "top-center",
-          duration: 2000,
-        });
+        toast.success(
+          res.data.message ||
+            "Successfully applied to the job.\nYour profile has been send.",
+          {
+            position: "top-center",
+            duration: 2000,
+          }
+        );
       }
 
       dispatch(
@@ -142,19 +147,17 @@ export default function JobCard({
           appliedJobs: res.data.appliedJobs,
         })
       );
-      // dispatch(setJobs(res.data.allJobs));
     } catch (error) {
       toast.error(error.response?.data?.message || "Something went wrong", {
         position: "top-center",
         duration: 2000,
       });
     } finally {
-      dispatch(setLoading(false));
+      setIsApplying(false);
+      setActionType("");
     }
   }
-  if (loading) {
-    return <LoadingOverlay message="Wait a sec..." />;
-  }
+
   return (
     <div className="bg-white p-5 rounded-xl shadow-lg max-w-sm w-full transition-all duration-300 hover:shadow-xl flex flex-col gap-4 justify-between">
       <div className="flex justify-between items-center">
@@ -222,7 +225,10 @@ export default function JobCard({
           </button>
         </Link>
 
-        <button onClick={()=>handleShare(id)} className="w-full flex items-center justify-center bg-gray-100 py-2 rounded-lg hover:bg-gray-200 transition-colors duration-200">
+        <button
+          onClick={() => handleShare(id)}
+          className="w-full flex items-center justify-center bg-gray-100 py-2 rounded-lg hover:bg-gray-200 transition-colors duration-200"
+        >
           <Share className="mr-1" size={16} />
           Share
         </button>
@@ -232,14 +238,23 @@ export default function JobCard({
           onClick={applyHandler}
           className="w-full flex items-center justify-center bg-[#8200db] text-white py-2 rounded-lg hover:bg-[#591188] transition-colors duration-200"
         >
-          {user?.appliedJobs?.some((job) => job._id === id) ? (
-            <CheckCircle size={16} className="mr-1" />
+          {isApplying ? (
+            actionType === "removing" ? (
+              "Removing..."
+            ) : (
+              "Applying..."
+            )
+          ) : user?.appliedJobs?.some((job) => job._id === id) ? (
+            <>
+              <CheckCircle size={16} className="mr-1" />
+              Applied
+            </>
           ) : (
-            <ArrowRightIcon size={16} className="mr-1" />
+            <>
+              <ArrowRightIcon size={16} className="mr-1" />
+              Apply
+            </>
           )}
-          {user?.appliedJobs?.some((job) => job._id === id)
-            ? "Applied"
-            : "Apply"}
         </button>
       </div>
     </div>

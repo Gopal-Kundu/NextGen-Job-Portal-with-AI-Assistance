@@ -1,25 +1,21 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import LoadingOverlay from "./LoadingOverlay";
-import { setLoading } from "@/redux/authSlice";
-import { setFilterApplied, setFilterSlice, setJobs } from "@/redux/jobSlice";
-import axios from "axios";
-import { toast } from "sonner";
-import { JOB_API_END_POINT } from "@/utils/address";
+import { setFilterApplied, setFilterSlice } from "@/redux/jobSlice";
 
 function FilterJobs({ isOpen, setIsOpen }) {
-  const loading = useSelector((store)=> store.auth.loading);
   const dispatch = useDispatch();
+
   const [filter, setFilter] = useState({
-    vacancy: "",
-    salary: "",
+    salarySort: "",
     jobType: "",
     location: "",
+    vacancyRange: 50,
+    salaryRange: 50000,
   });
 
   const applyFilter = async () => {
     setIsOpen();
-    dispatch(setFilterSlice(filter)); 
+    dispatch(setFilterSlice(filter));
     dispatch(setFilterApplied(true));
   };
 
@@ -39,55 +35,67 @@ function FilterJobs({ isOpen, setIsOpen }) {
                 </h1>
               </div>
 
-              {/* vacancy */}
               <div>
-                <p className="text-sm font-medium mb-2">Vacancy</p>
-                <div className="flex gap-3">
-                  <span
-                    onClick={() =>
-                      setFilter((prev) => ({
-                        ...prev,
-                        vacancy:
-                          prev.vacancy === "ascending" ? "" : "ascending",
-                      }))
-                    }
-                    className={`px-4 py-2 rounded-full border cursor-pointer hover:bg-gray-100 ${
-                      filter.vacancy === "ascending" ? "bg-gray-100" : ""
-                    }`}
-                  >
-                    Ascending
-                  </span>
-
-                  <span
-                    onClick={() =>
-                      setFilter((prev) => ({
-                        ...prev,
-                        vacancy:
-                          prev.vacancy === "descending" ? "" : "descending",
-                      }))
-                    }
-                    className={`px-4 py-2 rounded-full border cursor-pointer hover:bg-gray-100 ${
-                      filter.vacancy === "descending" ? "bg-gray-100" : ""
-                    }`}
-                  >
-                    Descending
-                  </span>
+                <p className="text-sm font-medium mb-2">
+                  Vacancy (≤ {filter.vacancyRange})
+                </p>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="1"
+                  value={filter.vacancyRange}
+                  onChange={(e) =>
+                    setFilter((prev) => ({
+                      ...prev,
+                      vacancyRange: e.target.value,
+                    }))
+                  }
+                  className="w-full accent-purple-600"
+                />
+                <div className="flex justify-between text-xs text-gray-500 mt-1">
+                  <span>0</span>
+                  <span>100+</span>
                 </div>
               </div>
 
-              {/* Salary */}
               <div>
-                <p className="text-sm font-medium mb-2">Salary</p>
+                <p className="text-sm font-medium mb-2">
+                  Salary (≤ ₹{Number(filter.salaryRange).toLocaleString()})
+                </p>
+                <input
+                  type="range"
+                  min="0"
+                  max="200000"
+                  step="5000"
+                  value={filter.salaryRange}
+                  onChange={(e) =>
+                    setFilter((prev) => ({
+                      ...prev,
+                      salaryRange: e.target.value,
+                    }))
+                  }
+                  className="w-full accent-green-600"
+                />
+                <div className="flex justify-between text-xs text-gray-500 mt-1">
+                  <span>₹0</span>
+                  <span>₹2,00,000+</span>
+                </div>
+              </div>
+
+              <div>
+                <p className="text-sm font-medium mb-2">Salary Sort</p>
                 <div className="flex gap-3">
                   <span
                     onClick={() =>
                       setFilter((prev) => ({
                         ...prev,
-                        salary: prev.salary === "low-high" ? "" : "low-high",
+                        salarySort:
+                          prev.salarySort === "low-high" ? "" : "low-high",
                       }))
                     }
                     className={`px-4 py-2 rounded-full border cursor-pointer hover:bg-gray-100 ${
-                      filter.salary === "low-high" ? "bg-gray-100" : ""
+                      filter.salarySort === "low-high" ? "bg-gray-100" : ""
                     }`}
                   >
                     Low → High
@@ -97,11 +105,12 @@ function FilterJobs({ isOpen, setIsOpen }) {
                     onClick={() =>
                       setFilter((prev) => ({
                         ...prev,
-                        salary: prev.salary === "high-low" ? "" : "high-low",
+                        salarySort:
+                          prev.salarySort === "high-low" ? "" : "high-low",
                       }))
                     }
                     className={`px-4 py-2 rounded-full border cursor-pointer hover:bg-gray-100 ${
-                      filter.salary === "high-low" ? "bg-gray-100" : ""
+                      filter.salarySort === "high-low" ? "bg-gray-100" : ""
                     }`}
                   >
                     High → Low
@@ -109,7 +118,6 @@ function FilterJobs({ isOpen, setIsOpen }) {
                 </div>
               </div>
 
-              {/* Job Type */}
               <div>
                 <p className="text-sm font-medium mb-2">Job Type</p>
                 <div className="flex flex-wrap gap-3">
@@ -134,12 +142,11 @@ function FilterJobs({ isOpen, setIsOpen }) {
                 </div>
               </div>
 
-              {/* Location */}
               <div>
                 <p className="text-sm font-medium mb-2">Location</p>
                 <input
                   type="text"
-                  placeholder={`${filter.location === "" ? "Enter Location" : filter.location}`}
+                  placeholder="Enter Location"
                   className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"
                   onChange={(e) =>
                     setFilter((prev) => ({
@@ -147,9 +154,10 @@ function FilterJobs({ isOpen, setIsOpen }) {
                       location: e.target.value,
                     }))
                   }
-                  value={`${filter.location === "" ? "" : filter.location}`}
+                  value={filter.location}
                 />
               </div>
+
               <div className="flex justify-end pt-4">
                 <button
                   onClick={applyFilter}

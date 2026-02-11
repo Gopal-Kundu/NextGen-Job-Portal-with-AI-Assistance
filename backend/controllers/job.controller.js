@@ -380,7 +380,7 @@ const reject = async (req, res) => {
 const applyFilter = async (req, res) => {
   try {
     const { pageno } = req.params;
-    const { vacancy, salary, jobType, location } = req.body;
+    const { salaryRange, vacancyRange, jobType, location, salarySort } = req.body;
 
     let query = {};
     let sort = {};
@@ -393,19 +393,23 @@ const applyFilter = async (req, res) => {
       query.location = { $regex: location, $options: "i" };
     }
 
-    if (vacancy === "ascending") {
-      sort.vacancy = 1;
-    } else if (vacancy === "descending") {
-      sort.vacancy = -1;
+    if (vacancyRange !== undefined && vacancyRange !== null) {
+      query.vacancy = { $lte: Number(vacancyRange) };
     }
 
-    if (salary === "low-high") {
-      sort.salary = 1;
-    } else if (salary === "high-low") {
-      sort.salary = -1;
+    if (salaryRange !== undefined && salaryRange !== null) {
+      query.salary = { $lte: Number(salaryRange) };
     }
+
+    if (salarySort === "low-high") sort.salary = 1;
+    if (salarySort === "high-low") sort.salary = -1;
+
     const countJobs = await Job.find(query).countDocuments();
-    const jobs = await Job.find(query).sort(sort).skip((pageno - 1) * 6).limit(6);
+    const jobs = await Job.find(query)
+      .sort(sort)
+      .skip((pageno - 1) * 8)
+      .limit(8);
+
     return res.status(200).json({
       countJobs,
       success: true,
@@ -418,6 +422,8 @@ const applyFilter = async (req, res) => {
     });
   }
 };
+
+
 
 
 

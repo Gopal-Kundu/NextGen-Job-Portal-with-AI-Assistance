@@ -45,53 +45,68 @@ export default function EnterResumeForm({ isHide }) {
           duration: 2000,
         });
       }
-    }catch(error){
-        toast.error("Something is Wrong... Please try again later.",{
-            position: "top-center",
-            duration: 2000
-        })
+    } catch (error) {
+      toast.error("Something is Wrong... Please try again later.", {
+        position: "top-center",
+        duration: 2000,
+      });
     } finally {
-        dispatch(setLoading(false));
+      dispatch(setLoading(false));
     }
   };
 
   return (
     <>
       {user ? (
-          <div className="fixed inset-0 backdrop-filter backdrop-brightness-75 bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white p-6 rounded shadow-lg w-full max-w-md">
-              <h2 className="text-xl font-semibold mb-4">Upload Your Resume</h2>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl p-8">
+            <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+              Upload Your Resume
+            </h2>
 
-              <form onSubmit={handleSubmit}>
-
-                
-                    <input
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="w-full">
+                <input
                   type="file"
-                  
+                  id="resume"
                   onChange={handleFileChange}
-                  className="mb-4 cursor-pointer"
+                  className="hidden"
                 />
-                <div className="flex justify-between">
-                {
-                    submitHide ? (null):(<button
+
+                <label
+                  htmlFor="resume"
+                  className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-blue-400 rounded-xl cursor-pointer hover:bg-blue-50 transition"
+                >
+                  <span className="text-blue-600 font-semibold">
+                    Click to upload resume
+                  </span>
+                  <span className="text-sm text-gray-500 mt-1">
+                    {resume ? resume.name : "PDF, DOC, DOCX"}
+                  </span>
+                </label>
+              </div>
+
+              <div className="flex items-center justify-end gap-3">
+                {submitHide ? null : (
+                  <button
                     type="submit"
-                    className="cursor-pointer bg-blue-300 active:scale-90 text-black px-4 py-2 rounded"
+                    className="px-5 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 active:scale-95 transition"
                   >
                     Submit
-                  </button>)
-                }
-                
-                  <button
-                    type="button"
-                    onClick={isHide}
-                    className="bg-gray-300 cursor-pointer active:scale-90 text-black px-4 py-2 rounded"
-                  >
-                    Cancel
                   </button>
-                </div>
-              </form>
-            </div>
+                )}
+
+                <button
+                  type="button"
+                  onClick={isHide}
+                  className="px-5 py-2 rounded-lg bg-gray-200 text-gray-800 font-medium hover:bg-gray-300 active:scale-95 transition"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
           </div>
+        </div>
       ) : null}
     </>
   );

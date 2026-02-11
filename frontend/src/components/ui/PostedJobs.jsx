@@ -42,7 +42,7 @@ export default function PostedJobs({ postedJobs }) {
       <div className="bg-white rounded-lg shadow-md">
         <div className="flex justify-between">
           <div className="px-6 py-2 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">Posted Jobs</h3>
+            <h3 className="text-lg font-semibold text-gray-900"></h3>
           </div>
           <button
             type="button"

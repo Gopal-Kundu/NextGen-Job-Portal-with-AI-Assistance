@@ -4,18 +4,46 @@ import Sidebar from "./Sidebar";
 import { useSelector } from "react-redux";
 import { EditProfile } from "./EditProfile";
 import LoadingOverlay from "../ui/LoadingOverlay";
-import { Badge, ShieldCheck } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import PostedJobs from "../ui/PostedJobs";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 export default function Profile() {
   const user = useSelector((store) => store.auth.user);
   const id = user?._id;
   const loading = useSelector((store) => store.auth.loading);
   const navigate = useNavigate();
+  const [search, setSearch] = useState("");
+
   const skillsArray = user?.profile?.skills
-    .split(",")
+    ?.split(",")
     .map((skill) => skill.trim());
+
+  const filteredAppliedJobs = user?.appliedJobs
+    ?.slice()
+    .reverse()
+    .filter((job) => {
+      const status = job?.approvedApplicant.includes(id)
+        ? "approved"
+        : job?.rejectedApplicant.includes(id)
+        ? "rejected"
+        : "pending";
+
+      return (
+        job?.company?.toLowerCase().includes(search.toLowerCase()) ||
+        job?.title?.toLowerCase().includes(search.toLowerCase()) ||
+        status.includes(search.toLowerCase())
+      );
+    });
+
+  const filteredPostedJobs = user?.postedJobs?.filter((job) => {
+    return (
+      job?.company?.toLowerCase().includes(search.toLowerCase()) ||
+      job?.title?.toLowerCase().includes(search.toLowerCase()) ||
+      job?.status?.toLowerCase().includes(search.toLowerCase())
+    );
+  });
 
   return (
     <>
@@ -63,32 +91,53 @@ export default function Profile() {
 
                     <div className="mt-6">
                       <div className="flex justify-center flex-wrap gap-2">
-                        {user?.profile?.skills
-                          ? skillsArray.map((skill, i) => (
-                              <span
-                                key={i}
-                                className="rounded-full bg-gray-300 px-3 py-1 text-sm font-medium text-gray-700 active:scale-90 transition-transform duration 100"
-                              >
-                                {skill.trim()}
-                              </span>
-                            ))
-                          : null}
+                        {skillsArray?.map((skill, i) => (
+                          <span
+                            key={i}
+                            className="rounded-full bg-gray-300 px-3 py-1 text-sm font-medium text-gray-700 active:scale-90 transition-transform duration 100"
+                          >
+                            {skill}
+                          </span>
+                        ))}
                       </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Applied Jobs Table */}
                 {user?.role != "student" ? (
-                  <PostedJobs postedJobs={user?.postedJobs} />
+                  <div className="md:col-span-2">
+                    <div className="bg-white rounded-lg shadow-md">
+                      <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between gap-4">
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          Posted Jobs
+                        </h3>
+                        <input
+                          type="text"
+                          value={search}
+                          onChange={(e) => setSearch(e.target.value)}
+                          placeholder="Search company, role, status..."
+                          className="w-64 px-3 py-1.5 border rounded-lg text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        />
+                      </div>
+                      <PostedJobs postedJobs={filteredPostedJobs} />
+                    </div>
+                  </div>
                 ) : (
                   <div className="md:col-span-2">
                     <div className="bg-white rounded-lg shadow-md">
-                      <div className="px-6 py-4 border-b border-gray-200">
+                      <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between gap-4">
                         <h3 className="text-lg font-semibold text-gray-900">
                           Applied Jobs
                         </h3>
+                        <input
+                          type="text"
+                          value={search}
+                          onChange={(e) => setSearch(e.target.value)}
+                          placeholder="Search company, role, status..."
+                          className="w-64 px-3 py-1.5 border rounded-lg text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        />
                       </div>
+
                       <div className="overflow-x-auto">
                         <table className="w-full text-left">
                           <thead className="bg-gray-50">
@@ -106,35 +155,50 @@ export default function Profile() {
                           </thead>
 
                           <tbody className="divide-y divide-gray-200">
-                            {user?.appliedJobs?.slice().reverse().map((job, i) => (
-                              <tr key={i}>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                  <div className="text-sm font-medium text-gray-900 flex items-center gap-2">
-                                    <img src={job?.logo} className="h-10 w-10 object-contain rounded-md border"/> {job?.company}
-                                  </div>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                  <div className="text-sm text-gray-600 cursor-pointer" onClick={()=>navigate(`/jobs/${job?._id}`)}>
-                                    {job?.title}
-                                  </div>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-center">
-                                  {job?.approvedApplicant.includes(id) ? (
-                                    <span className="bg-green-100 text-green-700 px-3 py-1 rounded-xl font-semibold">
-                                      Approved
+                            {filteredAppliedJobs?.map((job, i) => {
+                              const status = job?.approvedApplicant.includes(id)
+                                ? "Approved"
+                                : job?.rejectedApplicant.includes(id)
+                                ? "Rejected"
+                                : "Pending";
+
+                              return (
+                                <tr key={i}>
+                                  <td className="px-6 py-4 whitespace-nowrap">
+                                    <div className="text-sm font-medium text-gray-900 flex items-center gap-2">
+                                      <img
+                                        src={job?.logo}
+                                        className="h-10 w-10 object-contain rounded-md border"
+                                      />
+                                      {job?.company}
+                                    </div>
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap">
+                                    <div
+                                      className="text-sm text-gray-600 cursor-pointer"
+                                      onClick={() =>
+                                        navigate(`/jobs/${job?._id}`)
+                                      }
+                                    >
+                                      {job?.title}
+                                    </div>
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap text-center">
+                                    <span
+                                      className={`px-3 py-1 rounded-xl font-semibold ${
+                                        status === "Approved"
+                                          ? "bg-green-100 text-green-700"
+                                          : status === "Rejected"
+                                          ? "bg-red-100 text-red-700"
+                                          : "bg-gray-200 text-gray-700"
+                                      }`}
+                                    >
+                                      {status}
                                     </span>
-                                  ) : job?.rejectedApplicant.includes(id) ? (
-                                    <span className="bg-red-100 text-red-700 px-3 py-1 rounded-xl font-semibold">
-                                      Rejected
-                                    </span>
-                                  ) : (
-                                    <span className="bg-gray-200 text-gray-700 px-3 py-1 rounded-xl font-semibold">
-                                      Pending
-                                    </span>
-                                  )}
-                                </td>
-                              </tr>
-                            ))}
+                                  </td>
+                                </tr>
+                              );
+                            })}
                           </tbody>
                         </table>
                       </div>

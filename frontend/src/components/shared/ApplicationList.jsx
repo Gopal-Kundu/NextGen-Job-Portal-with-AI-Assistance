@@ -39,9 +39,20 @@ export default function ApplicationsList() {
         { id: userId },
         { withCredentials: true }
       );
+
       if (res.data.success) {
-        window.location.reload();
-        toast.success(`Application approved`);
+        const updatedApplicants = applications.map((app) =>
+          app._id === userId
+            ? {
+              ...app,
+              approvedJobs: [...app.approvedJobs, id],
+              rejectedJobs: app.rejectedJobs.filter((jobId) => jobId !== id),
+            }
+            : app
+        );
+
+        dispatch(setApplicants(updatedApplicants));
+        toast.success("Application approved");
       }
     } catch {
       toast.error("Server error");
@@ -55,9 +66,20 @@ export default function ApplicationsList() {
         { id: userId },
         { withCredentials: true }
       );
+
       if (res.data.success) {
-        window.location.reload();
-        toast.success(`Application Rejected`);
+        const updatedApplicants = applications.map((app) =>
+          app._id === userId
+            ? {
+              ...app,
+              rejectedJobs: [...app.rejectedJobs, id],
+              approvedJobs: app.approvedJobs.filter((jobId) => jobId !== id),
+            }
+            : app
+        );
+
+        dispatch(setApplicants(updatedApplicants));
+        toast.success("Application rejected");
       }
     } catch {
       toast.error("Server error");
@@ -103,8 +125,8 @@ export default function ApplicationsList() {
                   {app?.rejectedJobs?.includes(id)
                     ? "Rejected"
                     : app?.approvedJobs?.includes(id)
-                    ? "Approved"
-                    : "Pending"}
+                      ? "Approved"
+                      : "Pending"}
                 </p>
               </div>
             </div>
@@ -116,11 +138,10 @@ export default function ApplicationsList() {
 
               <button
                 onClick={() => approve(app._id)}
-                className={`cursor-pointer px-3 py-1.5 text-white rounded text-sm w-full sm:w-auto ${
-                  app?.approvedJobs.includes(id)
+                className={`cursor-pointer px-3 py-1.5 text-white rounded text-sm w-full sm:w-auto ${app?.approvedJobs.includes(id)
                     ? "bg-green-800 cursor-default"
                     : "bg-green-600 hover:bg-green-700 cursor-pointer"
-                }`}
+                  }`}
                 disabled={app?.approvedJobs.includes(id)}
               >
                 {app?.approvedJobs.includes(id) ? "Approved" : "Approve"}
@@ -128,11 +149,10 @@ export default function ApplicationsList() {
 
               <button
                 onClick={() => reject(app._id)}
-                className={`cursor-pointer px-3 py-1.5 text-white rounded text-sm w-full sm:w-auto ${
-                  app?.rejectedJobs.includes(id)
+                className={`cursor-pointer px-3 py-1.5 text-white rounded text-sm w-full sm:w-auto ${app?.rejectedJobs.includes(id)
                     ? "bg-red-800 cursor-default"
                     : "bg-red-500 hover:bg-red-700"
-                }`}
+                  }`}
                 disabled={app?.rejectedJobs.includes(id)}
               >
                 {app?.rejectedJobs.includes(id) ? "Rejected" : "Reject"}
