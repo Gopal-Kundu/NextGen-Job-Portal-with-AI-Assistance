@@ -89,7 +89,7 @@ export function EditProfile() {
         duration: 2000,
       });
     } finally {
-      dispatch(setLoading(false))
+      dispatch(setLoading(false));
     }
   };
 
@@ -110,6 +110,7 @@ export function EditProfile() {
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="grid gap-3 sm:grid-cols-1 md:grid-cols-2">
+
           <div className="flex flex-col gap-1">
             <label className="text-sm">Full Name</label>
             <input
@@ -139,14 +140,51 @@ export function EditProfile() {
             />
           </div>
 
-          <div className="flex flex-col gap-1">
-            <label className="text-sm">Profile Photo</label>
-            <input
-              type="file"
-              accept=".png,.jpg,.jpeg,.webp"
-              onChange={(e) => setprofilePhoto(e.target.files[0])}
-              className="border rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-            />
+          <div className="flex flex-col gap-2">
+            <label className="text-sm font-medium">Profile Photo</label>
+
+            <div className="flex items-center gap-4">
+              {/* Profile Image */}
+              <img
+                src={
+                  profilePhoto
+                    ? URL.createObjectURL(profilePhoto)
+                    : user?.profile?.profilePhoto || "/default-avatar.png"
+                }
+                alt="Profile"
+                className="w-16 h-16 rounded-full object-cover border border-gray-300 shadow-sm"
+              />
+
+              {/* Upload Button */}
+              <div>
+                <input
+                  type="file"
+                  accept=".png,.jpg,.jpeg,.webp"
+                  onChange={(e) => setprofilePhoto(e.target.files[0])}
+                  id="profileUpload"
+                  className="hidden"
+                />
+
+                <label
+                  htmlFor="profileUpload"
+                  className="
+          px-4 py-2
+          bg-blue-500
+          text-white
+          text-sm font-medium
+          rounded-lg
+          cursor-pointer
+          hover:bg-primary-700
+          transition duration-200
+          shadow-sm
+        "
+                >
+                  {profilePhoto || user?.profile?.profilePhoto
+                    ? "Change"
+                    : "Upload New"}
+                </label>
+              </div>
+            </div>
           </div>
 
           <div className="flex flex-col gap-1 md:col-span-2">
@@ -202,12 +240,13 @@ export function EditProfile() {
               </Button>
             </DialogClose>
 
-            <Button type="submit" size="sm">
-              Save
+            <Button type="submit" size="sm" disabled={loading}>
+              {loading ? "Saving..." : "Save"}
             </Button>
           </DialogFooter>
+
         </form>
       </DialogContent>
-    </Dialog>
+    </Dialog >
   );
 }
