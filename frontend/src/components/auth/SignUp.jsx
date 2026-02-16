@@ -66,7 +66,6 @@ export default function SignUp() {
   return (
     <>
       <div className="relative min-h-screen min-w-screen">
-        {loading ? <LoadingOverlay message="Signing Up..."/> : null}
         <div className="md:hidden p-5 flex justify-center select-none md:select-auto ">
           <Link to="/"><JobPortal /></Link>
         </div>

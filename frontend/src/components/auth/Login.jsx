@@ -58,7 +58,6 @@ export default function Login() {
   return (
     <>
       <div className="relative h-screen w-screen">
-    {loading ? <LoadingOverlay message="Wait a sec..."/> : null}
         <div className="md:hidden p-5 flex justify-center select-none md:select-auto">
          <Link to="/"> <JobPortal /></Link>
         </div>
