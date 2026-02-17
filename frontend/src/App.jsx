@@ -20,6 +20,7 @@ import ApplicationPage from "./components/ui/ApplicationPage";
 import SearchJob from "./components/shared/SearchJob";
 import ErrorPage from "./components/shared/ErrorPage";
 import NotificationPage from "./components/shared/NotificationPage";
+import CompanySearch from "./components/shared/CompanySearch";
 
 const url = "/resumemaker/choose-template";
 const appRouter = createBrowserRouter([
@@ -36,7 +37,8 @@ const appRouter = createBrowserRouter([
   { path: "/company/:id", element: <CompanyPage /> },
   { path: "/view-application/:id", element: <ApplicationPage/>},
   {path: "/search", element: <SearchJob/>},
-  {path: "/notifications", element: <NotificationPage/>}
+  {path: "/notifications", element: <NotificationPage/>},
+  {path: "/companypage/:name", element: <CompanySearch/>}
 ]);   
 
 function App() {

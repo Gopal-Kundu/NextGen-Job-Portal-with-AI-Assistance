@@ -88,7 +88,7 @@ export default function CompanyListPage() {
                     >
                       Visit
                     </a>
-                  </td>
+                  </td> 
                 </tr>
               ))}
 

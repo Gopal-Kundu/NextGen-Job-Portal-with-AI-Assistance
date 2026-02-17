@@ -121,8 +121,45 @@ const deleteCompany = async (req, res) => {
   }
 };
 
+const getCompanyByName = async (req, res) => {
+  try {
+    const { name } = req.params;
+
+    if (!name) {
+      return res.status(400).json({
+        success: false,
+        message: "Company name is required",
+      });
+    }
+
+    const company = await Company.findOne({
+      name: { $regex: new RegExp(`^${name}$`, "i") },
+    });
+
+    if (!company) {
+      return res.status(404).json({
+        success: false,
+        message: "Company not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      company,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message,
+    });
+  }
+};
+
+
 module.exports = {
   registerCompany,
   getCompanyById,
-  deleteCompany
+  deleteCompany,
+  getCompanyByName
 };

@@ -133,7 +133,7 @@ export default function JobCard({
       if (res.status === 202) {
         toast.success(
           res.data.message ||
-            "Successfully applied to the job.\nYour profile has been send.",
+          "Successfully applied to the job.\nYour profile has been send.",
           {
             position: "top-center",
             duration: 2000,
@@ -166,27 +166,28 @@ export default function JobCard({
         </span>
 
         <button
-          className={`cursor-pointer hover:text-indigo-600 ${
-            user?.savedJobs?.some((job) => job._id === id)
+          className={`cursor-pointer hover:text-indigo-600 ${user?.savedJobs?.some((job) => job._id === id)
               ? "text-indigo-600"
               : "text-gray-400"
-          } transition-colors`}
+            } transition-colors`}
         >
           <Bookmark onClick={bookmarkHandler} />
         </button>
       </div>
 
       <div className="flex items-center gap-4">
-        <div className="w-14 h-14 flex justify-center items-center bg-gray-100 border rounded-xl overflow-hidden">
-          <img
-            src={
-              companyLogo ||
-              "https://cdn-icons-png.flaticon.com/512/6858/6858504.png"
-            }
-            alt="company logo"
-            className="object-contain w-full h-full"
-          />
-        </div>
+        <Link to={`/companyPage/${companyName}`}>
+          <div className="w-14 h-14 flex justify-center items-center bg-gray-100 border rounded-xl overflow-hidden">
+            <img
+              src={
+                companyLogo ||
+                "https://cdn-icons-png.flaticon.com/512/6858/6858504.png"
+              }
+              alt="company logo"
+              className="object-contain w-full h-full"
+            />
+          </div>
+        </Link>
 
         <div>
           <h2 className="text-lg font-bold text-gray-800">{role}</h2>
@@ -257,6 +258,6 @@ export default function JobCard({
           )}
         </button>
       </div>
-    </div>
+    </div >
   );
 }

@@ -4,6 +4,7 @@ const {
   registerCompany,
   getCompanyById,
   deleteCompany,
+  getCompanyByName,
 } = require("../controllers/company.controller");
 const upload = require("../middleware/multer");
 
@@ -17,5 +18,5 @@ router.post(
 );
 router.get("/get/:id", isAuthenticated, getCompanyById);
 router.get("/delete/:id",isAuthenticated, deleteCompany);
-
+router.get("/companypage/:name", getCompanyByName);
 module.exports = router;
