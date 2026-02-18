@@ -6,7 +6,7 @@ import { EditProfile } from "./EditProfile";
 import LoadingOverlay from "../ui/LoadingOverlay";
 import { ShieldCheck } from "lucide-react";
 import PostedJobs from "../ui/PostedJobs";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 export default function Profile() {

@@ -24,7 +24,7 @@ import CompanySearch from "./components/shared/CompanySearch";
 
 const url = "/resumemaker/choose-template";
 const appRouter = createBrowserRouter([
-  { path: "/", element: <Homepage />, errorElement: <ErrorPage /> },
+  { path: "/", element: <Homepage /> },
   { path: "/login", element: <Login /> },
   { path: "/jobs/:id", element: <JobDescription /> },
   { path: "/signup", element: <SignUp /> },
@@ -35,11 +35,12 @@ const appRouter = createBrowserRouter([
   { path: "/savedjobs", element: <SavedJobs /> },
   { path: "/applications/:id", element: <ApplicationsList /> },
   { path: "/company/:id", element: <CompanyPage /> },
-  { path: "/view-application/:id", element: <ApplicationPage/>},
-  {path: "/search", element: <SearchJob/>},
-  {path: "/notifications", element: <NotificationPage/>},
-  {path: "/companypage/:name", element: <CompanySearch/>}
-]);   
+  { path: "/view-application/:id", element: <ApplicationPage /> },
+  { path: "/search", element: <SearchJob /> },
+  { path: "/notifications", element: <NotificationPage /> },
+  { path: "/companypage/:name", element: <CompanySearch /> },
+  { path: "*", element: <ErrorPage /> }
+]);
 
 function App() {
   const [loading, setLoading] = useState(false);
