@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { JOB_API_END_POINT, USER_API_END_POINT } from "@/utils/address";
 import { CheckCircle, IndianRupee } from "lucide-react";
@@ -19,7 +19,7 @@ const JobDescription = () => {
   const user = useSelector((store) => store.auth.user);
   const allJobs = useSelector((store) => store.job.Jobs);
   const [refresh, setRefresh] = useState(false);
-
+  const navigate = useNavigate();
   useEffect(() => {
     async function fetchJob() {
       try {
@@ -120,11 +120,12 @@ const JobDescription = () => {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
             <div className="flex items-start gap-4">
               {job?.logo && (
-                <Link to={`/companyPage/${job.company}`}><img
+                <img
                   src={job.logo}
                   alt={`${job.company} logo`}
-                  className="w-16 h-16 object-contain rounded-md border border-gray-200 shadow-sm"
-                /></Link>
+                  onClick={() => navigate(`/companyPage/${job.company}`)}
+                  className="w-16 h-16 object-contain rounded-md border border-gray-200 shadow-sm cursor-pointer"
+                />
               )}
 
               <div>
