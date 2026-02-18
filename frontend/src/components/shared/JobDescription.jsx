@@ -120,11 +120,11 @@ const JobDescription = () => {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
             <div className="flex items-start gap-4">
               {job?.logo && (
-                <img
+                <Link to={`/companyPage/${job.company}`}><img
                   src={job.logo}
                   alt={`${job.company} logo`}
                   className="w-16 h-16 object-contain rounded-md border border-gray-200 shadow-sm"
-                />
+                /></Link>
               )}
 
               <div>
