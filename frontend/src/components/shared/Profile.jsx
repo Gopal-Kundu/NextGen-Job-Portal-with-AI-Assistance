@@ -27,8 +27,8 @@ export default function Profile() {
       const status = job?.approvedApplicant.includes(id)
         ? "approved"
         : job?.rejectedApplicant.includes(id)
-        ? "rejected"
-        : "pending";
+          ? "rejected"
+          : "pending";
 
       return (
         job?.company?.toLowerCase().includes(search.toLowerCase()) ||
@@ -59,11 +59,10 @@ export default function Profile() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div className="relative md:col-span-1">
                   <div
-                    className={`absolute z-2 flex items-center border w-min px-2 text-white font-semibold shadow-md rounded-2xl gap-1 ${
-                      user?.role === "recruiter"
+                    className={`absolute z-2 flex items-center border w-min px-2 text-white font-semibold shadow-md rounded-2xl gap-1 ${user?.role === "recruiter"
                         ? "bg-gradient-to-r from-red-400 to-red-600 border-red-700"
                         : "bg-gradient-to-r from-blue-400 to-blue-600 border-blue-700"
-                    }`}
+                      }`}
                   >
                     <ShieldCheck className="w-4 h-4" /> {user?.role}
                   </div>
@@ -73,10 +72,9 @@ export default function Profile() {
                       <div
                         className="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-32 w-32 mx-auto mb-4 ring-4 ring-primary-100"
                         style={{
-                          backgroundImage: `url("${
-                            user?.profile?.profilePhoto ||
+                          backgroundImage: `url("${user?.profile?.profilePhoto ||
                             "https://www.refugee-action.org.uk/wp-content/uploads/2016/10/anonymous-user.png"
-                          }")`,
+                            }")`,
                         }}
                       />
                       <EditProfile />
@@ -159,19 +157,19 @@ export default function Profile() {
                               const status = job?.approvedApplicant.includes(id)
                                 ? "Approved"
                                 : job?.rejectedApplicant.includes(id)
-                                ? "Rejected"
-                                : "Pending";
+                                  ? "Rejected"
+                                  : "Pending";
 
                               return (
                                 <tr key={i}>
                                   <td className="px-6 py-4 whitespace-nowrap">
-                                    <div className="text-sm font-medium text-gray-900 flex items-center gap-2">
+                                    <Link to={`/companyPage/${job?.company}`}><div className="text-sm font-medium text-gray-900 flex items-center gap-2">
                                       <img
                                         src={job?.logo}
                                         className="h-10 w-10 object-contain rounded-md border"
                                       />
                                       {job?.company}
-                                    </div>
+                                    </div></Link>
                                   </td>
                                   <td className="px-6 py-4 whitespace-nowrap">
                                     <div
@@ -185,13 +183,12 @@ export default function Profile() {
                                   </td>
                                   <td className="px-6 py-4 whitespace-nowrap text-center">
                                     <span
-                                      className={`px-3 py-1 rounded-xl font-semibold ${
-                                        status === "Approved"
+                                      className={`px-3 py-1 rounded-xl font-semibold ${status === "Approved"
                                           ? "bg-green-100 text-green-700"
                                           : status === "Rejected"
-                                          ? "bg-red-100 text-red-700"
-                                          : "bg-gray-200 text-gray-700"
-                                      }`}
+                                            ? "bg-red-100 text-red-700"
+                                            : "bg-gray-200 text-gray-700"
+                                        }`}
                                     >
                                       {status}
                                     </span>

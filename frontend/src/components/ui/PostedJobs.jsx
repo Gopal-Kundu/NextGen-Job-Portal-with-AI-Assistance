@@ -75,7 +75,7 @@ export default function PostedJobs({ postedJobs }) {
               {postedJobs?.slice().reverse().map((job, index) => (
                 <tr key={index}>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center gap-3">
+                    <Link to={`/companyPage/${job.company}`}><div className="flex items-center gap-3">
                       <img
                         src={job.logo}
                         alt="company logo"
@@ -84,7 +84,7 @@ export default function PostedJobs({ postedJobs }) {
                       <span className="text-sm font-medium text-gray-900">
                         {job.company}
                       </span>
-                    </div>
+                    </div></Link>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-600 cursor-pointer" onClick={()=>navigate(`/jobs/${job?._id}`)}>{job?.title}</div>
