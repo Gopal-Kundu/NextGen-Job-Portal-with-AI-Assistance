@@ -39,7 +39,7 @@ export default function ErrorPage() {
 
         {/* Countdown */}
         <p className="text-white/70 mt-6">
-          Redirecting to home in{" "}
+          Redirecting to home in
           <span className="font-bold text-white text-lg">{seconds}</span> seconds...
         </p>
 

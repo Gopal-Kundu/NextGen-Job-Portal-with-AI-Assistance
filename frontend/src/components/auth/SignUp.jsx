@@ -7,12 +7,12 @@ import Footer from "../shared/Footer";
 import JobPortal from "../shared/JobPortal";
 import { useDispatch, useSelector } from "react-redux";
 import { setLoading } from "@/redux/authSlice";
-import LoadingOverlay from "../ui/LoadingOverlay";
 
 export default function SignUp() {
-  const loading = useSelector((store)=>store.auth.loading);
+  const loading = useSelector((store) => store.auth.loading);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     fullname: "",
     email: "",
@@ -37,7 +37,9 @@ export default function SignUp() {
       Object.keys(formData).forEach((key) => {
         data.append(key, formData[key]);
       });
+
       dispatch(setLoading(true));
+
       const res = await axios.post(`${USER_API_END_POINT}/register`, data, {
         headers: { "Content-Type": "multipart/form-data" },
         withCredentials: true,
@@ -48,81 +50,79 @@ export default function SignUp() {
           position: "top-center",
           duration: 1000,
         });
-
-        navigate("/login"); 
+        navigate("/login");
       }
     } catch (error) {
-
       toast(
-        error.response.data.message ||
+        error.response?.data?.message ||
           "Something is wrong. Please try again later.",
         { position: "top-center", duration: 1000 }
       );
-    }finally{
-              dispatch(setLoading(false));
+    } finally {
+      dispatch(setLoading(false));
     }
   };
 
   return (
     <>
-      <div className="relative min-h-screen min-w-screen">
-        <div className="md:hidden p-5 flex justify-center select-none md:select-auto ">
-          <Link to="/"><JobPortal /></Link>
+      <div className="flex min-h-screen flex-col bg-gray-100">
+        <div className="md:hidden p-5 flex justify-center">
+          <Link to="/">
+            <JobPortal />
+          </Link>
         </div>
-        <div className="flex items-center justify-center bg-gray-50 select-none md:select-auto">
+
+        <div className="flex flex-1 items-center justify-center px-4">
           <form
             onSubmit={handleSubmit}
-            className="w-full max-w-md rounded-2xl bg-white p-6 shadow-lg"
+            className="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl"
           >
-            <h2 className="mb-6 text-left text-2xl font-bold">Sign Up</h2>
+            <h2 className="mb-6 text-2xl font-bold text-gray-800">
+              Create an Account
+            </h2>
 
-            {/* Full Name */}
             <input
               type="text"
               name="fullname"
               placeholder="Full Name"
               value={formData.fullname}
               onChange={handleChange}
-              className="mb-3 w-full rounded-lg border border-gray-300 p-3 focus:border-blue-500 focus:outline-none"
+              className="mb-4 w-full rounded-lg border border-gray-300 p-3 focus:border-indigo-500 focus:outline-none"
               required
             />
 
-            {/* Email */}
             <input
               type="email"
               name="email"
-              placeholder="Email"
+              placeholder="Email Address"
               value={formData.email}
               onChange={handleChange}
-              className="mb-3 w-full rounded-lg border border-gray-300 p-3 focus:border-blue-500 focus:outline-none"
+              className="mb-4 w-full rounded-lg border border-gray-300 p-3 focus:border-indigo-500 focus:outline-none"
               required
             />
 
-            {/* Phone */}
             <input
               type="text"
               name="phonenumber"
               placeholder="Phone Number"
               value={formData.phonenumber}
               onChange={handleChange}
-              className="mb-3 w-full rounded-lg border border-gray-300 p-3 focus:border-blue-500 focus:outline-none"
+              className="mb-4 w-full rounded-lg border border-gray-300 p-3 focus:border-indigo-500 focus:outline-none"
               required
             />
 
-            {/* Password */}
             <input
-              type="text"
+              type="password"
               name="password"
               placeholder="Password"
               value={formData.password}
               onChange={handleChange}
-              className="mb-3 w-full rounded-lg border border-gray-300 p-3 focus:border-blue-500 focus:outline-none"
+              className="mb-4 w-full rounded-lg border border-gray-300 p-3 focus:border-indigo-500 focus:outline-none"
               required
             />
 
-            {/* Role */}
-            <div className="mb-3 flex items-center gap-4">
-              <label className="flex items-center gap-1">
+            <div className="mb-5 flex gap-6 text-sm">
+              <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="radio"
                   name="role"
@@ -133,7 +133,8 @@ export default function SignUp() {
                 />
                 Student
               </label>
-              <label className="flex items-center gap-1">
+
+              <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="radio"
                   name="role"
@@ -145,27 +146,28 @@ export default function SignUp() {
               </label>
             </div>
 
-            {/* Submit Button */}
-            <div className="hover:scale-105 transition-transform duration-100">
-              <button
-                type="submit"
-                className="cursor-pointer  w-full rounded-lg bg-black p-3 text-white hover:bg-gray-800"
-              >
-                Sign Up
-              </button>
-            </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full rounded-lg bg-indigo-600 p-3 text-white font-semibold transition hover:bg-indigo-700 disabled:opacity-70"
+            >
+              {loading ? "Creating Account..." : "Sign Up"}
+            </button>
 
-            <p className="mt-4 text-center text-sm">
+            <p className="mt-5 text-center text-sm text-gray-600">
               Already have an account?{" "}
-              <Link to="/login" className="text-blue-500 hover:underline">
+              <Link
+                to="/login"
+                className="text-indigo-600 font-medium hover:underline"
+              >
                 Login
               </Link>
             </p>
           </form>
         </div>
+
+        <Footer />
       </div>
-      <div></div>
-      <Footer />
     </>
   );
 }

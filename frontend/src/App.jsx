@@ -8,10 +8,9 @@ import ResumePage from "./components/shared/ResumePage";
 import SavedJobs from "./components/shared/SavedJobs";
 import JobDescription from "./components/shared/JobDescription";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { USER_API_END_POINT } from "./utils/address";
 import CompanyListPage from "./components/shared/CompanyListPage";
-import LoadingPage from "./components/ui/LoadingPage";
 import { useDispatch } from "react-redux";
 import ApplicationsList from "./components/shared/ApplicationList";
 import CompanyPage from "./components/shared/CompanyPage";
@@ -22,7 +21,6 @@ import ErrorPage from "./components/shared/ErrorPage";
 import NotificationPage from "./components/shared/NotificationPage";
 import CompanySearch from "./components/shared/CompanySearch";
 
-const url = "/resumemaker/choose-template";
 const appRouter = createBrowserRouter([
   { path: "/", element: <Homepage /> },
   { path: "/login", element: <Login /> },
@@ -43,31 +41,29 @@ const appRouter = createBrowserRouter([
 ]);
 
 function App() {
-  const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
 
   useEffect(() => {
     const fetchUserIfLoggedIn = async () => {
-      setLoading(true);
       try {
         const res = await axios.get(`${USER_API_END_POINT}/remember`, {
           withCredentials: true,
         });
         if (res.data.success) {
           dispatch(setUser(res.data.user));
-          dispatch(setNotificationCount(res.data.user.notifications.newMessageCount));
+          dispatch(
+            setNotificationCount(
+              res.data.user.notifications.newMessageCount
+            )
+          );
         }
-      } catch (err) {
-      } finally {
-        setLoading(false);
-      }
+      } catch (err) {}
     };
+
     fetchUserIfLoggedIn();
   }, []);
 
-  return (
-    <>{loading ? <LoadingPage /> : <RouterProvider router={appRouter} />}</>
-  );
+  return <RouterProvider router={appRouter} />;
 }
 
 export default App;

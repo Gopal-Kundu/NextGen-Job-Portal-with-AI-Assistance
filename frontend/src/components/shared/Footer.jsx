@@ -7,7 +7,7 @@ export default function Footer() {
     <footer className="flex items-center bg-black text-white p-2 italic">
       <div className="max-w-screen-xl mx-auto px-4 text-end">
         <p className="text-sm">
-          Thank you for visiting... Made by{" "}
+          Thank you for visiting... Made by
           <span className="font-semibold">Gopal Kundu </span>
         </p>
       </div>
