@@ -78,10 +78,6 @@ export default function CompanyListPage() {
                   <td className="p-3">{company?.name}</td>
 
                   <td className="p-3">
-                    {new Date(company?.createdAt).toISOString().split("T")[0]}
-                  </td>
-
-                  <td className="p-3">
                     <a
                       href={`/company/${company?._id}`}
                       className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md cursor-pointer"
