@@ -56,7 +56,6 @@ export default function CompanyListPage() {
               <tr className="bg-gray-100 text-center">
                 <th className="p-3">Logo</th>
                 <th className="p-3">Name</th>
-                <th className="p-3">Date</th>
                 <th className="p-3">Action</th>
               </tr>
             </thead>
