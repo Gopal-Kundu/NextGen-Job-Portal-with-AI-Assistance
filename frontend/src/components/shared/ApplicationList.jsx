@@ -10,23 +10,26 @@ import { Loader2 } from "lucide-react";
 
 function SkeletonCard() {
   return (
-    <div className="animate-pulse bg-white rounded-2xl shadow-lg p-4 flex justify-between items-center">
+    <div className="animate-pulse bg-white rounded-2xl shadow-lg p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+
       <div className="flex items-center gap-4">
-        <div className="w-14 h-14 rounded-full bg-gray-300" />
-        <div className="space-y-2">
+        <div className="w-14 h-14 rounded-full bg-gray-300 flex-shrink-0" />
+        <div className="space-y-2 w-full">
           <div className="h-4 w-32 bg-gray-300 rounded" />
           <div className="h-3 w-40 bg-gray-200 rounded" />
           <div className="h-3 w-20 bg-gray-200 rounded" />
         </div>
       </div>
-      <div className="flex gap-2">
-        <div className="h-8 w-20 bg-gray-300 rounded-lg" />
-        <div className="h-8 w-20 bg-gray-300 rounded-lg" />
-        <div className="h-8 w-20 bg-gray-300 rounded-lg" />
+
+      <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+        <div className="h-9 w-full sm:w-24 bg-gray-300 rounded-lg" />
+        <div className="h-9 w-full sm:w-24 bg-gray-300 rounded-lg" />
+        <div className="h-9 w-full sm:w-24 bg-gray-300 rounded-lg" />
       </div>
     </div>
   );
 }
+
 
 export default function ApplicationsList() {
   const applications = useSelector((state) => state.applicant.applicants);
@@ -66,10 +69,10 @@ export default function ApplicationsList() {
         const updatedApplicants = applications.map((app) =>
           app._id === userId
             ? {
-                ...app,
-                approvedJobs: [...app.approvedJobs, id],
-                rejectedJobs: app.rejectedJobs.filter((jobId) => jobId !== id),
-              }
+              ...app,
+              approvedJobs: [...app.approvedJobs, id],
+              rejectedJobs: app.rejectedJobs.filter((jobId) => jobId !== id),
+            }
             : app
         );
 
@@ -96,10 +99,10 @@ export default function ApplicationsList() {
         const updatedApplicants = applications.map((app) =>
           app._id === userId
             ? {
-                ...app,
-                rejectedJobs: [...app.rejectedJobs, id],
-                approvedJobs: app.approvedJobs.filter((jobId) => jobId !== id),
-              }
+              ...app,
+              rejectedJobs: [...app.rejectedJobs, id],
+              approvedJobs: app.approvedJobs.filter((jobId) => jobId !== id),
+            }
             : app
         );
 
@@ -167,19 +170,18 @@ export default function ApplicationsList() {
                     </p>
                     <p className="text-gray-600 text-sm">{app?.email}</p>
                     <span
-                      className={`inline-block mt-2 px-3 py-1 text-xs rounded-full font-medium ${
-                        isApproved
+                      className={`inline-block mt-2 px-3 py-1 text-xs rounded-full font-medium ${isApproved
                           ? "bg-green-100 text-green-700"
                           : isRejected
-                          ? "bg-red-100 text-red-600"
-                          : "bg-yellow-100 text-yellow-700"
-                      }`}
+                            ? "bg-red-100 text-red-600"
+                            : "bg-yellow-100 text-yellow-700"
+                        }`}
                     >
                       {isApproved
                         ? "Approved"
                         : isRejected
-                        ? "Rejected"
-                        : "Pending"}
+                          ? "Rejected"
+                          : "Pending"}
                     </span>
                   </div>
                 </div>
@@ -195,11 +197,10 @@ export default function ApplicationsList() {
                   <button
                     onClick={() => approve(app._id)}
                     disabled={isApproved || isApproving}
-                    className={`px-4 py-2 rounded-lg text-white text-sm flex items-center gap-2 transition ${
-                      isApproved
+                    className={`px-4 py-2 rounded-lg text-white text-sm flex items-center gap-2 transition ${isApproved
                         ? "bg-green-800 cursor-default"
                         : "bg-green-600 hover:bg-green-700"
-                    }`}
+                      }`}
                   >
                     {isApproving ? (
                       <>
@@ -216,11 +217,10 @@ export default function ApplicationsList() {
                   <button
                     onClick={() => reject(app._id)}
                     disabled={isRejected || isRejecting}
-                    className={`px-4 py-2 rounded-lg text-white text-sm flex items-center gap-2 transition ${
-                      isRejected
+                    className={`px-4 py-2 rounded-lg text-white text-sm flex items-center gap-2 transition ${isRejected
                         ? "bg-red-800 cursor-default"
                         : "bg-red-500 hover:bg-red-600"
-                    }`}
+                      }`}
                   >
                     {isRejecting ? (
                       <>

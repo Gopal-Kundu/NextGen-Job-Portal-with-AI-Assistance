@@ -58,103 +58,107 @@ export default function Login() {
   };
 
   return (
-    <>
-      <div className="min-h-screen flex flex-col bg-gray-50">
-        <div className="md:hidden p-6 flex justify-center">
-          <Link to="/">
-            <JobPortal />
-          </Link>
-        </div>
-
-        <div className="flex flex-1 items-center justify-center px-4">
-          <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl">
-            <h2 className="mb-6 text-2xl font-bold text-gray-800 text-center">
-              Login
-            </h2>
-
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email"
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-black focus:outline-none"
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">
-                  Password
-                </label>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
-                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-black focus:outline-none"
-                  required
-                />
-              </div>
-
-              <div className="flex items-center gap-6 text-sm">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="role"
-                    value="student"
-                    checked={role === "student"}
-                    onChange={() => setRole("student")}
-                    required
-                  />
-                  Student
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="role"
-                    value="recruiter"
-                    checked={role === "recruiter"}
-                    onChange={() => setRole("recruiter")}
-                  />
-                  Recruiter
-                </label>
-              </div>
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full rounded-lg bg-black py-2.5 text-white transition hover:bg-gray-800 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="animate-spin" size={18} />
-                    Please wait
-                  </>
-                ) : (
-                  "Login"
-                )}
-              </button>
-            </form>
-
-            <p className="mt-6 text-center text-sm text-gray-600">
-              Don’t have an account?{" "}
-              <Link
-                to="/signup"
-                className="text-black font-medium hover:underline"
-              >
-                Signup
-              </Link>
-            </p>
-          </div>
-        </div>
-
-        <Footer />
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 to-gray-100">
+      
+      <div className="p-6 flex justify-center md:hidden">
+        <Link to="/">
+          <JobPortal />
+        </Link>
       </div>
-    </>
+
+      <div className="flex flex-1 items-center justify-center px-4 pb-10">
+        <div className="w-full max-w-md bg-white rounded-3xl shadow-xl p-6 sm:p-8">
+          
+          <h2 className="text-2xl font-bold text-center text-gray-900 mb-8">
+            Welcome Back
+          </h2>
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Email
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email"
+                className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-black focus:ring-1 focus:ring-black outline-none transition"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Password
+              </label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your password"
+                className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:border-black focus:ring-1 focus:ring-black outline-none transition"
+                required
+              />
+            </div>
+
+            <div className="flex sm:flex-row gap-4 text-sm">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="role"
+                  value="student"
+                  checked={role === "student"}
+                  onChange={() => setRole("student")}
+                  required
+                  className="accent-black"
+                />
+                Student
+              </label>
+
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="role"
+                  value="recruiter"
+                  checked={role === "recruiter"}
+                  onChange={() => setRole("recruiter")}
+                  className="accent-black"
+                />
+                Recruiter
+              </label>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full rounded-xl bg-black py-3 text-white font-medium transition hover:bg-gray-800 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="animate-spin" size={18} />
+                  Logging in...
+                </>
+              ) : (
+                "Login"
+              )}
+            </button>
+          </form>
+
+          <p className="mt-8 text-center text-sm text-gray-600">
+            Don’t have an account?{" "}
+            <Link
+              to="/signup"
+              className="font-medium text-black hover:underline"
+            >
+              Signup
+            </Link>
+          </p>
+        </div>
+      </div>
+
+      <Footer />
+    </div>
   );
 }
