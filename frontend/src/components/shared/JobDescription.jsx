@@ -10,19 +10,61 @@ import { setUser } from "@/redux/authSlice";
 import { toast } from "sonner";
 import { setJobs } from "@/redux/jobSlice";
 
+function JobSkeleton() {
+  return (
+    <div className="animate-pulse max-w-4xl mx-auto space-y-8">
+      <div className="flex flex-col md:flex-row justify-between gap-6">
+        <div className="flex gap-4">
+          <div className="w-16 h-16 bg-gray-300 rounded-md" />
+          <div className="space-y-3">
+            <div className="h-6 w-48 bg-gray-300 rounded" />
+            <div className="h-4 w-32 bg-gray-200 rounded" />
+          </div>
+        </div>
+        <div className="h-12 w-32 bg-gray-300 rounded-lg" />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+        <div className="md:col-span-2 space-y-6">
+          <div className="h-5 w-32 bg-gray-300 rounded" />
+          <div className="space-y-3">
+            <div className="h-4 w-full bg-gray-200 rounded" />
+            <div className="h-4 w-5/6 bg-gray-200 rounded" />
+            <div className="h-4 w-4/6 bg-gray-200 rounded" />
+          </div>
+
+          <div className="h-5 w-32 bg-gray-300 rounded mt-6" />
+          <div className="space-y-3">
+            <div className="h-4 w-full bg-gray-200 rounded" />
+            <div className="h-4 w-5/6 bg-gray-200 rounded" />
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <div className="h-16 bg-gray-200 rounded-lg" />
+          <div className="h-64 bg-gray-200 rounded-lg" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const JobDescription = () => {
-  const [job, setJob] = useState("");
+  const [job, setJob] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [isApplying, setIsApplying] = useState(false);
   const [actionType, setActionType] = useState("");
+
   const { id } = useParams();
   const dispatch = useDispatch();
   const user = useSelector((store) => store.auth.user);
-  const allJobs = useSelector((store) => store.job.Jobs);
-  const [refresh, setRefresh] = useState(false);
   const navigate = useNavigate();
+  const [refresh, setRefresh] = useState(false);
+
   useEffect(() => {
     async function fetchJob() {
       try {
+        setLoading(true);
         const res = await axios.get(`${JOB_API_END_POINT}/get/${id}`, {
           withCredentials: true,
         });
@@ -30,11 +72,13 @@ const JobDescription = () => {
           setJob(res.data.job[0]);
         }
       } catch (error) {
-        toast.error(error || "Something is wrong...");
+        toast.error("Something is wrong...");
+      } finally {
+        setLoading(false);
       }
     }
     fetchJob();
-  }, [refresh]);
+  }, [id, refresh]);
 
   async function applyHandler() {
     if (!user) {
@@ -65,30 +109,20 @@ const JobDescription = () => {
         }
       );
 
-      if (res.status === 201) {
-        toast.success(
-          res.data.message || "Your application has been removed.",
-          {
-            position: "top-center",
-            duration: 2000,
-          }
-        );
-      }
-      if (res.status === 202) {
-        toast.success(res.data.message || "Successfully applied to the job.", {
-          position: "top-center",
-          duration: 2000,
-        });
-      }
-
       dispatch(
         setUser({
           ...user,
           appliedJobs: res.data.appliedJobs,
         })
       );
+
       dispatch(setJobs(res.data.allJobs));
       setRefresh(!refresh);
+
+      toast.success(res.data.message, {
+        position: "top-center",
+        duration: 2000,
+      });
     } catch (error) {
       toast.error(error.response?.data?.message || "Something went wrong", {
         position: "top-center",
@@ -103,176 +137,113 @@ const JobDescription = () => {
   return (
     <div className="relative flex min-h-screen flex-col font-sans">
       <div className="flex justify-center items-center">
-        <Sidebar className="bg-gray-500" />
+        <Sidebar />
         <Navbar />
       </div>
 
       <main className="container mx-auto px-4 py-12">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center gap-2 text-sm text-gray-500 mb-6">
-            <Link className="hover:text-purple-700" to="/jobs">
-              Jobs
-            </Link>
-            <span className="material-icons text-base">chevron_right</span>
-            <span className="text-gray-700 font-medium">{job.title}</span>
-          </div>
-
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
-            <div className="flex items-start gap-4">
-              {job?.logo && (
-                <img
-                  src={job.logo}
-                  alt={`${job.company} logo`}
-                  onClick={() => navigate(`/companyPage/${job.company}`)}
-                  className="w-16 h-16 object-contain rounded-md border border-gray-200 shadow-sm cursor-pointer"
-                />
-              )}
-
-              <div>
-                <h2 className="text-3xl font-bold tracking-tight text-gray-900">
-                  {job.title}
-                </h2>
-                <div className="flex items-center gap-4 text-gray-600 mt-2">
-                  <span>{job.company}</span>
-                  <span className="text-gray-300">•</span>
-                  <span>{job.location}</span>
-                  <span className="text-gray-300">•</span>
-                  <span>{job.jobType}</span>
-                </div>
-              </div>
+        {loading || !job ? (
+          <JobSkeleton />
+        ) : (
+          <div className="max-w-4xl mx-auto">
+            <div className="flex items-center gap-2 text-sm text-gray-500 mb-6">
+              <Link className="hover:text-purple-700" to="/jobs">
+                Jobs
+              </Link>
+              <span className="text-gray-700 font-medium">
+                / {job.title}
+              </span>
             </div>
 
-            <div className="flex-shrink-0">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+              <div className="flex items-start gap-4">
+                {job?.logo && (
+                  <img
+                    src={job.logo}
+                    alt="company logo"
+                    onClick={() => navigate(`/companyPage/${job.company}`)}
+                    className="w-16 h-16 object-contain rounded-md border shadow-sm cursor-pointer"
+                  />
+                )}
+
+                <div>
+                  <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
+                    {job.title}
+                  </h2>
+                  <div className="flex flex-wrap items-center gap-3 text-gray-600 mt-2 text-sm">
+                    <span>{job.company}</span>
+                    <span>•</span>
+                    <span>{job.location}</span>
+                    <span>•</span>
+                    <span>{job.jobType}</span>
+                  </div>
+                </div>
+              </div>
+
               <button
                 onClick={applyHandler}
-                className="cursor-pointer active:scale-90 transform-transition duration-200 bg-purple-700 text-white rounded-lg h-12 px-6 shadow hover:bg-purple-800 font-semibold"
+                className="bg-purple-700 text-white rounded-lg h-12 px-6 shadow hover:bg-purple-800 font-semibold active:scale-95 transition"
               >
                 {isApplying ? (
-                  actionType === "removing" ? (
-                    "Removing..."
-                  ) : (
-                    "Applying..."
-                  )
-                ) : user?.appliedJobs.some((job) => job._id === id) ? (
+                  actionType === "removing"
+                    ? "Removing..."
+                    : "Applying..."
+                ) : user?.appliedJobs?.some((j) => j._id === id) ? (
                   <>
-                    <CheckCircle className="inline text-white" /> Applied
+                    <CheckCircle className="inline mr-2" size={18} />
+                    Applied
                   </>
                 ) : (
                   "Apply Now"
                 )}
               </button>
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-            <div className="md:col-span-2 space-y-8">
-              <section>
-                <h3 className="text-lg font-semibold text-gray-800 mb-3">
-                  Description
-                </h3>
-                {job.description}
-              </section>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+              <div className="md:col-span-2 space-y-8">
+                <section>
+                  <h3 className="text-lg font-semibold mb-3">
+                    Description
+                  </h3>
+                  <p className="text-gray-700">{job.description}</p>
+                </section>
 
-              <section>
-                <h3 className="text-lg font-semibold text-gray-800 mb-3">
-                  Requirements
-                </h3>
-                {job.requirements}
-              </section>
-            </div>
-
-            <div className="space-y-6">
-              <div className="bg-red-50 border border-red-200 rounded-lg p-5 text-center">
-                <h4 className="font-semibold text-red-800">
-                  {job?.applications?.length
-                    ? `${job.applications.length} Applicants`
-                    : "No Applicants"}
-                </h4>
+                <section>
+                  <h3 className="text-lg font-semibold mb-3">
+                    Requirements
+                  </h3>
+                  <p className="text-gray-700">{job.requirements}</p>
+                </section>
               </div>
 
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-5">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                  Job Overview
-                </h3>
-                <div className="space-y-4">
-                  <div className="flex items-start gap-3">
-                    <span className="material-icons text-purple-700 mt-0.5">
-                      <IndianRupee />
-                    </span>
-                    <div>
-                      <p className="text-sm text-gray-500">Salary</p>
-                      <p className="font-medium text-gray-800">
-                        {job.salary}
-                      </p>
-                    </div>
+              <div className="space-y-6">
+                <div className="bg-red-50 border rounded-lg p-5 text-center">
+                  <h4 className="font-semibold text-red-800">
+                    {job?.applications?.length
+                      ? `${job.applications.length} Applicants`
+                      : "No Applicants"}
+                  </h4>
+                </div>
+
+                <div className="bg-gray-50 border rounded-lg p-5 space-y-4">
+                  <h3 className="text-lg font-semibold">
+                    Job Overview
+                  </h3>
+
+                  <div className="flex items-center gap-3">
+                    <IndianRupee size={18} />
+                    <span>{job.salary}</span>
                   </div>
 
-                  <div className="flex items-start gap-3">
-                    <span className="material-icons text-purple-700 mt-0.5">
-                      location_on
-                    </span>
-                    <div>
-                      <p className="text-sm text-gray-500">Location</p>
-                      <p className="font-medium text-gray-800">
-                        {job.location}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-3">
-                    <span className="material-icons text-purple-700 mt-0.5">
-                      work
-                    </span>
-                    <div>
-                      <p className="text-sm text-gray-500">Job Type</p>
-                      <p className="font-medium text-gray-800">
-                        {job.jobType}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-3">
-                    <span className="material-icons text-purple-700 mt-0.5">
-                      school
-                    </span>
-                    <div>
-                      <p className="text-sm text-gray-500">
-                        Experience Level
-                      </p>
-                      <p className="font-medium text-gray-800">
-                        {job.experience} years
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-3">
-                    <span className="material-icons text-purple-700 mt-0.5">
-                      badge
-                    </span>
-                    <div>
-                      <p className="text-sm text-gray-500">Posted by</p>
-                      <p className="font-medium text-gray-800">
-                        {job.company}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-3">
-                    <span className="material-icons text-purple-700 mt-0.5">
-                      group
-                    </span>
-                    <div>
-                      <p className="text-sm text-gray-500">Vacancy</p>
-                      <p className="font-medium text-gray-800">
-                        {job.vacancy} position
-                      </p>
-                    </div>
-                  </div>
+                  <div>Location: {job.location}</div>
+                  <div>Type: {job.jobType}</div>
+                  <div>Experience: {job.experience} years</div>
+                  <div>Vacancy: {job.vacancy}</div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
       </main>
     </div>
   );

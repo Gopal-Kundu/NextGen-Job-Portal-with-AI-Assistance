@@ -408,7 +408,7 @@ const applyFilter = async (req, res) => {
     const jobs = await Job.find(query)
       .sort(sort)
       .skip((pageno - 1) * 8)
-      .limit(8);
+      .limit(8).sort({createdAt: -1});
 
     return res.status(200).json({
       countJobs,

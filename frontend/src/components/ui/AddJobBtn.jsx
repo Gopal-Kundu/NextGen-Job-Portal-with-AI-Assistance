@@ -90,7 +90,7 @@ export default function AddJobBtn({ hide }) {
           </label>
 
           <label className="flex flex-col">
-            <span className="text-gray-700 font-medium mb-1">Salary</span>
+            <span className="text-gray-700 font-medium mb-1">Salary/month</span>
             <input
               type="number"
               name="salary"
