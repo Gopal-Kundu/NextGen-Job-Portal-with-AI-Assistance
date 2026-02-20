@@ -5,11 +5,16 @@ import { Trash2 } from "lucide-react";
 import { JOB_API_END_POINT } from "@/utils/address";
 import { toast } from "sonner";
 import axios from "axios";
+import { useSelector, useDispatch } from "react-redux";
+import { setUser } from "@/redux/authSlice";
 
-export default function PostedJobs({ postedJobs }) {
+export default function PostedJobs() {
   const [open, setOpen] = useState(false);
-  const [jobs, setJobs] = useState(postedJobs || []);
   const [deleteId, setDeleteId] = useState(null);
+
+  const user = useSelector((store) => store.auth.user);
+  const loading = useSelector((store) => store.auth.loading);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   async function handleDelete() {
@@ -25,7 +30,16 @@ export default function PostedJobs({ postedJobs }) {
           duration: 1000,
         });
 
-        setJobs((prev) => prev.filter((job) => job._id !== deleteId));
+        const updatedPostedJobs = user?.postedJobs?.filter(
+          (job) => job._id !== deleteId
+        );
+
+        dispatch(
+          setUser({
+            ...user,
+            postedJobs: updatedPostedJobs,
+          })
+        );
       }
 
       setDeleteId(null);
@@ -81,9 +95,16 @@ export default function PostedJobs({ postedJobs }) {
           <button
             type="button"
             onClick={() => setOpen(true)}
-            className="rounded-xl px-5 mr-6 mb-2 mt-2 bg-blue-400 active:scale-90 hover:bg-blue-700 text-white font-bold cursor-pointer"
+            disabled={loading}
+            className={`rounded-xl px-5 mr-6 mb-2 mt-2 
+              ${
+                loading
+                  ? "bg-blue-300 cursor-not-allowed opacity-70"
+                  : "bg-blue-400 hover:bg-blue-700 active:scale-90 cursor-pointer"
+              }
+              text-white font-bold transition`}
           >
-            Post a Job
+            {loading ? "Posting..." : "Post a Job"}
           </button>
         </div>
 
@@ -107,8 +128,8 @@ export default function PostedJobs({ postedJobs }) {
             </thead>
 
             <tbody className="divide-y divide-gray-200">
-              {jobs?.slice().reverse().map((job, index) => (
-                <tr key={index}>
+              {user?.postedJobs?.slice().reverse().map((job) => (
+                <tr key={job._id}>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <Link to={`/companyPage/${job.company}`}>
                       <div className="flex items-center gap-3">
@@ -127,22 +148,22 @@ export default function PostedJobs({ postedJobs }) {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div
                       className="text-sm text-gray-600 cursor-pointer"
-                      onClick={() => navigate(`/jobs/${job?._id}`)}
+                      onClick={() => navigate(`/jobs/${job._id}`)}
                     >
-                      {job?.title}
+                      {job.title}
                     </div>
                   </td>
 
                   <td className="px-6 py-4 whitespace-nowrap text-center">
                     <button className="bg-blue-300 px-2 py-1 rounded-2xl hover:bg-blue-500 hover:text-white border border-black cursor-pointer">
-                      <Link to={`/applications/${job?._id}`}>view</Link>
+                      <Link to={`/applications/${job._id}`}>view</Link>
                     </button>
                   </td>
 
                   <td className="px-6 py-4 whitespace-nowrap flex justify-center items-center">
                     <Trash2
                       className="cursor-pointer text-red-500 hover:scale-110 transition"
-                      onClick={() => setDeleteId(job?._id)}
+                      onClick={() => setDeleteId(job._id)}
                     />
                   </td>
                 </tr>

@@ -2,9 +2,8 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { JOB_API_END_POINT } from "@/utils/address";
-import { setLoading, setUser } from "@/redux/authSlice";
+import { addJobToUser, setLoading } from "@/redux/authSlice";
 import { toast } from "sonner";
-import { setJobs } from "@/redux/jobSlice";
 
 export default function AddJobBtn({ hide }) {
   const jobs = useSelector((store) => store.job.jobs);
@@ -44,10 +43,9 @@ export default function AddJobBtn({ hide }) {
           position: "top-center",
           duration: 2000,
         });
+        dispatch(addJobToUser(res.data.job));
       }
-
-      dispatch(setJobs([...jobs, res.data.job]));
-      dispatch(setUser(res.data.user));
+      console.log(res.data.job);
     } catch (error) {
       console.error("Axios error:", error);
       toast.error("Server Error", {

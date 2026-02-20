@@ -37,14 +37,6 @@ export default function Profile() {
       );
     });
 
-  const filteredPostedJobs = user?.postedJobs?.filter((job) => {
-    return (
-      job?.company?.toLowerCase().includes(search.toLowerCase()) ||
-      job?.title?.toLowerCase().includes(search.toLowerCase()) ||
-      job?.status?.toLowerCase().includes(search.toLowerCase())
-    );
-  });
-
   return (
     <>
       <div className="w-full min-h-screen relative z-0">
@@ -117,7 +109,7 @@ export default function Profile() {
                           className="w-64 px-3 py-1.5 border rounded-lg text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                         />
                       </div>
-                      <PostedJobs postedJobs={filteredPostedJobs} />
+                      <PostedJobs/>
                     </div>
                   </div>
                 ) : (

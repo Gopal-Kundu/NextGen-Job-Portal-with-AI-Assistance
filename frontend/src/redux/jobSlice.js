@@ -20,7 +20,7 @@ const jobSlice = createSlice({
     },
     setFilterApplied: (state, action) => {
       state.filterApplied = action.payload;
-    }
+    },
   },
 });
 

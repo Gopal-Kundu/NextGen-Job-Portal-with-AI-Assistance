@@ -16,9 +16,12 @@ const authSlice = createSlice({
     },
     setNotificationCount: (state, action) => {
       state.notificationCount = action.payload;
+    },
+    addJobToUser: (state, action) => {
+      state.user?.postedJobs?.push(action.payload);
     }
   }
 });
  
-export const { setLoading, setUser, setNotificationCount } = authSlice.actions;
+export const { setLoading, setUser, setNotificationCount, addJobToUser } = authSlice.actions;
 export default authSlice.reducer;
