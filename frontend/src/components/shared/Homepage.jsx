@@ -54,7 +54,7 @@ export default function Homepage() {
       <div className="min-h-[800px] h-full bg-gray-50 p-4 select-none md:select-auto w-full">
         <main className="mt-8 text-center">
           {loading ? (
-            <Stack spacing={2} alignItems="center">
+            <Stack spacing={2} alignItems="center" sx={{ width: "100%" }}>
               <Skeleton
                 variant="text"
                 width={200}
@@ -63,15 +63,27 @@ export default function Homepage() {
               />
               <Skeleton
                 variant="text"
-                width={500}
+                sx={{
+                  margin: "0 auto",
+                  width: {
+                    xs: "220px",
+                    sm: "320px",
+                    md: "500px",
+                  },
+                }}
                 height={70}
-                sx={{ margin: "0 auto" }}
               />
               <Skeleton
                 variant="rounded"
-                width={600}
                 height={64}
-                sx={{ borderRadius: "9999px" }}
+                sx={{
+                  borderRadius: "9999px",
+                  width: {
+                    xs: "300px",
+                    sm: "400px",
+                    md: "600px",
+                  },
+                }}
               />
             </Stack>
           ) : (

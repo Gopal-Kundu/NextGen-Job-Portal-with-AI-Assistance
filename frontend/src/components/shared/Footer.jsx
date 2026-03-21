@@ -8,7 +8,7 @@ export default function Footer() {
       <div className="max-w-screen-xl mx-auto px-4 text-end">
         <p className="text-sm">
           Thank you for visiting... Made by
-          <span className="font-semibold">Gopal Kundu </span>
+          <span className="font-semibold"> Gopal Kundu </span>
         </p>
       </div>
       <div>

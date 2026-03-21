@@ -20,6 +20,7 @@ import SearchJob from "./components/shared/SearchJob";
 import ErrorPage from "./components/shared/ErrorPage";
 import NotificationPage from "./components/shared/NotificationPage";
 import CompanySearch from "./components/shared/CompanySearch";
+import InterviewPrep from "./components/shared/InterviewPrep";
 
 const appRouter = createBrowserRouter([
   { path: "/", element: <Homepage /> },
@@ -37,7 +38,8 @@ const appRouter = createBrowserRouter([
   { path: "/search", element: <SearchJob /> },
   { path: "/notifications", element: <NotificationPage /> },
   { path: "/companypage/:name", element: <CompanySearch /> },
-  { path: "*", element: <ErrorPage /> }
+  { path: "*", element: <ErrorPage /> },
+  { path: "/interviewPrep", element: <InterviewPrep/>}
 ]);
 
 function App() {

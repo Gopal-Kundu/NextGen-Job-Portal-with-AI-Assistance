@@ -19,6 +19,7 @@ const navLinks = [
   { name: "My resume", path: "/resumepage" },
   { name: "Saved Jobs", path: "/savedjobs" },
   { name: "Companies", path: "/companies" },
+  { name: "Interview Prep", path: "/interviewPrep"}
 ];
 
 export default function Navbar() {
