@@ -206,13 +206,13 @@ const JobDescription = () => {
                   <h2 className="mb-2 text-2xl md:text-3xl font-bold text-gray-900">
                     {job.title}
                   </h2>
-                  {matchPercentage === "" ? (
+                 {user &&  (matchPercentage === "" ? (
                     <div className="h-6 w-32 bg-gray-200 rounded-full animate-pulse mt-1"></div>
                   ) : (
                     <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-semibold">
                       {matchPercentage}% Skill Match - {getMatchLabel(matchPercentage)}
                     </span>
-                  )}
+                  ))}
                   <div className="mt-2 flex flex-wrap items-center gap-3 text-gray-600 mt-2 text-sm">
                     <span>{job.company}</span>
                     <span>•</span>

@@ -70,6 +70,9 @@ const userSchema = new mongoose.Schema(
     recruiterNotification: {
       type: mongoose.Schema.Types.ObjectId, ref: "Notifications",
     },
+    loggedIn: {
+      type: Boolean, default: false,
+    }
   },
   { timestamps: true }
 );

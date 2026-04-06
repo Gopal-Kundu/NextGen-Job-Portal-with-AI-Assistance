@@ -86,7 +86,7 @@ const login = async (req, res) => {
     const token = jwt.sign(tokenData, process.env.SECRET_KEY, {
       expiresIn: "2d",
     });
-
+    user.loggedIn = true;
     await user.populate("createdCompanies");
     await user.populate("savedJobs");
     await user.populate("postedJobs");
@@ -127,6 +127,8 @@ const login = async (req, res) => {
 
 const logout = async (req, res) => {
   try {
+    let user = await User.findById(req.Id);
+    user.loggedIn = false;
     res.status(200).clearCookie("token", {
       maxAge: 0,
       httpOnly: true,
@@ -316,11 +318,12 @@ const remember = async (req, res) => {
       .populate("postedJobs")
       .populate("notifications");
 
-    if (!user) {
+    if (!user || !user.loggedIn) {
       return res
         .status(404)
         .json({ success: false, message: "User not found" });
     }
+
     return res.status(200).json({
       success: true,
       user
