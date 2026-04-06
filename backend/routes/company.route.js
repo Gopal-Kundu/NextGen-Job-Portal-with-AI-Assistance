@@ -7,6 +7,7 @@ const {
   getCompanyByName,
 } = require("../controllers/company.controller");
 const upload = require("../middleware/multer");
+const { allowRoles } = require("../middleware/roleMiddleware");
 
 const router = express.Router();
 
@@ -17,6 +18,6 @@ router.post(
   registerCompany
 );
 router.get("/get/:id", isAuthenticated, getCompanyById);
-router.get("/delete/:id",isAuthenticated, deleteCompany);
+router.get("/delete/:id",isAuthenticated, allowRoles("recruiter"), deleteCompany);
 router.get("/companypage/:name", getCompanyByName);
 module.exports = router;

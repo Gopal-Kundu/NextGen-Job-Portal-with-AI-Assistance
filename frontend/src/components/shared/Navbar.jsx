@@ -40,7 +40,6 @@ export default function Navbar() {
           {navLinks?.map((link, idx) => {
             if (!user && (idx === 2 || idx === 3 || idx === 4)) return null;
             else if (user?.role === "student" && idx === 4) return null;
-            else if (user?.role === "recruiter" && idx === 2) return null;
             return (
               <Link
                 key={idx}

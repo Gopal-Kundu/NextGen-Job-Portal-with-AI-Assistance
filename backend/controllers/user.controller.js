@@ -79,7 +79,10 @@ const login = async (req, res) => {
       });
     }
 
-    const tokenData = { userId: user._id };
+    const tokenData = { 
+      userId: user._id,
+      role: user.role 
+    };
     const token = jwt.sign(tokenData, process.env.SECRET_KEY, {
       expiresIn: "2d",
     });
@@ -393,6 +396,45 @@ const getNotifications = async (req, res) => {
   }
 };
 
+
+const deleteResume = async (req, res) => {
+  try {
+    const userId = req.id;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    if (!user.profile.resume) {
+      return res.status(400).json({
+        success: false,
+        message: "No resume to delete",
+      });
+    }
+
+    user.profile.resume = "";
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Resume deleted successfully",
+      user,
+    });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
+  }
+};
+
+
 module.exports = {
   register,
   login,
@@ -402,4 +444,5 @@ module.exports = {
   bookmark,
   getNotifications,
   remember,
+  deleteResume
 };

@@ -1,20 +1,24 @@
 const { gemini } = require("../Ai/gemini");
 
-async function aiApi(req, res) {
-    try {
-        const { promt } = req.body;
-        let result = await gemini(promt);
-        return res.status(200).json({
-            message: result,
-            success: true,
-        })
-    } catch (err) {
-        console.log(err);
-        return res.status(400).json({
-            message: err,
-            success: false
-        })
-    }
+function parseGeminiJSON(text) {
+  // remove ```json and ``` and extra spaces
+  const cleaned = text
+    .replace(/```json/gi, "")
+    .replace(/```/g, "")
+    .trim();
+
+  // convert to JSON
+  return JSON.parse(cleaned);
 }
 
-module.exports = { aiApi };
+async function aiApi(prompt) {
+  try {
+    const result = await gemini(prompt);
+    return result;
+  } catch (err) {
+    console.error("AI Error:", err.message);
+    throw new Error("AI API failed");
+  }
+}
+
+module.exports = { aiApi, parseGeminiJSON };

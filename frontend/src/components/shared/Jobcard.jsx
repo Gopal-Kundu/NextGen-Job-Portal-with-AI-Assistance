@@ -8,7 +8,7 @@ import {
   Share,
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import axios from "axios";
 import { setJobs } from "@/redux/jobSlice";
@@ -32,7 +32,7 @@ export default function JobCard({
   const user = useSelector((store) => store.auth.user);
   const [isApplying, setIsApplying] = useState(false);
   const [actionType, setActionType] = useState("");
-
+  const navigate = useNavigate();
   const handleShare = async (id) => {
     if (navigator.share) {
       try {
@@ -92,71 +92,79 @@ export default function JobCard({
     }
   }
 
-  async function applyHandler() {
-    if (!user) {
-      return toast.error("You must login first..", {
-        duration: 2000,
-        position: "top-center",
-      });
-    }
+async function applyHandler() {
+  if (!user) {
+    return toast.error("You must login first..", {
+      duration: 2000,
+      position: "top-center",
+    });
+  }
 
-    if (user?.role !== "student") {
-      return toast.error("You must be a student to apply...", {
-        duration: 2000,
-        position: "top-center",
-      });
-    }
+  if (user?.role !== "student") {
+    return toast.error("You must be a student to apply...", {
+      duration: 2000,
+      position: "top-center",
+    });
+  }
 
-    const alreadyApplied = user?.appliedJobs?.some((job) => job._id === id);
-    setActionType(alreadyApplied ? "removing" : "applying");
-    setIsApplying(true);
+  if (!user?.profile?.resume || user?.profile?.resume === "") {
+    navigate("/resumepage");
+    return toast.error("Please update resume to apply", {
+      duration: 2000,
+      position: "top-center",
+    });
+  }
 
-    try {
-      const res = await axios.post(
-        `${USER_API_END_POINT}/apply`,
-        { jobId: id },
+  const alreadyApplied = user?.appliedJobs?.some((job) => job._id === id);
+  setActionType(alreadyApplied ? "removing" : "applying");
+  setIsApplying(true);
+
+  try {
+    const res = await axios.post(
+      `${USER_API_END_POINT}/apply`,
+      { jobId: id },
+      {
+        headers: { "Content-Type": "application/json" },
+        withCredentials: true,
+      }
+    );
+
+    if (res.status === 201) {
+      toast.success(
+        res.data.message || "Your application has been removed.",
         {
-          headers: { "Content-Type": "application/json" },
-          withCredentials: true,
+          position: "top-center",
+          duration: 2000,
         }
       );
-
-      if (res.status === 201) {
-        toast.success(
-          res.data.message || "Your application has been removed.",
-          {
-            position: "top-center",
-            duration: 2000,
-          }
-        );
-      }
-      if (res.status === 202) {
-        toast.success(
-          res.data.message ||
-          "Successfully applied to the job.\nYour profile has been send.",
-          {
-            position: "top-center",
-            duration: 2000,
-          }
-        );
-      }
-
-      dispatch(
-        setUser({
-          ...user,
-          appliedJobs: res.data.appliedJobs,
-        })
-      );
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Something went wrong", {
-        position: "top-center",
-        duration: 2000,
-      });
-    } finally {
-      setIsApplying(false);
-      setActionType("");
     }
+    if (res.status === 202) {
+      toast.success(
+        res.data.message ||
+        "Successfully applied to the job.\nYour profile has been send.",
+        {
+          position: "top-center",
+          duration: 2000,
+        }
+      );
+    }
+
+    dispatch(
+      setUser({
+        ...user,
+        appliedJobs: res.data.appliedJobs,
+      })
+    );
+  } catch (error) {
+    toast.error(error.response?.data?.message || "Something went wrong", {
+      position: "top-center",
+      duration: 2000,
+    });
+  } finally {
+    setIsApplying(false);
+    setActionType("");
   }
+}
 
   return (
     <div className="bg-white p-5 rounded-xl shadow-lg max-w-sm w-full transition-all duration-300 hover:shadow-xl flex flex-col gap-4 justify-between">

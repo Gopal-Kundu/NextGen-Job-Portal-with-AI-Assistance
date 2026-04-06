@@ -9,15 +9,17 @@ const {
   bookmark,
   remember,
   getNotifications,
+  deleteResume,
 } = require("../controllers/user.controller");
 const upload = require("../middleware/multer");
 const router = express.Router();
 const isAuthenticated = require("../middleware/isAuthenticated");
+const { allowRoles } = require("../middleware/roleMiddleware");
 
 
 router.post("/register", upload.single("profilePhoto"), register);
 router.post("/login", login);
-router.get("/logout" ,logout);
+router.get("/logout", logout);
 router.post(
   "/profile/update",
   isAuthenticated,
@@ -27,8 +29,13 @@ router.post(
   ]),
   updateProfile
 );
-router.post("/apply", isAuthenticated, applyJobs);
+router.post("/apply", isAuthenticated, allowRoles("student"), applyJobs);
 router.post("/bookmark", isAuthenticated, bookmark);
 router.get("/remember", isAuthenticated, remember);
 router.get('/notification/:userId', isAuthenticated, getNotifications);
+router.get(
+  "/resume/delete",
+  isAuthenticated,
+  deleteResume
+);
 module.exports = router;

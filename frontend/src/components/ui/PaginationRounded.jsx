@@ -30,7 +30,7 @@ export default function PaginationRounded() {
         } else {
           setDefaultPage(page);
         }
-
+        
         const res = await axios.post(
           `${JOB_API_END_POINT}/filter/${page}`,
           filter

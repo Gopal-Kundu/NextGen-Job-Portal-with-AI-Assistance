@@ -4,14 +4,40 @@ import Navbar from "./Navbar";
 import Footer from "./Footer";
 import EnterResumeForm from "../ui/EnterResumeForm";
 import LoadingOverlay from "../ui/LoadingOverlay";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
+import axios from "axios";
+import { USER_API_END_POINT } from "@/utils/address";
+import { setUser } from "@/redux/authSlice";
 
 export default function ResumePage() {
+  const dispatch = useDispatch();
   const loading = useSelector((store) => store.auth.loading);
   const user = useSelector((store) => store.auth.user);
   const [hideForm, setHideForm] = useState(true);
+
+  const handleDeleteResume = async () => {
+    try {
+      const res = await axios.get(`${USER_API_END_POINT}/resume/delete`, {
+        withCredentials: true,
+      });
+
+      if (res.data.success) {
+        toast.success(res.data.message || "Resume deleted successfully");
+        const updatedUser = {
+          ...user,
+          profile: {
+            ...user.profile,
+            resume: "", 
+          },
+        };
+        dispatch(setUser(updatedUser));
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to delete resume");
+    }
+  };
 
   return (
     <>
@@ -26,7 +52,6 @@ export default function ResumePage() {
           <Navbar />
         </div>
 
-        {/* Main Content */}
         <main className="flex-1 py-12 min-h-screen">
           <div className="container mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
             <div className="mb-8">
@@ -41,7 +66,6 @@ export default function ResumePage() {
             </div>
 
             <div className="flex justify-center space-y-10">
-              {/* Resume Section */}
               <div className="rounded-lg border border-gray-200 bg-white shadow-sm">
                 <div className="p-6">
                   <div className="flex flex-col items-start gap-6 sm:flex-row">
@@ -52,14 +76,26 @@ export default function ResumePage() {
 
                       <div className="mt-4 flex flex-col justify-center gap-4 ">
                         {user?.profile?.resume && (
-                          <button
-                            className="btn-secondary cursor-pointer flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors"
-                          >
-                            <span className="cursor-pointer material-icons text-base">
-                              visibility
-                            </span>
-                            <Link to={user?.profile?.resume}><span>View Resume</span></Link>
-                          </button>
+                          <>
+                            <button className="btn-secondary cursor-pointer flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors">
+                              <span className="cursor-pointer material-icons text-base">
+                                visibility
+                              </span>
+                              <Link to={user?.profile?.resume}>
+                                <span>View Resume</span>
+                              </Link>
+                            </button>
+
+                            <button
+                              onClick={handleDeleteResume}
+                              className="btn-secondary cursor-pointer flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors text-red-600 hover:bg-red-50"
+                            >
+                              <span className="material-icons text-base">
+                                delete
+                              </span>
+                              <span>Delete Resume</span>
+                            </button>
+                          </>
                         )}
                         <button
                           onClick={() => setHideForm(false)}

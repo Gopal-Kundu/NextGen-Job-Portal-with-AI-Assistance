@@ -60,6 +60,16 @@ const JobDescription = () => {
   const user = useSelector((store) => store.auth.user);
   const navigate = useNavigate();
   const [refresh, setRefresh] = useState(false);
+  const jobs = useSelector((state) => state.job.jobs);
+
+  const getMatchPercentage = () => {
+    if (!jobs || jobs.length === 0) return null;
+
+    const matchedJob = jobs.find((j) => j._id === id);
+    return matchedJob?.matchPercentage || null;
+  };
+
+  const matchPercentage = getMatchPercentage();
 
   useEffect(() => {
     async function fetchJob() {
@@ -167,9 +177,17 @@ const JobDescription = () => {
                 )}
 
                 <div>
-                  <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
-                    {job.title}
-                  </h2>
+                  <div className="flex items-center gap-3">
+                    <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
+                      {job.title}
+                    </h2>
+
+                    {matchPercentage && (
+                      <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-semibold">
+                        {matchPercentage}% Match
+                      </span>
+                    )}
+                  </div>
                   <div className="flex flex-wrap items-center gap-3 text-gray-600 mt-2 text-sm">
                     <span>{job.company}</span>
                     <span>•</span>
