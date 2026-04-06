@@ -8,7 +8,7 @@ const ai = new GoogleGenAI({ key });
 
 async function gemini(promt) {
     const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash-lite",
+        model: "gemini-3-flash-preview",
         contents: promt,
     });
     return response.text;

@@ -8,7 +8,7 @@ import axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import { setUser } from "@/redux/authSlice";
 
-export default function PostedJobs() {
+export default function PostedJobs({ search }) {
   const [open, setOpen] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
 
@@ -16,6 +16,16 @@ export default function PostedJobs() {
   const loading = useSelector((store) => store.auth.loading);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const filteredPostedJobs = user?.postedJobs
+    ?.slice()
+    .reverse()
+    .filter((job) => {
+      return (
+        job?.company?.toLowerCase().includes(search?.toLowerCase()) ||
+        job?.title?.toLowerCase().includes(search?.toLowerCase())
+      );
+    });
 
   async function handleDelete() {
     try {
@@ -128,7 +138,7 @@ export default function PostedJobs() {
             </thead>
 
             <tbody className="divide-y divide-gray-200">
-              {user?.postedJobs?.slice().reverse().map((job) => (
+              {filteredPostedJobs?.map((job) => (
                 <tr key={job._id}>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <Link to={`/companyPage/${job.company}`}>

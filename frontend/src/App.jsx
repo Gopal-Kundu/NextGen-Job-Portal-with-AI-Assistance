@@ -21,6 +21,8 @@ import ErrorPage from "./components/shared/ErrorPage";
 import NotificationPage from "./components/shared/NotificationPage";
 import CompanySearch from "./components/shared/CompanySearch";
 import InterviewPrep from "./components/shared/InterviewPrep";
+import Dashboard from "./components/shared/Dashboard";
+import InterviewQAPage from "./components/shared/InterviewQAPage";
 
 const appRouter = createBrowserRouter([
   { path: "/", element: <Homepage /> },
@@ -39,7 +41,9 @@ const appRouter = createBrowserRouter([
   { path: "/notifications", element: <NotificationPage /> },
   { path: "/companypage/:name", element: <CompanySearch /> },
   { path: "*", element: <ErrorPage /> },
-  { path: "/interviewPrep", element: <InterviewPrep/>}
+  { path: "/interviewPrep", element: <InterviewPrep/>},
+  { path: "/interviewPrep/dashboard", element: <Dashboard/>},
+  { path: "/interviewPrep/dashboard/qs", element: <InterviewQAPage/>}
 ]);
 
 function App() {

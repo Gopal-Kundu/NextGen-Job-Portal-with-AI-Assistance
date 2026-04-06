@@ -1,46 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setFilterApplied, setFilterSlice } from "@/redux/jobSlice";
-import { toast } from "sonner";
 
 function FilterJobs({ isOpen, setIsOpen }) {
   const dispatch = useDispatch();
-  const user = useSelector((store) => store.auth.user);
-  
+
   const [filter, setFilter] = useState({
     salarySort: "",
     jobType: "",
     location: "",
     vacancyRange: 50,
     salaryRange: 50000,
-    recomendAi: false,
   });
-
-  useEffect(() => {
-  if (user?.profile?.resume) {
-    setFilter((prev) => ({
-      ...prev,
-      resumeLink: user.profile.resume,
-    }));
-  }
-}, [user]);
-
-  const handleAiToggle = () => {
-    if (!user) {
-      toast.error("Please Login to Get AI recommends");
-      return;
-    }
-
-    if (!user?.profile?.resume) {
-      toast.error("Please Upload resume to Get AI recommends");
-      return;
-    }
-
-    setFilter((prev) => ({
-      ...prev,
-      recomendAi: !prev.recomendAi,
-    }));
-  };
 
   const applyFilter = async () => {
     setIsOpen();
@@ -62,21 +33,6 @@ function FilterJobs({ isOpen, setIsOpen }) {
                 >
                   X
                 </h1>
-              </div>
-
-              <div>
-                <p className="text-sm font-medium mb-2">AI Assistance</p>
-                <div
-                  onClick={handleAiToggle}
-                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border cursor-pointer transition-all duration-200 ${
-                    filter.recomendAi
-                      ? "bg-purple-100 border-purple-600 text-purple-700 font-semibold"
-                      : "hover:bg-gray-100"
-                  }`}
-                >
-                  <span className={filter.recomendAi ? "scale-110" : ""}>✨</span>
-                  Recommend AI
-                </div>
               </div>
 
               <div>

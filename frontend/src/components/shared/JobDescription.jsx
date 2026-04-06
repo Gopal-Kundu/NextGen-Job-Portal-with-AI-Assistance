@@ -23,7 +23,6 @@ function JobSkeleton() {
         </div>
         <div className="h-12 w-32 bg-gray-300 rounded-lg" />
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
         <div className="md:col-span-2 space-y-6">
           <div className="h-5 w-32 bg-gray-300 rounded" />
@@ -32,14 +31,12 @@ function JobSkeleton() {
             <div className="h-4 w-5/6 bg-gray-200 rounded" />
             <div className="h-4 w-4/6 bg-gray-200 rounded" />
           </div>
-
           <div className="h-5 w-32 bg-gray-300 rounded mt-6" />
           <div className="space-y-3">
             <div className="h-4 w-full bg-gray-200 rounded" />
             <div className="h-4 w-5/6 bg-gray-200 rounded" />
           </div>
         </div>
-
         <div className="space-y-6">
           <div className="h-16 bg-gray-200 rounded-lg" />
           <div className="h-64 bg-gray-200 rounded-lg" />
@@ -54,22 +51,21 @@ const JobDescription = () => {
   const [loading, setLoading] = useState(true);
   const [isApplying, setIsApplying] = useState(false);
   const [actionType, setActionType] = useState("");
-
+  const [matchPercentage, setMatchPercentage] = useState("");
   const { id } = useParams();
   const dispatch = useDispatch();
   const user = useSelector((store) => store.auth.user);
   const navigate = useNavigate();
   const [refresh, setRefresh] = useState(false);
-  const jobs = useSelector((state) => state.job.jobs);
 
-  const getMatchPercentage = () => {
-    if (!jobs || jobs.length === 0) return null;
-
-    const matchedJob = jobs.find((j) => j._id === id);
-    return matchedJob?.matchPercentage || null;
+  const getMatchLabel = (percentage) => {
+    if (percentage >= 90) return "Perfect Fit";
+    if (percentage >= 75) return "Great Fit";
+    if (percentage >= 60) return "Good Fit";
+    if (percentage >= 30) return "Average Fit";
+    if (percentage > 0) return "Poor Fit";
+    return "";
   };
-
-  const matchPercentage = getMatchPercentage();
 
   useEffect(() => {
     async function fetchJob() {
@@ -89,6 +85,36 @@ const JobDescription = () => {
     }
     fetchJob();
   }, [id, refresh]);
+
+  useEffect(() => {
+    async function fetchMatch() {
+      if (!job || !user) return;
+
+      try {
+        const res = await axios.post(
+          `${JOB_API_END_POINT}/getMatch`,
+          {
+            skills: user?.profile?.skills,
+            resumeLink: user?.profile?.resume,
+            description: job?.description,
+            requirements: job?.requirements,
+          },
+          {
+            headers: { "Content-Type": "application/json" },
+            withCredentials: true,
+          }
+        );
+
+        setMatchPercentage(res.data || "");
+      } catch (err) {
+        setMatchPercentage("50");
+      }
+    }
+    fetchMatch();
+    return () => {
+      setMatchPercentage("");
+    };
+  }, [job, user]);
 
   async function applyHandler() {
     if (!user) {
@@ -177,18 +203,17 @@ const JobDescription = () => {
                 )}
 
                 <div>
-                  <div className="flex items-center gap-3">
-                    <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
-                      {job.title}
-                    </h2>
-
-                    {matchPercentage && (
-                      <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-semibold">
-                        {matchPercentage}% Match
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex flex-wrap items-center gap-3 text-gray-600 mt-2 text-sm">
+                  <h2 className="mb-2 text-2xl md:text-3xl font-bold text-gray-900">
+                    {job.title}
+                  </h2>
+                  {matchPercentage === "" ? (
+                    <div className="h-6 w-32 bg-gray-200 rounded-full animate-pulse mt-1"></div>
+                  ) : (
+                    <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-semibold">
+                      {matchPercentage}% Skill Match - {getMatchLabel(matchPercentage)}
+                    </span>
+                  )}
+                  <div className="mt-2 flex flex-wrap items-center gap-3 text-gray-600 mt-2 text-sm">
                     <span>{job.company}</span>
                     <span>•</span>
                     <span>{job.location}</span>
@@ -244,9 +269,7 @@ const JobDescription = () => {
                 </div>
 
                 <div className="bg-gray-50 border rounded-lg p-5 space-y-4">
-                  <h3 className="text-lg font-semibold">
-                    Job Overview
-                  </h3>
+                  <h3 className="text-lg font-semibold">Job Overview</h3>
 
                   <div className="flex items-center gap-3">
                     <IndianRupee size={18} />

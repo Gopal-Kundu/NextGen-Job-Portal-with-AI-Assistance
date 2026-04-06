@@ -21,4 +21,24 @@ async function aiApi(prompt) {
   }
 }
 
-module.exports = { aiApi, parseGeminiJSON };
+
+const aiApiController = async (req, res) => {
+  try {
+    const { prompt } = req.body;
+
+    const result = await gemini(prompt);
+
+    return res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (err) {
+    console.error("AI Error:", err.message);
+    return res.status(500).json({
+      success: false,
+      message: "AI API failed",
+    });
+  }
+};
+
+module.exports = { aiApi, parseGeminiJSON, aiApiController };

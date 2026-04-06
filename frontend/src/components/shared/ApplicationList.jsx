@@ -7,6 +7,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import Navbar from "./Navbar";
+import Sidebar from "./Sidebar";
 
 function SkeletonCard() {
   return (
@@ -130,13 +132,23 @@ export default function ApplicationsList() {
 
   if (!applications || applications.length === 0) {
     return (
+      <>
+      <div className="h-full relative flex items-center">
+                    <Sidebar highlightIndex={0} />
+                    <Navbar />
+                </div>
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 text-gray-500 text-lg">
         No applications yet.
-      </div>
+      </div></>
     );
   }
 
   return (
+    <>
+    <div className="h-full relative flex items-center">
+                    <Sidebar highlightIndex={0} />
+                    <Navbar />
+                </div>
     <div className="min-h-screen bg-gradient-to-br from-gray-100 via-gray-50 to-gray-200 p-6">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-2xl font-bold mb-8 text-gray-800">
@@ -240,5 +252,6 @@ export default function ApplicationsList() {
         </div>
       </div>
     </div>
+    </>
   );
 }

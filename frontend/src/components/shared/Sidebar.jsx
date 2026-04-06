@@ -81,7 +81,7 @@ export default function Sidebar({ highlightIndex }) {
                 </Link>
               )}
 
-              {user && (
+              {
                 <Link
                   to="/interviewPrep"
                   className={`flex items-center px-4 py-3 rounded-lg font-semibold ${highlightIndex === 6
@@ -92,7 +92,7 @@ export default function Sidebar({ highlightIndex }) {
                   <span className="material-icons mr-3">psychology</span>
                   Interview Prep
                 </Link>
-              )}
+              }
 
               {user?.role && user?.role === "recruiter" && (
                 <Link

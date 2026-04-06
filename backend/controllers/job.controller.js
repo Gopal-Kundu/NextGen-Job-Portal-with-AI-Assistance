@@ -324,7 +324,7 @@ const reject = async (req, res) => {
     job.approvedApplicant = job.approvedApplicant.filter(
       (userId) => userId.toString() !== id
     );
-    const user = await User.findById(id);
+      const user = await User.findById(id);
     if (!job.rejectedApplicant.includes(id)) {
       job.rejectedApplicant.push(id);
       await job.save();
@@ -380,25 +380,12 @@ const reject = async (req, res) => {
 
 const applyFilter = async (req, res) => {
   try {
-    console.log(req.body);
     const { pageno } = req.params;
-    const {
-      salaryRange,
-      vacancyRange,
-      jobType,
-      location,
-      salarySort,
-      recomendAi,
-      resumeLink,
-    } = req.body;
-
-    const page = Number(pageno) || 1;
-    const limit = 8;
+    const { salaryRange, vacancyRange, jobType, location, salarySort } = req.body;
 
     let query = {};
     let sort = {};
 
-    // filters
     if (jobType) {
       query.jobType = { $regex: jobType, $options: "i" };
     }
@@ -419,98 +406,16 @@ const applyFilter = async (req, res) => {
     if (salarySort === "high-low") sort.salary = -1;
 
     const countJobs = await Job.find(query).countDocuments();
-
-    // ================= AI =================
-    if (recomendAi && resumeLink) {
-      const allJobs = await Job.find(query).sort({ createdAt: -1 }).limit(40);
-
-      // extract skills
-      let skillPrompt = `
-        Scan this resume: ${resumeLink}
-        Extract skills and return JSON only like:
-        { "skills": ["skill1", "skill2"] }
-      `;
-
-      let skillRes = await aiApi(skillPrompt);
-      let parsedSkills = parseGeminiJSON(skillRes);
-      const skills = parsedSkills?.skills || [];
-
-      // prepare jobs
-      const jobSendToAi = allJobs.map((job) => ({
-        _id: job._id,
-        requirements: job.requirements,
-      }));
-
-      let jobsString = JSON.stringify(jobSendToAi);
-
-      // AI matching
-      let matchPrompt = `
-User skills: ${JSON.stringify(skills)}
-
-Jobs:
-${jobsString}
-
-Task:
-Compare user skills with each job requirements.
-
-Rules:
-- Calculate match percentage for each job
-- ONLY include jobs with matchPercentage >= 70
-- If no jobs match >= 70, return empty array []
-- Be strict with matching (no guessing)
-
-Return ONLY valid JSON like:
-[
-  { "_id": "jobId", "matchPercentage": 95 }
-]
-`;
-
-      let matchRes = await aiApi(matchPrompt);
-      let parsedMatches = parseGeminiJSON(matchRes) || [];
-
-      // sort
-      parsedMatches.sort((a, b) => b.matchPercentage - a.matchPercentage);
-
-      const jobIds = parsedMatches.map((j) => j._id);
-
-      const jobs = await Job.find({ _id: { $in: jobIds } });
-
-      // map match %
-      const matchMap = {};
-      parsedMatches.forEach((item) => {
-        matchMap[item._id.toString()] = item.matchPercentage;
-      });
-
-      // maintain order + merge
-      const jobsMap = {};
-      jobs.forEach((job) => {
-        jobsMap[job._id.toString()] = job.toObject();
-      });
-
-      const mergedJobs = jobIds.map((id) => ({
-        ...jobsMap[id],
-        matchPercentage: matchMap[id] || 0,
-      }));
-
-      console.log(mergedJobs);
-      return res.status(200).json({
-        success: true,
-        countJobs: 1,
-        jobs: mergedJobs,
-      });
-    }
-
     const jobs = await Job.find(query)
       .sort(sort)
-      .skip((page - 1) * limit)
-      .limit(limit);
+      .skip((pageno - 1) * 8)
+      .limit(8).sort({createdAt: -1});
 
     return res.status(200).json({
-      success: true,
       countJobs,
+      success: true,
       jobs,
     });
-
   } catch (err) {
     return res.status(500).json({
       success: false,
@@ -519,8 +424,91 @@ Return ONLY valid JSON like:
   }
 };
 
+const getMatchPercentage = async (req, res) => {
+  try {
+    const { skills, resumeLink, description, requirements } = req.body;
+
+    if (!skills && !resumeLink) {
+      return res.status(200).json("");
+    }
+
+    const prompt = `
+User Resume Link: ${resumeLink || ""}
+
+User Skills: ${skills || ""}
+
+Job Description:
+${description || ""}
+
+Job Requirements:
+${requirements || ""}
+
+Task:
+- Compare user profile with job
+- Give match percentage (0–100)
+- Be strict
+
+Return ONLY JSON:
+{ "matchPercentage": 85 }
+`;
+
+    try {
+      const aiRes = await aiApi(prompt);
+      const parsed = parseGeminiJSON(aiRes);
+
+      return res.status(200).json(parsed?.matchPercentage || "");
+    } catch (err) {
+      return res.status(200).json("");
+    }
+
+  } catch (error) {
+    return res.status(200).json("");
+  }
+};
 
 
+const getJobsByAiTitles = async (req, res) => {
+  try {
+    const { skills, resumeLink } = req.body;
+
+    if (!skills && !resumeLink) {
+      return res.status(400).json({ success: false, jobs: [] });
+    }
+
+    const prompt = `
+User Skills: ${skills || ""}
+User Resume Link: ${resumeLink || ""}
+
+Task:
+- Suggest 5–10 realistic job titles for this user profile
+- Return only JSON array of job titles, e.g. ["Frontend Developer", "Full Stack Engineer"]
+`;
+
+    let aiResponse;
+    try {
+      aiResponse = await aiApi(prompt);
+      const jobTitles = parseGeminiJSON(aiResponse);
+
+      if (!Array.isArray(jobTitles) || jobTitles.length === 0) {
+        return res.status(200).json({ success: true, jobs: [] });
+      }
+
+      // Keyword/partial matching using regex
+      const regexQueries = jobTitles.map(title => ({
+        title: { $regex: title, $options: "i" }
+      }));
+
+      const jobs = await Job.find({ $or: regexQueries });
+
+      return res.status(200).json({ success: true, jobs });
+    } catch (err) {
+      console.error("AI or DB search failed:", err.message);
+      return res.status(200).json({ success: true, jobs: [] });
+    }
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
 
 
 module.exports = {
@@ -532,6 +520,8 @@ module.exports = {
   searchJobs,
   approve,
   reject,
+  getMatchPercentage,
   applyFilter,
+  getJobsByAiTitles,
   getTrendingJobs,
 };

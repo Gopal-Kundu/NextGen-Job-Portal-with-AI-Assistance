@@ -2,8 +2,12 @@ import React from "react";
 import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
 import Footer from "./Footer";
+import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const InterviewPrep = () => {
+    const navigate = useNavigate();
+    const user = useSelector((store) => store.auth.user);
     return (
         <>
             <div className="h-full relative flex items-center">
@@ -28,21 +32,10 @@ const InterviewPrep = () => {
                     </p>    
 
                     <div className="max-w-3xl mx-auto flex flex-col gap-4">
-                        <div className="w-full max-w-3xl mx-auto">
-                            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 bg-white border border-gray-200 rounded-2xl p-3 shadow-sm overflow-hidden">
-                                <input
-                                    type="text"
-                                    placeholder="Enter Skill, Role or Job Description"
-                                    className="w-full min-w-0 px-4 py-3 text-sm sm:text-base text-gray-700 rounded-xl outline-none placeholder:text-gray-400"
-                                />
-                                <button className="cursor-pointer w-full sm:w-auto shrink-0 px-6 py-3 bg-[#a286e3] text-white rounded-xl font-semibold hover:bg-purple-500 transition">
+                                <button onClick={user ? ()=>navigate("/interviewPrep/dashboard") : ()=>navigate("/login")} className="cursor-pointer w-full sm:w-auto shrink-0 px-6 py-3 bg-[#a286e3] text-white rounded-xl font-semibold hover:bg-purple-500 transition">
                                     Start Prepration
                                 </button>
                             </div>
-                        </div>
-
-
-                    </div>
                 </section>
 
                 <section className="bg-gray-50 py-20">
@@ -55,11 +48,11 @@ const InterviewPrep = () => {
                             {[
                                 {
                                     title: "Fill out initial information",
-                                    desc: "Fill out information such as job description, interview type, language.",
+                                    desc: "Fill out information such as job title, year of experience interview type.",
                                 },
                                 {
                                     title: "Practice interviews",
-                                    desc: "Practice multiple live iterations of your interview by talking with our AI and get feedback.",
+                                    desc: "Practice multiple important interview questions of your interview by our AI.",
                                 },
                                 {
                                     title: "Data stays private",

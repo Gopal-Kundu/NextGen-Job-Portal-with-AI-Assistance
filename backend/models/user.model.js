@@ -65,7 +65,11 @@ const userSchema = new mongoose.Schema(
 
     notifications: {
       type: mongoose.Schema.Types.ObjectId, ref: "Notifications",
-    }
+    },
+
+    recruiterNotification: {
+      type: mongoose.Schema.Types.ObjectId, ref: "Notifications",
+    },
   },
   { timestamps: true }
 );
