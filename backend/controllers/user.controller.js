@@ -87,6 +87,7 @@ const login = async (req, res) => {
       expiresIn: "2d",
     });
     user.loggedIn = true;
+    await user.save();
     await user.populate("createdCompanies");
     await user.populate("savedJobs");
     await user.populate("postedJobs");
@@ -127,8 +128,9 @@ const login = async (req, res) => {
 
 const logout = async (req, res) => {
   try {
-    let user = await User.findById(req.Id);
+    let user = await User.findById(req.id);
     user.loggedIn = false;
+    await user.save();
     res.status(200).clearCookie("token", {
       maxAge: 0,
       httpOnly: true,
