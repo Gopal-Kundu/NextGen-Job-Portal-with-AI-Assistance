@@ -40,7 +40,7 @@ export default function Profile() {
   return (
     <>
       <div className="w-full min-h-screen relative z-0">
-        {loading ? <LoadingOverlay message="Updating Profile..." /> : null}
+        {loading ? <LoadingOverlay message="Job is Posting..." /> : null}
         <div className="h-full relative flex items-center">
           <Sidebar className="bg-gray-500" />
           <Navbar />
