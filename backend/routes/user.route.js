@@ -19,7 +19,7 @@ const { allowRoles } = require("../middleware/roleMiddleware");
 
 router.post("/register", upload.single("profilePhoto"), register);
 router.post("/login", login);
-router.get("/logout", logout);
+router.get("/logout", isAuthenticated,logout);
 router.post(
   "/profile/update",
   isAuthenticated,
