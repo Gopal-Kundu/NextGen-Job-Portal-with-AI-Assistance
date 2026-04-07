@@ -72,6 +72,10 @@ const userSchema = new mongoose.Schema(
     },
     loggedIn: {
       type: Boolean, default: false,
+    },
+    interviewPrep:{
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "DashBoardPosition" }],
+      default: [],
     }
   },
   { timestamps: true }

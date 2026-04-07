@@ -5,6 +5,8 @@ const getDataUri = require("../utils/datauri");
 const cloudinary = require("../utils/cloudinary");
 const Job = require("../models/job.model");
 const Notification = require("../models/notification.model");
+const DashBoardPosition = require("../models/dashboard.model");
+const { aiApi, parseGeminiJSON } = require("./ai.controller");
 require("dotenv").config({ quiet: true });
 
 const register = async (req, res) => {
@@ -440,6 +442,203 @@ const deleteResume = async (req, res) => {
 };
 
 
+const createInterviewPrep = async (req, res) => {
+  try {
+    const { title, yearsofexperience, skills, description } = req.body;
+    const id = req.id;
+
+    const newPosition = await DashBoardPosition.create({
+      Title: title,
+      YearsOfExperience: yearsofexperience,
+      skills,
+      description,
+      QuestionsWithAnswer: [],
+    });
+
+    await User.findByIdAndUpdate(
+      id,
+      { $push: { interviewPrep: newPosition._id } },
+      { new: true }
+    );
+
+    const prompt = `
+Generate 10 interview questions and answers in JSON format.
+
+Role: ${title}
+Experience: ${yearsofexperience}
+Skills: ${skills}
+Description: ${description}
+
+Return format:
+[
+  {
+    "Qs": "question here",
+    "Ans": "answer here"
+  }
+]
+`;
+
+    const aiResponse = await aiApi(prompt);
+
+    const parsedData = parseGeminiJSON(aiResponse);
+
+    newPosition.QuestionsWithAnswer = parsedData;
+    await newPosition.save();
+
+    return res.status(201).json({
+      success: true,
+      message: "Interview prep created successfully",
+      data: newPosition,
+    });
+
+  } catch (error) {
+    console.error("Error:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+    });
+  }
+};
+
+
+const getInterviewPrep = async (req, res) => {
+  try {
+    const userId = req.id;
+
+    const user = await User.findById(userId)
+      .populate("interviewPrep"); 
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: user.interviewPrep,
+    });
+
+  } catch (error) {
+    console.error("Error:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+    });
+  }
+};
+
+const deleteInterviewPrep = async (req, res) => {
+  try {
+    const userId = req.id;
+    const { dashboardId } = req.body;
+
+    if (!dashboardId) {
+      return res.status(400).json({
+        success: false,
+        message: "Dashboard ID is required",
+      });
+    }
+
+    const deleted = await DashBoardPosition.findByIdAndDelete(dashboardId);
+
+    if (!deleted) {
+      return res.status(404).json({
+        success: false,
+        message: "Dashboard not found",
+      });
+    }
+
+    await User.findByIdAndUpdate(
+      userId,
+      { $pull: { interviewPrep: dashboardId } },
+      { new: true }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Interview prep deleted successfully",
+    });
+
+  } catch (error) {
+    console.error("Error:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Something went wrong",
+    });
+  }
+};
+
+
+const generateMoreQuestions = async (req, res) => {
+  try {
+    const { dashboardId } = req.body;
+
+    const dashboard = await DashBoardPosition.findById(dashboardId);
+
+    if (!dashboard) {
+      return res.status(404).json({
+        success: false,
+        message: "Dashboard not found",
+      });
+    }
+
+    const previousQuestions = dashboard.QuestionsWithAnswer
+      .map((q, index) => `${index + 1}. ${q.Qs}`)
+      .join("\n");
+
+    const prompt = `
+You are an expert interviewer.
+
+Generate 10 NEW interview questions and answers.
+
+Role: ${dashboard.Title}
+Experience: ${dashboard.YearsOfExperience}
+Skills: ${dashboard.skills}
+Description: ${dashboard.description}
+
+Already asked questions (DO NOT repeat these):
+${previousQuestions}
+
+STRICT RULES:
+- Do NOT repeat any question
+- Questions must be different and unique
+- Keep answers clear and structured
+- Return ONLY JSON
+
+FORMAT:
+[
+  {
+    "Qs": "question",
+    "Ans": "answer"
+  }
+]
+`;
+
+    const aiResponse = await aiApi(prompt);
+    const parsedData = parseGeminiJSON(aiResponse);
+
+    dashboard.QuestionsWithAnswer.push(...parsedData);
+
+    await dashboard.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "10 new unique questions added",
+      data: parsedData,
+    });
+
+  } catch (error) {
+    console.error("Generate Qs Error:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to generate questions",
+    });
+  }
+};
+
+
 module.exports = {
   register,
   login,
@@ -449,5 +648,9 @@ module.exports = {
   bookmark,
   getNotifications,
   remember,
-  deleteResume
+  deleteResume,
+  createInterviewPrep,
+  getInterviewPrep,
+  deleteInterviewPrep,
+  generateMoreQuestions
 };

@@ -43,7 +43,7 @@ const appRouter = createBrowserRouter([
   { path: "*", element: <ErrorPage /> },
   { path: "/interviewPrep", element: <InterviewPrep/>},
   { path: "/interviewPrep/dashboard", element: <Dashboard/>},
-  { path: "/interviewPrep/dashboard/qs", element: <InterviewQAPage/>}
+  { path: "/interviewPrep/dashboard/:id", element: <InterviewQAPage/>}
 ]);
 
 function App() {

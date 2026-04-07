@@ -37,41 +37,8 @@ const InterviewPrep = () => {
                                 </button>
                             </div>
                 </section>
-
-                <section className="bg-gray-50 py-20">
-                    <div className="max-w-6xl mx-auto px-6">
-                        <h2 className="text-4xl font-bold text-center mb-16">
-                            How it works
-                        </h2>
-
-                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-12">
-                            {[
-                                {
-                                    title: "Fill out initial information",
-                                    desc: "Fill out information such as job title, year of experience interview type.",
-                                },
-                                {
-                                    title: "Practice interviews",
-                                    desc: "Practice multiple important interview questions of your interview by our AI.",
-                                },
-                                {
-                                    title: "Data stays private",
-                                    desc: "The information you provide will remain private. We do not store any of this data.",
-                                },
-                            ].map((step, idx) => (
-                                <div key={idx} className="flex flex-col gap-3">
-                                    <h3 className="text-xl font-bold text-gray-800 italic">
-                                        {step.title}
-                                    </h3>
-                                    <p className="text-gray-600 leading-relaxed">{step.desc}</p>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </section>
-
-                <Footer />
             </div>
+                            <Footer />
         </>
     );
 };

@@ -10,6 +10,10 @@ const {
   remember,
   getNotifications,
   deleteResume,
+  createInterviewPrep,
+  getInterviewPrep,
+  deleteInterviewPrep,
+  generateMoreQuestions,
 } = require("../controllers/user.controller");
 const upload = require("../middleware/multer");
 const router = express.Router();
@@ -38,4 +42,9 @@ router.get(
   isAuthenticated,
   deleteResume
 );
+router.post("/create-interviewprep", isAuthenticated, createInterviewPrep);
+router.get("/get-interviewPrep", isAuthenticated, getInterviewPrep);
+router.post("/deleteInterviewPrep", isAuthenticated, deleteInterviewPrep);
+router.post("/generate-more-questions", isAuthenticated, generateMoreQuestions);
+
 module.exports = router;

@@ -1,32 +1,57 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import axios from "axios";
+import { USER_API_END_POINT } from "@/utils/address";
 
 const DashBoardForm = ({ onClose }) => {
   const [formData, setFormData] = useState({
-    targetRole: 'DevOps Engineer',
-    experience: '',
-    topics: '',
-    description: ''
+    targetRole: "Software Engineer",
+    experience: "",
+    topics: "",
+    description: "",
   });
+
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    // Add your submit logic here
+
+    try {
+      setLoading(true);
+
+      const res = await axios.post(
+        `${USER_API_END_POINT}/create-interviewprep`,
+        {
+          title: formData.targetRole,
+          yearsofexperience: formData.experience,
+          skills: formData.topics,
+          description: formData.description,
+        },
+        {
+          withCredentials: true,
+        }
+      );
+
+      console.log("Success:", res.data);
+
+      onClose();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50 font-sans">
-      {/* Modal Container */}
       <div className="bg-white w-full max-w-md rounded-2xl shadow-xl overflow-hidden relative">
-        
-        {/* Close Button */}
-        <button 
+
+        <button
           onClick={onClose}
           className="absolute top-5 right-5 text-gray-400 hover:text-gray-600 transition-colors"
           aria-label="Close"
@@ -36,7 +61,6 @@ const DashBoardForm = ({ onClose }) => {
           </svg>
         </button>
 
-        {/* Modal Content */}
         <div className="p-8">
           <div className="mb-6">
             <h2 className="text-xl font-bold text-gray-900 mb-2">Start a New Interview Journey</h2>
@@ -46,8 +70,7 @@ const DashBoardForm = ({ onClose }) => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            
-            {/* Target Role Field */}
+
             <div>
               <label htmlFor="targetRole" className="block text-sm text-gray-700 mb-1.5">
                 Target Role
@@ -62,7 +85,6 @@ const DashBoardForm = ({ onClose }) => {
               />
             </div>
 
-            {/* Years of Experience Field */}
             <div>
               <label htmlFor="experience" className="block text-sm text-gray-700 mb-1.5">
                 Years of Experience
@@ -78,7 +100,6 @@ const DashBoardForm = ({ onClose }) => {
               />
             </div>
 
-            {/* Topics to Focus On Field */}
             <div>
               <label htmlFor="topics" className="block text-sm text-gray-700 mb-1.5">
                 Topics to Focus On
@@ -87,14 +108,13 @@ const DashBoardForm = ({ onClose }) => {
                 type="text"
                 id="topics"
                 name="topics"
-                placeholder="(Comma-separated, e.g., React, Node.js, MongoDB)"
+                placeholder="(e.g., React, Node.js, MongoDB)"
                 value={formData.topics}
                 onChange={handleChange}
                 className="w-full px-4 py-2.5 bg-gray-50/50 border border-gray-100 rounded-lg placeholder-gray-400 focus:outline-none focus:bg-white focus:border-gray-300 transition-colors"
               />
             </div>
 
-            {/* Description Field */}
             <div>
               <label htmlFor="description" className="block text-sm text-gray-700 mb-1.5">
                 Description
@@ -103,23 +123,23 @@ const DashBoardForm = ({ onClose }) => {
                 id="description"
                 name="description"
                 rows="2"
-                placeholder="(Any specific goals or notes for this session)"
+                placeholder="(Any specific goals for this position)"
                 value={formData.description}
                 onChange={handleChange}
                 className="w-full px-4 py-2.5 bg-gray-50/50 border border-gray-100 rounded-lg placeholder-gray-400 focus:outline-none focus:bg-white focus:border-gray-300 transition-colors resize-none"
               ></textarea>
             </div>
 
-            {/* Submit Button */}
             <div className="pt-2">
               <button
                 type="submit"
+                disabled={loading}
                 className="w-full bg-black text-white font-medium py-3 rounded-lg hover:bg-gray-800 transition-colors"
               >
-                Create Session
+                {loading ? "Creating..." : "Create"}
               </button>
             </div>
-            
+
           </form>
         </div>
       </div>
