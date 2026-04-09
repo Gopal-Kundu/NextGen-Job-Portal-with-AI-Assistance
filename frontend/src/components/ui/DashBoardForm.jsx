@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { USER_API_END_POINT } from "@/utils/address";
 
-const DashBoardForm = ({ onClose }) => {
+const DashBoardForm = ({ onClose, normalClose }) => {
   const [formData, setFormData] = useState({
     targetRole: "Software Engineer",
     experience: "",
@@ -52,7 +52,7 @@ const DashBoardForm = ({ onClose }) => {
       <div className="bg-white w-full max-w-md rounded-2xl shadow-xl overflow-hidden relative">
 
         <button
-          onClick={onClose}
+          onClick={normalClose}
           className="absolute top-5 right-5 text-gray-400 hover:text-gray-600 transition-colors"
           aria-label="Close"
         >

@@ -159,7 +159,11 @@ const Dashboard = () => {
           onClose={() => {
             setOpenForm(false);
             fetchInterviewPrep();
-          }} 
+          }}
+           normalClose={() => {
+            setOpenForm(false);
+            fetchInterviewPrep();
+          }}
         />
       ) : null}
 
