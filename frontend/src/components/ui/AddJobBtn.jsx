@@ -45,9 +45,7 @@ export default function AddJobBtn({ hide }) {
         });
         dispatch(addJobToUser(res.data.job));
       }
-      console.log(res.data.job);
     } catch (error) {
-      console.error("Axios error:", error);
       toast.error("Server Error", {
         position: "top-center",
       });

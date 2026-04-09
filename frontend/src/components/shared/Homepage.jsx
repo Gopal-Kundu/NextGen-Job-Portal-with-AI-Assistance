@@ -34,7 +34,6 @@ export default function Homepage() {
         setJobs(res.data.jobs);
       }
     } catch (err) {
-      console.log(err);
     } finally {
       setLoading(false);
     }

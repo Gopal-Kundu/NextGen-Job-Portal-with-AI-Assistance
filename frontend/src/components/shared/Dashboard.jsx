@@ -28,7 +28,6 @@ const Dashboard = () => {
       setLoading(false);
 
     } catch (error) {
-      console.error("Error:", error.response?.data || error.message);
       setLoading(false);
       setError(true);
     }
@@ -51,7 +50,6 @@ const Dashboard = () => {
       setSelectedId(null);
 
     } catch (error) {
-      console.error("Delete Error:", error.response?.data || error.message);
     }
   };
 

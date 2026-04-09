@@ -36,7 +36,6 @@ export default function SearchJob() {
         );
         setJobs(res.data.jobs);
       } catch (err) {
-        console.error(err);
         setError("Failed to fetch jobs");
         setJobs([]);
       } finally {

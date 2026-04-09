@@ -46,7 +46,6 @@ const InterviewQAPage = () => {
 
       setLoadingMore(false);
     } catch (error) {
-      console.error("Load More Error:", error.response?.data || error.message);
       setLoadingMore(false);
     }
   };

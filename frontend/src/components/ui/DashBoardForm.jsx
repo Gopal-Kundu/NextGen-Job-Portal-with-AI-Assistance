@@ -36,11 +36,9 @@ const DashBoardForm = ({ onClose, normalClose }) => {
         }
       );
 
-      console.log("Success:", res.data);
 
       onClose();
     } catch (err) {
-      console.error(err);
     } finally {
       setLoading(false);
     }

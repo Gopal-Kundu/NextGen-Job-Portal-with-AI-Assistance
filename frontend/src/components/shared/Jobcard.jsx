@@ -42,7 +42,6 @@ export default function JobCard({
           url: `https://job-portal-frontend-lake.vercel.app/jobs/${id}`,
         });
       } catch (err) {
-        console.error("Error sharing:", err);
       }
     }
   };
