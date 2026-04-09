@@ -617,8 +617,8 @@ FORMAT:
 `;
 
     const aiResponse = await aiApi(prompt);
-    const parsedData = parseGeminiJSON(aiResponse);
-
+    let parsedData = parseGeminiJSON(aiResponse);
+    parsedData = parsedData.slice(0,10);
     dashboard.QuestionsWithAnswer.push(...parsedData);
 
     await dashboard.save();
