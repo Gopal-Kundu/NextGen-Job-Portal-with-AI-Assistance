@@ -46,14 +46,21 @@ export default function Homepage() {
 
   return (
     <>
-      <div className="h-full relative flex items-center">
-        <Sidebar highlightIndex={1} />
-        <Navbar />
-      </div>
+      {!loading ? (
+        <Skeleton
+          variant="text"
+          height={80}
+        />
+      ) : (
+        <div className="h-full relative flex items-center">
+          <Sidebar highlightIndex={1} />
+          <Navbar />
+        </div>
+      )}
 
       <div className="min-h-[800px] h-full bg-gray-50 p-4 select-none md:select-auto w-full">
         <main className="mt-8 text-center">
-          {loading ? (
+          {!loading ? (
             <Stack spacing={2} alignItems="center" sx={{ width: "100%" }}>
               <Skeleton
                 variant="text"
@@ -122,11 +129,14 @@ export default function Homepage() {
           )}
         </main>
 
-        <h3 className="text-2xl mb-3 md:text-3xl font-bold text-gray-800 mt-10">
+        {!loading ? (<Skeleton
+          variant="text"
+          height={80}
+        />) :(<h3 className="text-2xl mb-3 md:text-3xl font-bold text-gray-800 mt-10">
           <span className="text-purple-700">Latest and Top</span> Job Openings
-        </h3>
+        </h3>)}
 
-        {loading ? (
+        {!loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1, 2, 3, 4, 5, 6].map((item) => (
               <div
