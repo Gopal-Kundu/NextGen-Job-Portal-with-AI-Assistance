@@ -5,6 +5,7 @@ import Sidebar from './Sidebar';
 import Navbar from './Navbar';
 import DashBoardForm from '../ui/DashBoardForm';
 import { USER_API_END_POINT } from '@/utils/address';
+import Skeleton from "@mui/material/Skeleton";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -76,18 +77,44 @@ const Dashboard = () => {
         <Navbar />
       </div>
 
-      <div className="relative min-h-screen bg-gray-50 p-6 md:p-10 font-sans">
+      <div className="relative min-h-screen bg-gray-50 p-6 md:p-10 font-sans flex flex-col items-center">
 
         {loading ? (
-          <p className="text-center text-gray-500">Loading...</p>
+          <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 w-full">
+            {[1, 2, 3, 4, 5, 6].map((item) => (
+              <div
+                key={item}
+                className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm h-full flex flex-col min-h-[220px]"
+              >
+                <div className="flex items-start gap-4 mb-5">
+                  <Skeleton variant="rounded" width={48} height={48} sx={{ borderRadius: '0.5rem' }} />
+                  <div className="flex-1">
+                    <Skeleton variant="text" width="70%" height={28} />
+                    <Skeleton variant="text" width="40%" height={20} />
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2 mb-4 mt-2">
+                  <Skeleton variant="rounded" width={100} height={26} sx={{ borderRadius: '9999px' }} />
+                  <Skeleton variant="rounded" width={60} height={26} sx={{ borderRadius: '9999px' }} />
+                  <Skeleton variant="rounded" width={140} height={26} sx={{ borderRadius: '9999px' }} />
+                </div>
+
+                <div className="mt-auto pt-2">
+                  <Skeleton variant="text" width="100%" height={20} />
+                  <Skeleton variant="text" width="80%" height={20} />
+                </div>
+              </div>
+            ))}
+          </div>
         ) : error || profiles.length === 0 ? (
-          <div className="flex items-center justify-center h-[60vh]">
+          <div className="flex items-center justify-center h-[60vh] w-full">
             <h1 className="text-3xl md:text-5xl font-bold text-gray-400 text-center">
               Click add new to start preparing.
             </h1>
           </div>
         ) : (
-          <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 w-full">
             
             {profiles.map((profile, index) => (
               <div 
@@ -102,7 +129,7 @@ const Dashboard = () => {
                     setSelectedId(profile._id);
                     setShowConfirm(true);
                   }}
-                  className="absolute top-3 cursor-pointer right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white p-2 rounded-full shadow hover:bg-red-50"
+                  className="absolute top-3 cursor-pointer right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white p-2 rounded-full shadow hover:bg-red-50 z-10"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M6 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 112 0v6a1 1 0 11-2 0V8zm3-3a1 1 0 011 1v1H5V6a1 1 0 011-1h3V4a1 1 0 112 0v1h3zM4 7h12l-1 10a2 2 0 01-2 2H7a2 2 0 01-2-2L4 7z" clipRule="evenodd" />
@@ -114,7 +141,7 @@ const Dashboard = () => {
                     {profile.Title?.slice(0,2).toUpperCase()}
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900">{profile.Title}</h3>
+                    <h3 className="font-semibold text-gray-900 pr-8">{profile.Title}</h3>
                     <p className="text-xs text-gray-600 mt-1 leading-snug">{profile.skills}</p>
                   </div>
                 </div>
@@ -141,7 +168,7 @@ const Dashboard = () => {
         )}
 
         <button 
-          onClick={()=>setOpenForm(true)} 
+          onClick={() => setOpenForm(true)} 
           className="fixed bottom-10 right-10 bg-orange-400 hover:bg-orange-500 text-white flex items-center gap-2 px-6 py-3 rounded-full font-medium shadow-lg transition-colors duration-200 z-10"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -158,7 +185,7 @@ const Dashboard = () => {
             setOpenForm(false);
             fetchInterviewPrep();
           }}
-           normalClose={() => {
+          normalClose={() => {
             setOpenForm(false);
           }}
         />

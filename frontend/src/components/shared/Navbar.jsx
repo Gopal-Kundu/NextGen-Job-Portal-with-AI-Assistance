@@ -7,10 +7,6 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { Bell } from "lucide-react";
-import axios from "axios";
-import { USER_API_END_POINT } from "@/utils/address";
-import { useEffect, useState } from "react";
-import LoadingOverlay from "../ui/LoadingOverlay";
 import { setNotificationCount } from "@/redux/authSlice";
 import { useLogout } from "../auth/useLogout";
 const navLinks = [

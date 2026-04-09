@@ -8,12 +8,12 @@ import { Link } from "react-router-dom";
 
 export default function CompanyListPage() {
   const [filter, setFilter] = useState("");
-  const user = useSelector((store) => store.auth.user);
+  const user = useSelector((store) => store?.auth?.user);
   const [createNewCompany, setCreateNewCompany] = useState(false);
-  const companies = useSelector((store) => store.auth?.user?.createdCompanies);
+  const companies = useSelector((store) => store?.auth?.user?.createdCompanies);
 
   const filteredCompanies = companies?.filter((company) =>
-    company?.name.toLowerCase().includes(filter.toLowerCase())
+    company?.name?.toLowerCase()?.includes(filter?.toLowerCase())
   );
 
   return (
@@ -24,7 +24,7 @@ export default function CompanyListPage() {
       </div>
 
       <div className="w-full min-h-screen relative">
-        <div className="max-w-4xl mx-auto mt-10 p-6 min-h-0 max-h-1/2 overflow-auto bg-white shadow-md rounded-lg">
+        <div className="max-w-4xl mx-auto mt-10 p-6 min-h-0 max-h-[75vh] overflow-auto bg-white shadow-md rounded-lg">
           <div className={`${createNewCompany ? "block" : "hidden"}`}>
             {createNewCompany ? (
               <CompanySetup cancel={() => setCreateNewCompany(false)} />
@@ -36,7 +36,7 @@ export default function CompanyListPage() {
               type="text"
               placeholder="Filter by name"
               value={filter}
-              onChange={(e) => setFilter(e.target.value)}
+              onChange={(e) => setFilter(e?.target?.value)}
               className="border border-gray-300 rounded-md p-2 w-1/3 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
 
@@ -86,7 +86,7 @@ export default function CompanyListPage() {
                 </tr>
               ))}
 
-              {filteredCompanies?.length === 0 && (
+              {(!filteredCompanies || filteredCompanies?.length === 0) && (
                 <tr>
                   <td colSpan="2" className="text-center p-4 text-gray-500">
                     No companies found.
