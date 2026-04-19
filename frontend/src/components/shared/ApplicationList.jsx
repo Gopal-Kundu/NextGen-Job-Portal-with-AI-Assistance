@@ -4,9 +4,9 @@ import { JOB_API_END_POINT } from "@/utils/address";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, ArrowLeft } from "lucide-react";
 import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
 
@@ -37,6 +37,7 @@ export default function ApplicationsList() {
   const applications = useSelector((state) => state.applicant.applicants);
   const dispatch = useDispatch();
   const { id } = useParams();
+  const navigate = useNavigate();
   const loading = useSelector((state) => state.auth.loading);
 
   const [processing, setProcessing] = useState(null);
@@ -137,8 +138,9 @@ export default function ApplicationsList() {
                     <Sidebar highlightIndex={0} />
                     <Navbar />
                 </div>
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 text-gray-500 text-lg">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 text-gray-500 text-lg gap-4">
         No applications yet.
+        <button onClick={() => navigate(-1)} className="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg transition text-sm">Go Back</button>
       </div></>
     );
   }
@@ -151,9 +153,17 @@ export default function ApplicationsList() {
                 </div>
     <div className="min-h-screen bg-gradient-to-br from-gray-100 via-gray-50 to-gray-200 p-6">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-2xl font-bold mb-8 text-gray-800">
-          Applications
-        </h1>
+        <div className="flex items-center gap-4 mb-8">
+          <button 
+            onClick={() => navigate(-1)}
+            className="p-2 hover:bg-gray-200 rounded-full transition"
+          >
+            <ArrowLeft className="w-6 h-6 text-gray-800" />
+          </button>
+          <h1 className="text-2xl font-bold text-gray-800 m-0">
+            Applications
+          </h1>
+        </div>
 
         <div className="space-y-6">
           {applications.map((app) => {
