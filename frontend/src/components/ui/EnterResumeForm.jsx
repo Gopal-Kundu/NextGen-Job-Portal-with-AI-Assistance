@@ -30,7 +30,7 @@ export default function EnterResumeForm({ isHide }) {
 
     try {
       const res = await axios.post(
-        `${USER_API_END_POINT}/profile/update`,
+        `${USER_API_END_POINT}/resume/upload`,
         form,
         {
           headers: { "Content-Type": "multipart/form-data" },

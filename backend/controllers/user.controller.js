@@ -95,6 +95,7 @@ const login = async (req, res) => {
     await user.populate("postedJobs");
     await user.populate("appliedJobs");
     await user.populate("notifications");
+    await user.populate("recruiterNotification");
     const userData = {
       _id: user._id,
       fullname: user.fullname,
@@ -106,7 +107,7 @@ const login = async (req, res) => {
       savedJobs: user.savedJobs,
       postedJobs: user.postedJobs,
       appliedJobs: user.appliedJobs,
-      notifications: user.notifications,
+      notifications: user.role === "recruiter" ? user.recruiterNotification : user.notifications,
     };
 
     return res
@@ -250,6 +251,49 @@ const applyJobs = async (req, res) => {
   job.applications.push(id);
   await job.save();
 
+  // Send Notification to Recruiter
+  try {
+    const recruiterId = job?.createdBy;
+    if (recruiterId) {
+      const recruiter = await User.findById(recruiterId);
+
+      if (recruiter) {
+        let notificationSchemaId = recruiter.recruiterNotification;
+        
+        let notificationSchema = null;
+        if (notificationSchemaId) {
+          notificationSchema = await Notification.findById(notificationSchemaId);
+        }
+
+        const messageText = `Student ${user?.fullname || "Someone"} applied for the job "${job?.title || "Untitled"}" at "${job?.company || "Unknown Company"}"`;
+        const senderPhoto = user?.profile?.profilePhoto || "https://www.refugee-action.org.uk/wp-content/uploads/2016/10/anonymous-user.png";
+
+        if (!notificationSchema) {
+          const newNotification = await Notification.create({
+            allMessages: [{
+              message: messageText,
+              time: new Date(),
+              companyLogo: senderPhoto,
+            }],
+            newMessageCount: 1,
+          });
+          
+          const updatedRecruiter = await User.findByIdAndUpdate(recruiterId, { recruiterNotification: newNotification._id }, { new: true });
+        } else {
+          notificationSchema.allMessages.push({
+            message: messageText,
+            time: new Date(),
+            companyLogo: senderPhoto,
+          });
+          notificationSchema.newMessageCount += 1;
+          const savedSchema = await notificationSchema.save();
+        }
+      }
+    }
+  } catch (notificationErr) {
+    console.error("Something wrong");
+  }
+
   const populatedUser = await user.populate("appliedJobs");
 
   const allJobs = await Job.find();
@@ -320,17 +364,24 @@ const remember = async (req, res) => {
       .populate("savedJobs")
       .populate("appliedJobs")
       .populate("postedJobs")
-      .populate("notifications").select("-password");
+      .populate("notifications")
+      .populate("recruiterNotification")
+      .select("-password");
 
     if (!user || !user.loggedIn) {
       return res
         .status(404)
         .json({ success: false, message: "User not found" });
     }
+
+    const userData = user.toObject();
+    if (user.role === "recruiter") {
+      userData.notifications = user.recruiterNotification;
+    }
     
     return res.status(200).json({
       success: true,
-      user
+      user: userData
     });
   } catch (error) {
     return res.status(500).json({
@@ -360,7 +411,10 @@ const getNotifications = async (req, res) => {
       });
     }
 
-    if (!user.notifications) {
+    const isRecruiter = user.role === "recruiter";
+    const notificationId = isRecruiter ? user.recruiterNotification : user.notifications;
+
+    if (!notificationId) {
       return res.status(200).json({
         success: true,
         message: "No notifications yet",
@@ -372,7 +426,7 @@ const getNotifications = async (req, res) => {
     }
 
     const notifications = await Notification.findByIdAndUpdate(
-      user.notifications,
+      notificationId,
       { $set: { newMessageCount: 0 } },
       { new: true }
     );
@@ -637,6 +691,46 @@ FORMAT:
     });
   }
 };
+const uploadResume = async (req, res) => {
+  try {
+    const userId = req.id;
+    const fileResume = req.file;
+
+    if (!fileResume) {
+      return res.status(400).json({ success: false, message: "No resume file provided" });
+    }
+
+    const fileResumeUri = getDataUri(fileResume);
+    const fileResumeCloudResponse = await cloudinary.uploader.upload(
+      fileResumeUri.content,
+      {
+        folder: "Job Portal Uploads/Resumes",
+        resource_type: "auto",
+      }
+    );
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    user.profile.resume = fileResumeCloudResponse.secure_url;
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Resume uploaded successfully",
+      user,
+    });
+  } catch (error) {
+    console.error("Resume upload error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server Error",
+      error: error.message
+    });
+  }
+};
 
 
 module.exports = {
@@ -649,6 +743,7 @@ module.exports = {
   getNotifications,
   remember,
   deleteResume,
+  uploadResume,
   createInterviewPrep,
   getInterviewPrep,
   deleteInterviewPrep,

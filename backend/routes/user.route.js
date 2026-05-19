@@ -10,6 +10,7 @@ const {
   remember,
   getNotifications,
   deleteResume,
+  uploadResume,
   createInterviewPrep,
   getInterviewPrep,
   deleteInterviewPrep,
@@ -41,6 +42,12 @@ router.get(
   "/resume/delete",
   isAuthenticated,
   deleteResume
+);
+router.post(
+  "/resume/upload",
+  isAuthenticated,
+  upload.single("resume"),
+  uploadResume
 );
 router.post("/create-interviewprep", isAuthenticated, createInterviewPrep);
 router.get("/get-interviewPrep", isAuthenticated, getInterviewPrep);

@@ -11,7 +11,6 @@ const extractTextFromPdf = async (url) => {
   .then(res => res.arrayBuffer())
   const pdf = await getDocumentProxy(new Uint8Array(buffer))
   const { text } = await extractText(pdf, { mergePages: true })
-  console.log("text is:"+text);
   return text;
 };
 
@@ -449,7 +448,6 @@ const getMatchPercentage = async (req, res) => {
     }
 
     const prompt = `
-User Resume Link: ${resumeLink || ""}
 User Resume Text (extracted from PDF):
 ${resumeText || "No resume text could be extracted or no resume link provided."}
 

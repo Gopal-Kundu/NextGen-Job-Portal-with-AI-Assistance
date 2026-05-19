@@ -19,19 +19,38 @@ export default function AiRecommendations() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // Redirect if not logged in
-  useEffect(() => {
-    const checkUser = setTimeout(() => {
-      if (!user) {
-        toast.error("Please login to access AI recommendations.", {
-          position: "top-center",
-        });
-        navigate("/login");
-      }
-    }, 1000);
+  const handleRefreshClick = () => {
+    if (!user) {
+      toast.error("Please login to access AI recommendations.", {
+        position: "top-center",
+      });
+      navigate("/login");
+    } else {
+      fetchAiRecommendations(true);
+    }
+  };
 
-    return () => clearTimeout(checkUser);
-  }, [user, navigate]);
+  const handleAddSkillsClick = () => {
+    if (!user) {
+      toast.error("Please login first to add skills.", {
+        position: "top-center",
+      });
+      navigate("/login");
+    } else {
+      navigate("/profile");
+    }
+  };
+
+  const handleUploadResumeClick = () => {
+    if (!user) {
+      toast.error("Please login first to upload resume.", {
+        position: "top-center",
+      });
+      navigate("/login");
+    } else {
+      navigate("/resumepage");
+    }
+  };
 
   const fetchAiRecommendations = async (isRefresh = false) => {
     if (!user) return;
@@ -122,7 +141,7 @@ export default function AiRecommendations() {
             
             {hasProfileData && (
               <button
-                onClick={() => fetchAiRecommendations(true)}
+                onClick={handleRefreshClick}
                 disabled={loadingJobs}
                 className="flex items-center gap-2 bg-white text-indigo-700 px-6 py-3 rounded-full font-bold shadow-md hover:bg-indigo-50 transition-all active:scale-95 disabled:opacity-50 select-none cursor-pointer"
                 id="btn-refresh-ai-jobs"
@@ -147,14 +166,14 @@ export default function AiRecommendations() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <button
-                  onClick={() => navigate("/profile")}
+                  onClick={handleAddSkillsClick}
                   className="bg-indigo-600 text-white px-6 py-3 rounded-xl font-bold shadow-md hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 cursor-pointer"
                   id="btn-go-to-profile-skills"
                 >
                   Add Skills <ArrowRight size={18} />
                 </button>
                 <button
-                  onClick={() => navigate("/resumepage")}
+                  onClick={handleUploadResumeClick}
                   className="bg-white border border-gray-300 text-gray-700 px-6 py-3 rounded-xl font-bold hover:bg-gray-50 transition-all flex items-center justify-center gap-2 cursor-pointer"
                   id="btn-go-to-resume-upload"
                 >

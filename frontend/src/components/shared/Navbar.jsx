@@ -33,7 +33,7 @@ export default function Navbar() {
           <JobPortal />
         </div>
 
-        <nav className="hidden md:flex items-center gap-10 text-2xl font-semibold">
+        <nav className="hidden md:flex items-center gap-10 text-xl font-semibold">
           {navLinks?.map((link, idx) => {
             if (!user && (idx === 2 || idx === 3 || idx === 4 || idx === 6)) return null;
             if (user?.role === "student" && idx === 4) return null;
@@ -51,7 +51,7 @@ export default function Navbar() {
 
         {user ? (
           <div className="flex items-center gap-5">
-            {user?.role === "student" && (
+            {user && (
               <div
                 className="relative cursor-pointer"
                 onClick={() => navigate("/notifications")}
