@@ -19,7 +19,7 @@ export default function Sidebar({ highlightIndex }) {
       </div>
 
       <div
-        className={`fixed top-0 left-0 h-screen z-50 w-64 bg-gray-100 transform transition-transform duration-300 select-none ${isOpen ? "translate-x-0" : "-translate-x-full"
+        className={`fixed top-0 left-0 h-screen z-[9999] w-64 bg-gray-100 transform transition-transform duration-300 select-none ${isOpen ? "translate-x-0" : "-translate-x-full"
           }`}
       >
         <div className="flex h-screen bg-gray-50">

@@ -3,20 +3,16 @@ const Job = require("../models/job.model");
 const Notification = require("../models/notification.model");
 const User = require("../models/user.model");
 const { aiApi, parseGeminiJSON } = require("./ai.controller");
-const {PDFParse} = require('pdf-parse');
-const axios = require("axios");
+const { extractText, getDocumentProxy } = require('unpdf');
 
 // Helper to fetch and extract text from a PDF URL
 const extractTextFromPdf = async (url) => {
-  try {
-    const parser = new PDFParse({url});
-    const result = await parser.getText();
-    await parser.destroy();
-    return result.text || "";
-  } catch (error) {
-    console.error("Error extracting text from PDF URL:", url, error.message);
-    return "";
-  }
+  const buffer = await fetch(url)
+  .then(res => res.arrayBuffer())
+  const pdf = await getDocumentProxy(new Uint8Array(buffer))
+  const { text } = await extractText(pdf, { mergePages: true })
+  console.log("text is:"+text);
+  return text;
 };
 
 const postJob = async (req, res) => {
