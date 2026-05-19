@@ -4,6 +4,8 @@ const Notification = require("../models/notification.model");
 const User = require("../models/user.model");
 const { aiApi, parseGeminiJSON } = require("./ai.controller");
 const { extractText, getDocumentProxy } = require('unpdf');
+const { upsertJobToPinecone, upsertManyJobsToPinecone, queryMatchingJobs, deleteJobFromPinecone, formatJobText } = require("../utils/pinecone");
+const { generateEmbedding } = require("../Ai/gemini");
 
 // Helper to fetch and extract text from a PDF URL
 const extractTextFromPdf = async (url) => {
@@ -54,13 +56,21 @@ const postJob = async (req, res) => {
       createdBy: userId,
       applications: [],
     });
+
+    try {
+      await upsertJobToPinecone(job);
+    } catch (pineconeErr) {
+      console.error("Failed to upsert job to Pinecone database:", pineconeErr.message);
+    }
+
     const user = await User.findById(userId);
     user.postedJobs.push(job._id);
     await user.save();
     await user.populate("postedJobs");
     await user.populate("appliedJobs");
     await user.populate("savedJobs");
-    await user.populate("createdCompanies").select("-password");
+    await user.populate("createdCompanies");
+    user.password = undefined;
     return res.status(201).json({
       message: "Job posted successfully",
       success: true,
@@ -124,6 +134,13 @@ const deleteJobById = async (req, res) => {
     const userId = req.id;
     const jobId = req.params.id;
     await Job.findByIdAndDelete(jobId);
+
+    // Sync deletion to Pinecone DB
+    try {
+      await deleteJobFromPinecone(jobId);
+    } catch (pineconeErr) {
+      console.error("Failed to delete job from Pinecone during deletion:", pineconeErr.message);
+    }
 
     await User.updateOne({ _id: userId }, { $pull: { postedJobs: jobId } });
 
@@ -514,6 +531,33 @@ const getJobsByAiTitles = async (req, res) => {
       resumeText = await extractTextFromPdf(resumeLink);
     }
 
+    // Attempt Pinecone matching first
+    try {
+      const userProfileText = `User Skills: ${skills || ""}
+User Resume Text: ${resumeText || ""}`;
+
+      const queryEmbedding = await generateEmbedding(userProfileText);
+      const matchedIds = await queryMatchingJobs(queryEmbedding, 15);
+
+      if (matchedIds && matchedIds.length > 0) {
+        const jobs = await Job.find({ _id: { $in: matchedIds } });
+        // Sort the jobs to maintain the Pinecone relevance ordering
+        const jobMap = new Map(jobs.map(job => [job._id.toString(), job]));
+        const orderedJobs = matchedIds
+          .map(id => jobMap.get(id))
+          .filter(Boolean);
+
+        user.recomend = orderedJobs.map(job => job._id);
+        await user.save();
+
+        const updatedUser = await User.findById(userId).populate("recomend");
+        return res.status(200).json({ success: true, jobs: updatedUser.recomend });
+      }
+    } catch (pineconeErr) {
+      console.error("Pinecone recommendation failed, falling back to Gemini text keywords:", pineconeErr.message);
+    }
+
+    // Fallback: Gemini text keyword matching
     const prompt = `
 User Skills: ${skills || ""}
 User Resume Text (extracted from PDF):
@@ -568,6 +612,41 @@ Task:
   }
 };
 
+const syncAllJobsToPinecone = async (req, res) => {
+  try {
+    const jobs = await Job.find({});
+    if (!jobs || jobs.length === 0) {
+      return res.status(200).json({
+        success: true,
+        message: "No jobs found in the database to sync.",
+        successCount: 0
+      });
+    }
+
+    // Format all jobs to text strings
+    const texts = jobs.map(job => formatJobText(job));
+    console.log(texts.length);
+    // 1-time Gemini embedding call with the array of texts
+    const embeddings = await generateEmbedding(texts);
+    console.log(embeddings.length);
+    // Batch upsert matching each job with its corresponding embedding vector
+    await upsertManyJobsToPinecone(jobs, embeddings);
+    console.log(3);
+    return res.status(200).json({
+      success: true,
+      message: `Successfully synchronized all ${jobs.length} jobs to Pinecone.`,
+      successCount: jobs.length
+    });
+  } catch (error) {
+    console.error("Sync error:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Sync failed",
+      error: error.message
+    });
+  }
+};
+
 
 module.exports = {
   postJob,
@@ -582,4 +661,5 @@ module.exports = {
   applyFilter,
   getJobsByAiTitles,
   getTrendingJobs,
+  syncAllJobsToPinecone,
 };

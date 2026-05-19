@@ -14,4 +14,21 @@ async function gemini(promt) {
     return response.text;
 }
 
-module.exports = { gemini };
+async function generateEmbedding(contents) {
+    try {
+        const response = await ai.models.embedContent({
+            model: "gemini-embedding-001",
+            contents: contents,
+            config: {
+                outputDimensionality: 368,
+            },
+        });
+        
+        return response.embeddings.map(item => item.values);
+    } catch (err) {
+        console.error("Gemini Embedding Error:", err.message);
+        throw err;
+    }
+}
+
+module.exports = { gemini, generateEmbedding };

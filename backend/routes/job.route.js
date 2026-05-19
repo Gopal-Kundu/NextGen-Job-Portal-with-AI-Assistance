@@ -1,7 +1,7 @@
 // routes/user.route.js
 const express = require("express");
 const isAuthenticated = require("../middleware/isAuthenticated");
-const { postJob, getAllJobs, deleteJobById, getJobById, getApplicants, searchJobs, approve, reject , applyFilter, getTrendingJobs, getMatchPercentage, getJobsByAiTitles } = require("../controllers/job.controller");
+const { postJob, getAllJobs, deleteJobById, getJobById, getApplicants, searchJobs, approve, reject , applyFilter, getTrendingJobs, getMatchPercentage, getJobsByAiTitles, syncAllJobsToPinecone } = require("../controllers/job.controller");
 const { aiApiController } = require("../controllers/ai.controller");
 const { allowRoles } = require("../middleware/roleMiddleware");
 
@@ -18,6 +18,7 @@ router.post("/reject/:id", isAuthenticated, allowRoles("recruiter"), reject);
 router.post("/filter/:pageno", applyFilter);
 router.get("/trending", getTrendingJobs);
 router.post("/getMatch", isAuthenticated, getMatchPercentage);
+router.get("/sync-pinecone", isAuthenticated, syncAllJobsToPinecone);
 
 router.post("/ai", aiApiController);
 router.post("/getRecomendation", isAuthenticated, getJobsByAiTitles);
