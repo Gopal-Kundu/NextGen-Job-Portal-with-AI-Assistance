@@ -3,6 +3,21 @@ const Job = require("../models/job.model");
 const Notification = require("../models/notification.model");
 const User = require("../models/user.model");
 const { aiApi, parseGeminiJSON } = require("./ai.controller");
+const {PDFParse} = require('pdf-parse');
+const axios = require("axios");
+
+// Helper to fetch and extract text from a PDF URL
+const extractTextFromPdf = async (url) => {
+  try {
+    const parser = new PDFParse({url});
+    const result = await parser.getText();
+    await parser.destroy();
+    return result.text || "";
+  } catch (error) {
+    console.error("Error extracting text from PDF URL:", url, error.message);
+    return "";
+  }
+};
 
 const postJob = async (req, res) => {
   try {
@@ -50,7 +65,7 @@ const postJob = async (req, res) => {
     await user.populate("postedJobs");
     await user.populate("appliedJobs");
     await user.populate("savedJobs");
-    await user.populate("createdCompanies");
+    await user.populate("createdCompanies").select("-password");
     return res.status(201).json({
       message: "Job posted successfully",
       success: true,
@@ -432,8 +447,15 @@ const getMatchPercentage = async (req, res) => {
       return res.status(200).json("");
     }
 
+    let resumeText = "";
+    if (resumeLink) {
+      resumeText = await extractTextFromPdf(resumeLink);
+    }
+
     const prompt = `
 User Resume Link: ${resumeLink || ""}
+User Resume Text (extracted from PDF):
+${resumeText || "No resume text could be extracted or no resume link provided."}
 
 User Skills: ${skills || ""}
 
@@ -469,19 +491,44 @@ Return ONLY JSON:
 
 const getJobsByAiTitles = async (req, res) => {
   try {
-    const { skills, resumeLink } = req.body;
+    const userId = req.id;
+    let { skills, resumeLink, refresh } = req.body;
+
+    const user = await User.findById(userId).populate("recomend");
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    // If recomend field has jobs and we are not refreshing, return saved jobs immediately
+    if (!refresh && user.recomend && user.recomend.length > 0) {
+      return res.status(200).json({ success: true, jobs: user.recomend });
+    }
+
+    if (!skills) {
+      skills = user.profile?.skills || "";
+    }
+    if (!resumeLink) {
+      resumeLink = user.profile?.resume || "";
+    }
 
     if (!skills && !resumeLink) {
-      return res.status(400).json({ success: false, jobs: [] });
+      return res.status(400).json({ success: false, jobs: [], message: "Skills or resume link not found in profile or request body." });
+    }
+
+    let resumeText = "";
+    if (resumeLink) {
+      resumeText = await extractTextFromPdf(resumeLink);
     }
 
     const prompt = `
 User Skills: ${skills || ""}
-User Resume Link: ${resumeLink || ""}
+User Resume Text (extracted from PDF):
+${resumeText || ""}
 
 Task:
-- Suggest 5–10 realistic job titles for this user profile
-- Return only JSON array of job titles, e.g. ["Frontend Developer", "Full Stack Engineer"]
+- Analyze the user's skills and resume text.
+- Generate all possible relevant job title keywords, target roles, or positions (e.g. "Frontend Developer", "MERN Stack Developer", "Software Engineer", "React Developer") that perfectly match this user profile.
+- Return ONLY a JSON array of these job title keywords, for example: ["Frontend Developer", "MERN Stack Developer", "React Developer", "Software Engineer"]
 `;
 
     let aiResponse;
@@ -493,14 +540,31 @@ Task:
         return res.status(200).json({ success: true, jobs: [] });
       }
 
-      // Keyword/partial matching using regex
+      // Keyword/partial matching using regex on job titles
       const regexQueries = jobTitles.map(title => ({
         title: { $regex: title, $options: "i" }
       }));
 
       const jobs = await Job.find({ $or: regexQueries });
 
-      return res.status(200).json({ success: true, jobs });
+      if (jobs && jobs.length > 0) {
+        const jobIds = jobs.map(job => job._id);
+
+        if (!user.recomend) user.recomend = [];
+
+        jobIds.forEach(id => {
+          if (!user.recomend.includes(id)) {
+            user.recomend.push(id);
+          }
+        });
+
+        await user.save();
+
+        const updatedUser = await User.findById(userId).populate("recomend");
+        return res.status(200).json({ success: true, jobs: updatedUser.recomend });
+      }
+
+      return res.status(200).json({ success: true, jobs: [] });
     } catch (err) {
       console.error("AI or DB search failed:", err.message);
       return res.status(200).json({ success: true, jobs: [] });

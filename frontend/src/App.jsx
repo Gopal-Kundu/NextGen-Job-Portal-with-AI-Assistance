@@ -23,6 +23,7 @@ import CompanySearch from "./components/shared/CompanySearch";
 import InterviewPrep from "./components/shared/InterviewPrep";
 import Dashboard from "./components/shared/Dashboard";
 import InterviewQAPage from "./components/shared/InterviewQAPage";
+import AiRecommendations from "./components/shared/AiRecommendations";
 
 const appRouter = createBrowserRouter([
   { path: "/", element: <Homepage /> },
@@ -43,7 +44,8 @@ const appRouter = createBrowserRouter([
   { path: "*", element: <ErrorPage /> },
   { path: "/interviewPrep", element: <InterviewPrep/>},
   { path: "/interviewPrep/dashboard", element: <Dashboard/>},
-  { path: "/interviewPrep/dashboard/:id", element: <InterviewQAPage/>}
+  { path: "/interviewPrep/dashboard/:id", element: <InterviewQAPage/>},
+  { path: "/ai-recommendation", element: <AiRecommendations />}
 ]);
 
 function App() {

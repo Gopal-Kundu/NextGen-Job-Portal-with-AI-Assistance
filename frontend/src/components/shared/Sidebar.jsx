@@ -81,6 +81,19 @@ export default function Sidebar({ highlightIndex }) {
                 </Link>
               )}
 
+              {user && (
+                <Link
+                  to="/ai-recommendation"
+                  className={`flex items-center px-4 py-3 rounded-lg font-semibold ${highlightIndex === 7
+                      ? "bg-purple-100 text-purple-700"
+                      : "text-gray-600 hover:bg-gray-300 transition duration-200"
+                    }`}
+                >
+                  <span className="material-icons mr-3">auto_awesome</span>
+                  AI Recommendation
+                </Link>
+              )}
+
               {
                 <Link
                   to="/interviewPrep"

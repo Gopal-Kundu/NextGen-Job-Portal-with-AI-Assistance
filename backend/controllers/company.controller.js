@@ -1,4 +1,4 @@
-const Company = require("../models/company.model"); // adjust the path to your Company model
+const Company = require("../models/company.model");
 const User = require("../models/user.model");
 const getDataUri = require("../utils/datauri");
 const cloudinary = require("../utils/cloudinary");

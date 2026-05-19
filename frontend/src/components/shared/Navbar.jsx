@@ -15,7 +15,8 @@ const navLinks = [
   { name: "My resume", path: "/resumepage" },
   { name: "Saved Jobs", path: "/savedjobs" },
   { name: "Companies", path: "/companies" },
-  { name: "Interview Prep", path: "/interviewPrep"}
+  { name: "Interview Prep", path: "/interviewPrep"},
+  { name: "AI Recommendation", path: "/ai-recommendation"}
 ];
 
 export default function Navbar() {
@@ -27,15 +28,15 @@ export default function Navbar() {
 
   return (
     <div className="bg-gray-50 select-none w-full h-14">
-      <header className="flex justify-between items-center px-4 py-2 relative z-10">
+      <header className="flex justify-between items-center px-4 py-2 relative z-[999]">
         <div className="relative z-20">
           <JobPortal />
         </div>
 
         <nav className="hidden md:flex items-center gap-10 text-2xl font-semibold">
           {navLinks?.map((link, idx) => {
-            if (!user && (idx === 2 || idx === 3 || idx === 4)) return null;
-            else if (user?.role === "student" && idx === 4) return null;
+            if (!user && (idx === 2 || idx === 3 || idx === 4 || idx === 6)) return null;
+            if (user?.role === "student" && idx === 4) return null;
             return (
               <Link
                 key={idx}
@@ -79,7 +80,7 @@ export default function Navbar() {
                 </div>
               </PopoverTrigger>
 
-              <PopoverContent className="bg-white rounded-lg shadow-md p-4 w-56 relative z-30">
+              <PopoverContent className="bg-white rounded-lg shadow-md p-4 w-56 relative z-[9999]">
                 <div className="py-2 border-b">
                   <p className="font-semibold text-gray-800">
                     {user?.fullname}

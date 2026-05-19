@@ -76,6 +76,10 @@ const userSchema = new mongoose.Schema(
     interviewPrep:{
       type: [{ type: mongoose.Schema.Types.ObjectId, ref: "DashBoardPosition" }],
       default: [],
+    },
+    recomend: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Job" }],
+      default: [],
     }
   },
   { timestamps: true }

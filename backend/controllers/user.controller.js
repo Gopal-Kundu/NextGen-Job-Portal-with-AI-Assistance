@@ -81,9 +81,9 @@ const login = async (req, res) => {
       });
     }
 
-    const tokenData = { 
+    const tokenData = {
       userId: user._id,
-      role: user.role 
+      role: user.role
     };
     const token = jwt.sign(tokenData, process.env.SECRET_KEY, {
       expiresIn: "2d",
@@ -320,14 +320,14 @@ const remember = async (req, res) => {
       .populate("savedJobs")
       .populate("appliedJobs")
       .populate("postedJobs")
-      .populate("notifications");
+      .populate("notifications").select("-password");
 
     if (!user || !user.loggedIn) {
       return res
         .status(404)
         .json({ success: false, message: "User not found" });
     }
-
+    
     return res.status(200).json({
       success: true,
       user
@@ -506,7 +506,7 @@ const getInterviewPrep = async (req, res) => {
     const userId = req.id;
 
     const user = await User.findById(userId)
-      .populate("interviewPrep"); 
+      .populate("interviewPrep");
 
     if (!user) {
       return res.status(404).json({
@@ -618,7 +618,7 @@ FORMAT:
 
     const aiResponse = await aiApi(prompt);
     let parsedData = parseGeminiJSON(aiResponse);
-    parsedData = parsedData.slice(0,10);
+    parsedData = parsedData.slice(0, 10);
     dashboard.QuestionsWithAnswer.push(...parsedData);
 
     await dashboard.save();
