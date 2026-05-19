@@ -70,18 +70,19 @@ export default function EnterResumeForm({ isHide }) {
                   type="file"
                   id="resume"
                   onChange={handleFileChange}
+                  disabled={loading}
                   className="hidden"
                 />
 
                 <label
-                  htmlFor="resume"
-                  className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-blue-400 rounded-xl cursor-pointer hover:bg-blue-50 transition"
+                  htmlFor={loading ? undefined : "resume"}
+                  className={`flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-blue-400 rounded-xl cursor-pointer hover:bg-blue-50 transition ${loading ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''}`}
                 >
                   <span className="text-blue-600 font-semibold">
                     Click to upload resume
                   </span>
                   <span className="text-sm text-gray-500 mt-1">
-                    {resume ? resume.name : "PDF, DOC, DOCX"}
+                    {resume ? (resume.name || (typeof resume === 'string' ? resume.split('/').pop() : 'Selected File')) : "PDF, DOC, DOCX"}
                   </span>
                 </label>
               </div>
@@ -90,16 +91,18 @@ export default function EnterResumeForm({ isHide }) {
                 {submitHide ? null : (
                   <button
                     type="submit"
-                    className="px-5 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 active:scale-95 transition"
+                    disabled={loading}
+                    className="px-5 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 active:scale-95 transition disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Submit
+                    {loading ? "Uploading..." : "Submit"}
                   </button>
                 )}
 
                 <button
                   type="button"
                   onClick={isHide}
-                  className="px-5 py-2 rounded-lg bg-gray-200 text-gray-800 font-medium hover:bg-gray-300 active:scale-95 transition"
+                  disabled={loading}
+                  className="px-5 py-2 rounded-lg bg-gray-200 text-gray-800 font-medium hover:bg-gray-300 active:scale-95 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Cancel
                 </button>

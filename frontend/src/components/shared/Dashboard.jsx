@@ -38,8 +38,11 @@ const Dashboard = () => {
     fetchInterviewPrep();
   }, []);
 
+  const [deleting, setDeleting] = useState(false);
+
   const handleDelete = async () => {
     try {
+      setDeleting(true);
       await axios.post(
         `${USER_API_END_POINT}/deleteInterviewPrep`,
         { dashboardId: selectedId },
@@ -51,6 +54,8 @@ const Dashboard = () => {
       setSelectedId(null);
 
     } catch (error) {
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -200,15 +205,17 @@ const Dashboard = () => {
             <div className="flex justify-center gap-4">
               <button
                 onClick={() => setShowConfirm(false)}
-                className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300"
+                disabled={deleting}
+                className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDelete}
-                className="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600"
+                disabled={deleting}
+                className="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Delete
+                {deleting ? "Deleting..." : "Delete"}
               </button>
             </div>
           </div>

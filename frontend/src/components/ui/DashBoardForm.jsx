@@ -50,8 +50,9 @@ const DashBoardForm = ({ onClose, normalClose }) => {
       <div className="bg-white w-full max-w-md rounded-2xl shadow-xl overflow-hidden relative">
 
         <button
-          onClick={normalClose}
-          className="absolute top-5 right-5 text-gray-400 hover:text-gray-600 transition-colors"
+          onClick={loading ? undefined : normalClose}
+          disabled={loading}
+          className="absolute top-5 right-5 text-gray-400 hover:text-gray-600 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
           aria-label="Close"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -79,7 +80,8 @@ const DashBoardForm = ({ onClose, normalClose }) => {
                 name="targetRole"
                 value={formData.targetRole}
                 onChange={handleChange}
-                className="w-full px-4 py-2.5 border border-orange-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-400 transition-colors"
+                disabled={loading}
+                className="w-full px-4 py-2.5 border border-orange-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
 
@@ -94,7 +96,8 @@ const DashBoardForm = ({ onClose, normalClose }) => {
                 placeholder="(e.g., 1 year, 3 years, 5+ years)"
                 value={formData.experience}
                 onChange={handleChange}
-                className="w-full px-4 py-2.5 bg-gray-50/50 border border-gray-100 rounded-lg placeholder-gray-400 focus:outline-none focus:bg-white focus:border-gray-300 transition-colors"
+                disabled={loading}
+                className="w-full px-4 py-2.5 bg-gray-50/50 border border-gray-100 rounded-lg placeholder-gray-400 focus:outline-none focus:bg-white focus:border-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
 
@@ -109,7 +112,8 @@ const DashBoardForm = ({ onClose, normalClose }) => {
                 placeholder="(e.g., React, Node.js, MongoDB)"
                 value={formData.topics}
                 onChange={handleChange}
-                className="w-full px-4 py-2.5 bg-gray-50/50 border border-gray-100 rounded-lg placeholder-gray-400 focus:outline-none focus:bg-white focus:border-gray-300 transition-colors"
+                disabled={loading}
+                className="w-full px-4 py-2.5 bg-gray-50/50 border border-gray-100 rounded-lg placeholder-gray-400 focus:outline-none focus:bg-white focus:border-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
 
@@ -124,7 +128,8 @@ const DashBoardForm = ({ onClose, normalClose }) => {
                 placeholder="(Any specific goals for this position)"
                 value={formData.description}
                 onChange={handleChange}
-                className="w-full px-4 py-2.5 bg-gray-50/50 border border-gray-100 rounded-lg placeholder-gray-400 focus:outline-none focus:bg-white focus:border-gray-300 transition-colors resize-none"
+                disabled={loading}
+                className="w-full px-4 py-2.5 bg-gray-50/50 border border-gray-100 rounded-lg placeholder-gray-400 focus:outline-none focus:bg-white focus:border-gray-300 transition-colors resize-none disabled:opacity-50 disabled:cursor-not-allowed"
               ></textarea>
             </div>
 
@@ -132,7 +137,7 @@ const DashBoardForm = ({ onClose, normalClose }) => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-black text-white font-medium py-3 rounded-lg hover:bg-gray-800 transition-colors"
+                className="w-full bg-black text-white font-medium py-3 rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? "Creating..." : "Create"}
               </button>
