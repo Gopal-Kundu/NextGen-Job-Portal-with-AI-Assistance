@@ -9,7 +9,7 @@ const DashBoardPosition = require("../models/dashboard.model");
 const JobDescriptionWiseResume = require("../models/jobDescriptionWiseResume.model");
 const { extractText, getDocumentProxy } = require("unpdf");
 const puppeteer = require("puppeteer-core");
-
+const chromium = require("@sparticuz/chromium");
 const { aiApi, parseGeminiJSON } = require("./ai.controller");
 require("dotenv").config({ quiet: true });
 
@@ -1311,19 +1311,16 @@ const generateResumePdf = async (req, res) => {
 </html>`;
 
     // 4. Launch puppeteer-core with system Chrome
-    const chromePath =
-      process.env.CHROME_PATH ||
-      "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
-
     browser = await puppeteer.launch({
-      executablePath: chromePath,
-      headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    });
-
+  args: chromium.args,
+  defaultViewport: chromium.defaultViewport,
+  executablePath: await chromium.executablePath(),
+  headless: chromium.headless,
+});
+    
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: "networkidle0" });
-
+    await page.emulateMediaType("screen");
     const pdfBuffer = await page.pdf({
       format: "A4",
       printBackground: true,
@@ -1336,7 +1333,7 @@ const generateResumePdf = async (req, res) => {
     // 5. Send PDF back
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", `attachment; filename="resume.pdf"`);
-    return res.send(Buffer.from(pdfBuffer));
+    return res.status(200).end(pdfBuffer);
 
   } catch (error) {
     if (browser) {
