@@ -20,7 +20,8 @@ const {
   getJdResumeById,
   deleteJdResume,
   analyzeExistingResumeForJd,
-  generateAtsResume
+  generateAtsResume,
+  generateResumePdf
 } = require("../controllers/user.controller");
 const upload = require("../middleware/multer");
 const router = express.Router();
@@ -67,5 +68,6 @@ router.get("/jd-resume/:id", isAuthenticated, getJdResumeById);
 router.delete("/jd-resume/:id", isAuthenticated, deleteJdResume);
 router.post("/jd-resume/:id/analyze", isAuthenticated, analyzeExistingResumeForJd);
 router.post("/jd-resume/:id/generate", isAuthenticated, generateAtsResume);
+router.post("/jd-resume/:id/pdf", isAuthenticated, generateResumePdf);
 
 module.exports = router;

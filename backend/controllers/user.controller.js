@@ -8,6 +8,7 @@ const Notification = require("../models/notification.model");
 const DashBoardPosition = require("../models/dashboard.model");
 const JobDescriptionWiseResume = require("../models/jobDescriptionWiseResume.model");
 const { extractText, getDocumentProxy } = require("unpdf");
+const puppeteer = require("puppeteer-core");
 
 const { aiApi, parseGeminiJSON } = require("./ai.controller");
 require("dotenv").config({ quiet: true });
@@ -1164,6 +1165,193 @@ Return ONLY raw JSON. Do not include markdown code block styling.
 };
 
 
+/**
+ * generateResumePdf
+ * POST /jd-resume/:id/pdf
+ * Uses puppeteer-core + system Chrome to render the ATS resume JSON
+ * as an A4 PDF and stream it back to the client.
+ */
+const generateResumePdf = async (req, res) => {
+  let browser = null;
+  try {
+    const { id } = req.params;
+    const { baseFontSize = 8.5 } = req.body;
+
+    // 1. Fetch the JD-resume record
+    const jdResume = await JobDescriptionWiseResume.findById(id);
+    if (!jdResume || !jdResume.AtsResumeJson) {
+      return res.status(404).json({ success: false, message: "ATS resume data not found" });
+    }
+
+    // 2. Parse the stored resume JSON
+    let resumeData;
+    try {
+      resumeData = JSON.parse(jdResume.AtsResumeJson);
+    } catch (e) {
+      return res.status(400).json({ success: false, message: "Invalid resume JSON stored" });
+    }
+
+    const fs = baseFontSize;
+    const c = resumeData.contact || {};
+    const contactParts = [c.phone, c.email, c.linkedin, c.github, c.portfolio].filter(Boolean);
+
+    // 3. Build a self-contained HTML page that mirrors AtsResumePreview
+    const sectionRule = (title) => `
+      <div style="margin-bottom:2px; margin-top:6px">
+        <div style="font-family:Inter,sans-serif; font-weight:bold; font-size:${fs + 0.5}pt;
+                    letter-spacing:0.5px; text-transform:uppercase">${title}</div>
+        <hr style="border:none; border-top:0.8px solid #111; margin:2px 0 4px 0" />
+      </div>`;
+
+    const bulletList = (items) =>
+      (items || []).map((b) => `<div style="font-size:${fs - 0.5}pt; padding-left:12px">&bull; ${b}</div>`).join("");
+
+    let body = "";
+
+    // Name
+    body += `<div style="text-align:center; margin-bottom:2px">
+      <span style="font-size:${fs * 2.1}pt; font-weight:bold;
+                   font-family:'Playfair Display',Georgia,serif;
+                   letter-spacing:1.5px; text-transform:uppercase">${resumeData.name || ""}</span>
+    </div>`;
+
+    // Contact
+    if (contactParts.length > 0) {
+      body += `<div style="text-align:center; font-size:${fs - 0.5}pt;
+                           font-family:Inter,sans-serif; color:#444; margin-bottom:8px">
+        ${contactParts.join("  |  ")}
+      </div>`;
+    }
+
+    // Summary
+    if (resumeData.summary) {
+      body += sectionRule("Summary");
+      body += `<p style="font-size:${fs}pt; margin-bottom:6px; text-align:justify">${resumeData.summary}</p>`;
+    }
+
+    // Skills
+    if (resumeData.skills?.length > 0) {
+      body += sectionRule("Technical Skills");
+      body += `<div style="margin-bottom:6px">`;
+      resumeData.skills.forEach((s) => {
+        body += `<div style="font-size:${fs}pt; margin-bottom:2px"><strong>${s.category}:</strong> ${s.items}</div>`;
+      });
+      body += `</div>`;
+    }
+
+    // Experience
+    if (resumeData.experience?.length > 0) {
+      body += sectionRule("Experience");
+      resumeData.experience.forEach((exp) => {
+        body += `<div style="margin-bottom:6px">
+          <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:${fs}pt">
+            <span>${exp.company}</span>
+            <span style="font-weight:normal; font-size:${fs - 0.5}pt">${exp.dates}</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-style:italic; font-size:${fs - 0.5}pt; margin-bottom:2px">
+            <span>${exp.role}</span><span>${exp.location}</span>
+          </div>
+          ${bulletList(exp.bullets)}
+        </div>`;
+      });
+    }
+
+    // Projects
+    if (resumeData.projects?.length > 0) {
+      body += sectionRule("Projects");
+      resumeData.projects.forEach((proj) => {
+        body += `<div style="margin-bottom:6px">
+          <div style="font-weight:bold; font-size:${fs}pt; margin-bottom:1px">
+            ${proj.name} <span style="font-weight:normal; font-size:${fs - 0.5}pt">&mdash; ${proj.technologies}</span>
+          </div>
+          ${bulletList(proj.bullets)}
+        </div>`;
+      });
+    }
+
+    // Achievements
+    if (resumeData.achievements?.length > 0) {
+      body += sectionRule("Achievements");
+      body += `<div style="margin-bottom:6px">${bulletList(resumeData.achievements)}</div>`;
+    }
+
+    // Education
+    if (resumeData.education?.length > 0) {
+      body += sectionRule("Education");
+      resumeData.education.forEach((edu) => {
+        body += `<div style="margin-bottom:4px">
+          <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:${fs}pt">
+            <span>${edu.institution}</span>
+            <span style="font-weight:normal; font-size:${fs - 0.5}pt">${edu.dates}</span>
+          </div>
+          <div style="font-style:italic; font-size:${fs - 0.5}pt">${edu.degree} | ${edu.location}</div>
+        </div>`;
+      });
+    }
+
+    const html = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Lora&family=Inter:wght@400;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Lora, Georgia, serif;
+      font-size: ${fs}pt;
+      line-height: 1.25;
+      color: #111;
+      background: #fff;
+      padding: 36px 48px;
+    }
+  </style>
+</head>
+<body>${body}</body>
+</html>`;
+
+    // 4. Launch puppeteer-core with system Chrome
+    const chromePath =
+      process.env.CHROME_PATH ||
+      "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
+
+    browser = await puppeteer.launch({
+      executablePath: chromePath,
+      headless: true,
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    });
+
+    const page = await browser.newPage();
+    await page.setContent(html, { waitUntil: "networkidle0" });
+
+    const pdfBuffer = await page.pdf({
+      format: "A4",
+      printBackground: true,
+      margin: { top: "0mm", bottom: "0mm", left: "0mm", right: "0mm" },
+    });
+
+    await browser.close();
+    browser = null;
+
+    // 5. Send PDF back
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename="resume.pdf"`);
+    return res.send(Buffer.from(pdfBuffer));
+
+  } catch (error) {
+    if (browser) {
+      try { await browser.close(); } catch (_) {}
+    }
+    console.error("PDF generation error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to generate PDF",
+      error: error.message,
+    });
+  }
+};
+
+
 module.exports = {
   register,
   login,
@@ -1184,5 +1372,6 @@ module.exports = {
   getJdResumeById,
   deleteJdResume,
   analyzeExistingResumeForJd,
-  generateAtsResume
+  generateAtsResume,
+  generateResumePdf
 };
