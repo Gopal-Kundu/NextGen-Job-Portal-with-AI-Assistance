@@ -13,7 +13,7 @@ import { useReactToPrint } from 'react-to-print';
 // Helper: Jake's-Resume-style section header with underline rule
 const SectionRule = ({ title }) => (
   <div style={{ marginBottom: '4px', marginTop: '10px' }}>
-    <div style={{ fontFamily: 'Arial, sans-serif', fontWeight: 'bold', fontSize: '10.5pt', letterSpacing: '0.5px', textTransform: 'uppercase' }}>{title}</div>
+    <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 'bold', fontSize: '10.5pt', letterSpacing: '0.5px', textTransform: 'uppercase' }}>{title}</div>
     <hr style={{ border: 'none', borderTop: '0.8px solid #111', margin: '2px 0 6px 0' }} />
   </div>
 );
@@ -31,6 +31,14 @@ const JdResumeDetail = () => {
   const [showCourses, setShowCourses] = useState(true);
   const [showResumePreview, setShowResumePreview] = useState(false);
   const resumePreviewRef = useRef(null);
+  const promiseResolveRef = useRef(null);
+
+  useEffect(() => {
+    if (showResumePreview && promiseResolveRef.current) {
+      promiseResolveRef.current();
+      promiseResolveRef.current = null;
+    }
+  }, [showResumePreview]);
 
   const fetchDetail = async () => {
     try {
@@ -51,18 +59,17 @@ const JdResumeDetail = () => {
 
   const downloadPreviewAsPdf = useReactToPrint({
     contentRef: resumePreviewRef,
-    documentTitle: data?.companyName ? `${data.companyName}_tailored_resume` : 'Tailored_Resume',
-    onBeforeGetContent: () => {
+    documentTitle: data?.companyName ? `${user?.fullname}'s_Resume_${data.companyName}` : 'Tailored_Resume',
+    onBeforePrint: () => {
       return new Promise((resolve) => {
         if (!showResumePreview) {
+          promiseResolveRef.current = resolve;
           setShowResumePreview(true);
-          setTimeout(resolve, 50); // wait for DOM to mount the ref
         } else {
           resolve();
         }
       });
     },
-    onAfterPrint: () => toast.success('PDF print dialog opened!'),
   });
 
   useEffect(() => {
@@ -520,16 +527,16 @@ const JdResumeDetail = () => {
                         <div className="overflow-hidden">
                           <div className="pt-4 border-t border-gray-100 overflow-x-auto">
                             {/* Resume Paper */}
-                            <div ref={resumePreviewRef} style={{ fontFamily: 'Georgia, serif', fontSize: '10pt', lineHeight: 1.4, color: '#111', background: '#fff', padding: '48px 52px', width: '760px', maxWidth: '100%', minWidth: '600px', margin: '0 auto', border: '1px solid #e5e7eb', boxShadow: '0 2px 12px rgba(0,0,0,0.07)' }}>
+                            <div ref={resumePreviewRef} className="border border-gray-200 shadow-md print:border-none print:shadow-none" style={{ fontFamily: 'Lora, Georgia, serif', fontSize: '10pt', lineHeight: 1.4, color: '#111', background: '#fff', padding: '48px 52px', width: '760px', maxWidth: '100%', minWidth: '600px', margin: '0 auto' }}>
 
                             {/* Name */}
                             <div style={{ textAlign: 'center', marginBottom: '4px' }}>
-                              <span style={{ fontSize: '22pt', fontWeight: 'bold', fontFamily: 'Arial, sans-serif', letterSpacing: '2px', textTransform: 'uppercase' }}>{resumeData.name}</span>
+                              <span style={{ fontSize: '22pt', fontWeight: 'bold', fontFamily: 'Playfair Display, Georgia, serif', letterSpacing: '2px', textTransform: 'uppercase' }}>{resumeData.name}</span>
                             </div>
 
                             {/* Contact */}
                             {contactParts.length > 0 && (
-                              <div style={{ textAlign: 'center', fontSize: '8.5pt', color: '#444', marginBottom: '14px' }}>
+                              <div style={{ textAlign: 'center', fontSize: '8.5pt', fontFamily: 'Inter, sans-serif', color: '#444', marginBottom: '14px' }}>
                                 {contactParts.join('  |  ')}
                               </div>
                             )}
