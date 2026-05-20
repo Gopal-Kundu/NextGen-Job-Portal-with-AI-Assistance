@@ -1013,7 +1013,7 @@ STRICT RULES
 
 3. STRICT ONE-PAGE LIMIT (CONCISENESS)
 - The final resume MUST fit within ONE A4 page. Keep content concise, dense, and impactful.
-- Include ONLY the most relevant experiences (max 2-3 entries, 3-5 bullets each) and projects (max 2 entries, 2-4 bullets each). Delete older, minor, or completely irrelevant entries that do not help in matching the JD.
+- Include ONLY the most relevant experiences (max 2-3 entries, 3-5 bullets each) and projects (max 2-3 entries, 4-5 bullets each). Delete older, minor, or completely irrelevant entries that do not help in matching the JD.
 - Limit the summary to max 3 targeted sentences.
 
 4. NO HALLUCINATION
