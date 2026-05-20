@@ -32,6 +32,7 @@ export default function JobCard({
   const user = useSelector((store) => store.auth.user);
   const [isApplying, setIsApplying] = useState(false);
   const [actionType, setActionType] = useState("");
+  const [isBookmarking, setIsBookmarking] = useState(false);
   const navigate = useNavigate();
   const handleShare = async (id) => {
     if (navigator.share) {
@@ -54,6 +55,7 @@ export default function JobCard({
       });
     }
 
+    setIsBookmarking(true);
     try {
       const res = await axios.post(
         `${USER_API_END_POINT}/bookmark`,
@@ -88,6 +90,8 @@ export default function JobCard({
         position: "top-center",
         duration: 2000,
       });
+    } finally {
+      setIsBookmarking(false);
     }
   }
 
@@ -173,12 +177,14 @@ async function applyHandler() {
         </span>
 
         <button
+          onClick={bookmarkHandler}
+          disabled={isBookmarking}
           className={`cursor-pointer hover:text-indigo-600 ${user?.savedJobs?.some((job) => job._id === id)
               ? "text-indigo-600"
               : "text-gray-400"
-            } transition-colors`}
+            } transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
         >
-          <Bookmark onClick={bookmarkHandler} />
+          <Bookmark />
         </button>
       </div>
 
@@ -244,7 +250,8 @@ async function applyHandler() {
         <button
           type="button"
           onClick={applyHandler}
-          className="w-full flex items-center justify-center bg-[#8200db] text-white py-2 rounded-lg hover:bg-[#591188] transition-colors duration-200"
+          disabled={isApplying}
+          className="w-full flex items-center justify-center bg-[#8200db] text-white py-2 rounded-lg hover:bg-[#591188] transition-colors duration-200 disabled:opacity-50"
         >
           {isApplying ? (
             actionType === "removing" ? (

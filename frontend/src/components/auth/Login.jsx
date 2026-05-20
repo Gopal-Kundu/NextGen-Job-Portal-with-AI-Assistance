@@ -48,9 +48,9 @@ export default function Login() {
         navigate("/");
       }
     } catch (error) {
-      toast(
+      toast.error(
         error?.response?.data?.message || "Something went wrong",
-        { position: "top-center", duration: 1000 }
+        { position: "top-center", duration: 2000 }
       );
     } finally {
       dispatch(setLoading(false));

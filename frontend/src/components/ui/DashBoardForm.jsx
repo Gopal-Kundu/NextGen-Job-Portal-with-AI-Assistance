@@ -4,7 +4,7 @@ import { USER_API_END_POINT } from "@/utils/address";
 
 const DashBoardForm = ({ onClose, normalClose }) => {
   const [formData, setFormData] = useState({
-    targetRole: "Software Engineer",
+    targetRole: "",
     experience: "",
     topics: "",
     description: "",
@@ -17,8 +17,15 @@ const DashBoardForm = ({ onClose, normalClose }) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const isFormValid =
+    formData.targetRole.trim() !== "" &&
+    formData.experience.trim() !== "" &&
+    formData.topics.trim() !== "";
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!isFormValid) return;
 
     try {
       setLoading(true);
@@ -35,7 +42,6 @@ const DashBoardForm = ({ onClose, normalClose }) => {
           withCredentials: true,
         }
       );
-
 
       onClose();
     } catch (err) {
@@ -78,10 +84,11 @@ const DashBoardForm = ({ onClose, normalClose }) => {
                 type="text"
                 id="targetRole"
                 name="targetRole"
+                placeholder="(e.g., Software Engineer, Product Manager)"
                 value={formData.targetRole}
                 onChange={handleChange}
                 disabled={loading}
-                className="w-full px-4 py-2.5 border border-orange-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full px-4 py-2.5 border border-orange-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-200 focus:border-orange-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
 
@@ -136,7 +143,7 @@ const DashBoardForm = ({ onClose, normalClose }) => {
             <div className="pt-2">
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || !isFormValid}
                 className="w-full bg-black text-white font-medium py-3 rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? "Creating..." : "Create"}

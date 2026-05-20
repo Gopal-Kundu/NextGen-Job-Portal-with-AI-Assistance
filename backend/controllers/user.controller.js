@@ -27,7 +27,7 @@ const register = async (req, res) => {
 
     if (!fullname || !email || !phonenumber || !password || !role) {
       return res.status(400).json({
-        message: "Something is missing.",
+        message: "All fields are required. Please fill in every field.",
         success: false,
       });
     }
@@ -35,7 +35,7 @@ const register = async (req, res) => {
     let user = await User.findOne({ email });
     if (user) {
       return res.status(400).json({
-        message: "User already exists with this email.",
+        message: "An account with this email already exists. Please login instead.",
         success: false,
       });
     }
@@ -51,12 +51,12 @@ const register = async (req, res) => {
     });
 
     return res.status(201).json({
-      message: "Account created successfully",
+      message: "Account created successfully! Please login to continue.",
       success: true,
     });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: "Server error", success: false });
+    return res.status(500).json({ message: "Server error. Please try again later.", success: false });
   }
 };
 
@@ -65,7 +65,7 @@ const login = async (req, res) => {
     const { email, password, role } = req.body;
     if (!email || !password || !role) {
       return res.status(400).json({
-        message: "Something is missing.",
+        message: "Email, password and role are all required.",
         success: false,
       });
     }
@@ -73,7 +73,7 @@ const login = async (req, res) => {
     let user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({
-        message: "Incorrect email or password.",
+        message: "No account found with this email. Please sign up first.",
         success: false,
       });
     }
@@ -81,14 +81,14 @@ const login = async (req, res) => {
     const isPasswordMatch = await bcrypt.compare(password, user.password);
     if (!isPasswordMatch) {
       return res.status(400).json({
-        message: "Incorrect email or password.",
+        message: "Incorrect password. Please try again.",
         success: false,
       });
     }
 
     if (role !== user.role) {
       return res.status(400).json({
-        message: "Account doesn't exist with current role.",
+        message: `This account is registered as a ${user.role}. Please select the correct role.`,
         success: false,
       });
     }

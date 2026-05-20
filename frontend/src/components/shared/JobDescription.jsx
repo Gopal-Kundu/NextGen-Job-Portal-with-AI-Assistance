@@ -225,7 +225,8 @@ const JobDescription = () => {
 
               <button
                 onClick={applyHandler}
-                className="bg-purple-700 text-white rounded-lg h-12 px-6 shadow hover:bg-purple-800 font-semibold active:scale-95 transition"
+                disabled={isApplying}
+                className="bg-purple-700 text-white rounded-lg h-12 px-6 shadow hover:bg-purple-800 font-semibold active:scale-95 transition disabled:opacity-60 disabled:cursor-not-allowed disabled:active:scale-100"
               >
                 {isApplying ? (
                   actionType === "removing"
