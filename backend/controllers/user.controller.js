@@ -981,42 +981,116 @@ const generateAtsResume = async (req, res) => {
     const jobDescText = jdResume.jobDescription.slice(0, 2000);
 
     // Ask Gemini for structured JSON resume data (no LaTeX/binary deps needed)
-    const jsonPrompt = `You are a world-class Executive Resume Writer and ATS (Applicant Tracking System) Expert.
-Your objective is to completely overhaul and tailor the candidate's existing resume to flawlessly match the target Job Description, aiming for a 95+ ATS score.
+const jsonPrompt = `
+You are an elite ATS Resume Optimization AI and Executive Resume Writer.
 
-Existing Resume Text:
+Your ONLY goal is to transform the candidate's existing resume into a highly ATS-optimized, recruiter-friendly resume that achieves an estimated ATS score of 95-100 for the provided Job Description.
+
+========================
+CANDIDATE RESUME
+========================
 ${resumeText}
 
-Target Job Description:
+========================
+TARGET JOB DESCRIPTION
+========================
 ${jobDescText}
 
-CRITICAL INSTRUCTIONS:
-1. DEEP KEYWORD INTEGRATION: Analyze the Job Description for hard skills, soft skills, tools, methodologies, and exact phrasing. Embed these exact keywords naturally throughout the Summary, Skills, and Experience bullets.
-2. ACTION-ORIENTED BULLETS: Rewrite experience bullets using strong action verbs. Quantify achievements (e.g., increased by X%, managed $Y budget) wherever plausible based on the original text.
-3. SKILL REORGANIZATION: Reorder and categorize the skills section to exactly mirror the requirements prioritized in the JD.
-4. SUMMARY REVAMP: Craft a high-impact, 3-sentence professional summary that immediately positions the candidate as the perfect fit for this specific role, heavily utilizing JD keywords.
-5. NO HALLUCINATIONS: Do not invent new jobs or degrees. Only enhance and rephrase existing experience to highlight relevance to the JD.
-6. STRICT ONE-PAGE LIMIT (CONCISENESS): The generated content MUST fit on a single A4 page. Be extremely concise. Limit to the 2-3 most relevant experiences (max 2-3 bullets each) and top 2 projects (max 2-4 bullets each). Delete older or irrelevant filler completely.
+========================
+STRICT RULES
+========================
 
-Return ONLY a valid JSON object with this exact structure (no markdown, no explanation):
+1. ATS OPTIMIZATION & EXACT KEYWORD MATCHING IS TOP PRIORITY
+- Scan the Job Description for all technical skills, languages, frameworks, databases, libraries, clouds, DevOps tools, soft skills, and certificates.
+- Match the exact spelling, casing, and format of these keywords as they appear in the Job Description (e.g., if the JD writes "React.js", do not write "ReactJS" or "React").
+- Embed these exact keywords naturally across all sections: Summary, Skills, Experience, and Projects. Do not just dump them in the Skills section; write them in context within Experience and Project bullet points.
+- Prioritize ATS matching and keyword density over generic writing styles.
+
+2. EXPERIENCE & PROJECTS TAILORING
+- Rephrase and adjust experience bullet points and projects to directly mirror the duties, responsibilities, and requirements specified in the Job Description.
+- If the JD heavily emphasizes certain skills or workflows (e.g., API design, frontend state management, database query optimization), prioritize writing bullets highlighting achievements in those fields.
+- Write bullets using the STAR / XYZ formula: Start with a strong action verb + specify the task/project + detail the tools/stack used + quantify the business or technical impact (e.g. "Improved page load speed by 35% by implementing lazy loading and code splitting in React").
+
+3. STRICT ONE-PAGE LIMIT (CONCISENESS)
+- The final resume MUST fit within ONE A4 page. Keep content concise, dense, and impactful.
+- Include ONLY the most relevant experiences (max 2-3 entries, 3-5 bullets each) and projects (max 2 entries, 2-4 bullets each). Delete older, minor, or completely irrelevant entries that do not help in matching the JD.
+- Limit the summary to max 3 targeted sentences.
+
+4. NO HALLUCINATION
+- NEVER invent new companies, employment dates, locations, degrees, or certifications.
+- Do not invent artificial projects or metrics out of thin air. Only enhance, rewrite, and optimize actual candidate experience to present it in the best possible light.
+
+5. CLEAN ATS FORMAT
+- Standardize section names exactly: "Summary", "Skills", "Experience", "Projects", "Achievements", "Education".
+- Use simple, clean, and professional wording. Avoid decorative symbols or emojis.
+
+6. SKILLS SEGREGATION
+- Group matching skills into clear categories (e.g., "Languages", "Frameworks & Libraries", "Databases & Tools").
+- Prioritize and list categories/items according to the order of priority in the Job Description.
+
+7. SUMMARY SECTION
+- Craft a high-impact professional summary specifically tailored to the target role.
+- Integrate target role title, years of experience (if present), core technologies, and key strengths matching the Job Description.
+
+8. OUTPUT REQUIREMENTS
+- Return ONLY valid JSON.
+- No markdown formatting wrappers (like \`\`\`json ... \`\`\`).
+- No explanation or extra conversational text before or after the JSON.
+- Ensure the JSON is properly escaped and 100% parsable.
+
+========================
+RETURN JSON FORMAT
+========================
+
 {
   "name": "Candidate Full Name",
-  "contact": { "phone": "+91-XXXXXXXXXX", "email": "email@example.com", "linkedin": "linkedin.com/in/profile", "github": "github.com/username", "portfolio": "" },
-  "summary": "High-impact summary saturated with JD keywords.",
+  "contact": {
+    "phone": "+91-XXXXXXXXXX",
+    "email": "email@example.com",
+    "linkedin": "linkedin.com/in/profile",
+    "github": "github.com/username",
+    "portfolio": ""
+  },
+  "summary": "ATS optimized professional summary.",
   "skills": [
-    { "category": "Languages", "items": "Python, JavaScript, Java" }
+    {
+      "category": "Languages",
+      "items": "JavaScript, Python, Java"
+    }
   ],
   "experience": [
-    { "company": "Company", "location": "City", "role": "Role", "dates": "Month Year – Month Year", "bullets": ["Action-driven bullet with metrics and JD keywords"] }
+    {
+      "company": "Company Name",
+      "location": "City",
+      "role": "Job Title",
+      "dates": "Month Year – Month Year",
+      "bullets": [
+        "Strong ATS optimized achievement bullet"
+      ]
+    }
   ],
   "projects": [
-    { "name": "Project", "technologies": "React, Node.js", "bullets": ["Keyword-rich description"] }
+    {
+      "name": "Project Name",
+      "technologies": "React, Node.js, MongoDB",
+      "bullets": [
+        "ATS optimized project bullet"
+      ]
+    }
   ],
-  "achievements": ["Achievement 1"],
+  "achievements": [
+    "Relevant achievement"
+  ],
   "education": [
-    { "institution": "University", "location": "City", "degree": "B.Tech CS | CGPA: X.X", "dates": "Month Year – Month Year" }
+    {
+      "institution": "University Name",
+      "location": "City",
+      "degree": "Degree Name | CGPA: X.X",
+      "dates": "Month Year – Month Year"
+    }
   ]
-}`;
+}
+`;
 
     const rawJson = await aiApi(jsonPrompt);
     const resumeData = parseGeminiJSON(rawJson);

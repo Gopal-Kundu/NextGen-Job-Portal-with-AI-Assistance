@@ -9,12 +9,13 @@ import { USER_API_END_POINT } from '@/utils/address';
 import { toast } from 'sonner';
 import Skeleton from '@mui/material/Skeleton';
 import ReactMarkdown from 'react-markdown';
-import { useReactToPrint } from 'react-to-print';
+import html2canvas from 'html2canvas-pro';
+import { jsPDF } from 'jspdf';
 // Helper: Jake's-Resume-style section header with underline rule
-const SectionRule = ({ title }) => (
-  <div style={{ marginBottom: '4px', marginTop: '10px' }}>
-    <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 'bold', fontSize: '10.5pt', letterSpacing: '0.5px', textTransform: 'uppercase' }}>{title}</div>
-    <hr style={{ border: 'none', borderTop: '0.8px solid #111', margin: '2px 0 6px 0' }} />
+const SectionRule = ({ title, fontSize = 9 }) => (
+  <div style={{ marginBottom: '2px', marginTop: '6px' }}>
+    <div style={{ fontFamily: 'Inter, sans-serif', fontWeight: 'bold', fontSize: `${fontSize}pt`, letterSpacing: '0.5px', textTransform: 'uppercase' }}>{title}</div>
+    <hr style={{ border: 'none', borderTop: '0.8px solid #111', margin: '2px 0 4px 0' }} />
   </div>
 );
 
@@ -30,16 +31,8 @@ const JdResumeDetail = () => {
   const [showWeakSpots, setShowWeakSpots] = useState(true);
   const [showCourses, setShowCourses] = useState(true);
   const [showResumePreview, setShowResumePreview] = useState(false);
+  const [baseFontSize, setBaseFontSize] = useState(8.5);
   const resumePreviewRef = useRef(null);
-  const promiseResolveRef = useRef(null);
-
-  useEffect(() => {
-    if (showResumePreview && promiseResolveRef.current) {
-      promiseResolveRef.current();
-      promiseResolveRef.current = null;
-    }
-  }, [showResumePreview]);
-
   const fetchDetail = async () => {
     try {
       setLoading(true);
@@ -57,20 +50,55 @@ const JdResumeDetail = () => {
     }
   };
 
-  const downloadPreviewAsPdf = useReactToPrint({
-    contentRef: resumePreviewRef,
-    documentTitle: data?.companyName ? `${user?.fullname}'s_Resume_${data.companyName}` : 'Tailored_Resume',
-    onBeforePrint: () => {
-      return new Promise((resolve) => {
-        if (!showResumePreview) {
-          promiseResolveRef.current = resolve;
-          setShowResumePreview(true);
-        } else {
-          resolve();
-        }
+  const downloadPreviewAsPdf = async () => {
+    if (!showResumePreview) {
+      setShowResumePreview(true);
+      // Wait for rendering transition to complete
+      await new Promise((resolve) => setTimeout(resolve, 350));
+    }
+
+    try {
+      await document.fonts.ready;
+    } catch (e) {
+      console.warn("Fonts check failed", e);
+    }
+
+    const element = resumePreviewRef.current;
+    if (!element) {
+      toast.error('Resume preview content not found.');
+      return;
+    }
+
+    try {
+      toast.info('Generating PDF for download...');
+
+      const canvas = await html2canvas(element, {
+        scale: 4, // High DPI capture for crisp text
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
       });
-    },
-  });
+
+      const imgData = canvas.toDataURL('image/png');
+
+      // PDF size A4: 210mm x 297mm
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgWidth = 210;
+      const imgHeight = 297;
+
+      // Fit to exactly one page
+      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight, '', 'FAST');
+
+      const fileName = data?.companyName
+        ? `${user?.fullname || 'My'}'s_Resume_${data.companyName}.pdf`
+        : 'Tailored_Resume.pdf';
+
+      pdf.save(fileName);
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to download PDF. Please try again.');
+    }
+  };
 
   useEffect(() => {
     if (id) {
@@ -501,16 +529,36 @@ const JdResumeDetail = () => {
                           onClick={() => setShowResumePreview(!showResumePreview)}
                           className="flex items-center gap-2 text-left font-bold text-gray-800 focus:outline-none"
                         >
-                          <span>Generated Resume Preview</span>
+                          <span>New Resume</span>
                           <svg xmlns="http://www.w3.org/2000/svg" className={`h-5 w-5 transition-transform duration-200 ${showResumePreview ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                           </svg>
                         </button>
                         {data.AtsResumeJson && (
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-3">
+                            {/* Dynamic Font Size Control Panel */}
+                            <div className="flex items-center gap-1.5 bg-gray-50 border border-gray-200 px-2 py-1 rounded-lg text-[10px] sm:text-xs">
+                              <span className="text-gray-500 font-medium select-none">Font Size:</span>
+                              <button 
+                                onClick={() => setBaseFontSize(prev => Math.max(7.0, +(prev - 0.5).toFixed(1)))} 
+                                className="w-5 h-5 flex items-center justify-center bg-white border border-gray-200 rounded font-bold text-gray-600 hover:bg-gray-100 hover:text-gray-900 active:scale-90 transition select-none cursor-pointer"
+                                title="Decrease font size"
+                              >
+                                -
+                              </button>
+                              <span className="font-bold text-gray-800 w-9 text-center select-none">{baseFontSize}pt</span>
+                              <button 
+                                onClick={() => setBaseFontSize(prev => Math.min(12.0, +(prev + 0.5).toFixed(1)))} 
+                                className="w-5 h-5 flex items-center justify-center bg-white border border-gray-200 rounded font-bold text-gray-600 hover:bg-gray-100 hover:text-gray-900 active:scale-90 transition select-none cursor-pointer"
+                                title="Increase font size"
+                              >
+                                +
+                              </button>
+                            </div>
+
                             <button
                               onClick={() => downloadPreviewAsPdf()}
-                              className="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-3 py-1.5 rounded-lg transition text-xs flex items-center gap-1.5 shadow"
+                              className="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-3 py-1.5 rounded-lg transition text-xs flex items-center gap-1.5 shadow cursor-pointer"
                             >
                               <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -527,16 +575,16 @@ const JdResumeDetail = () => {
                         <div className="overflow-hidden">
                           <div className="pt-4 border-t border-gray-100 overflow-x-auto">
                             {/* Resume Paper */}
-                            <div ref={resumePreviewRef} className="border border-gray-200 shadow-md print:border-none print:shadow-none" style={{ fontFamily: 'Lora, Georgia, serif', fontSize: '10pt', lineHeight: 1.4, color: '#111', background: '#fff', padding: '48px 52px', width: '760px', maxWidth: '100%', minWidth: '600px', margin: '0 auto' }}>
+                            <div ref={resumePreviewRef} className="border border-gray-200 shadow-md print:border-none print:shadow-none" style={{ fontFamily: 'Lora, Georgia, serif', fontSize: `${baseFontSize}pt`, lineHeight: 1.25, color: '#111', background: '#fff', padding: '36px 48px', width: '794px', height: '1123px', boxSizing: 'border-box', overflow: 'hidden' }}>
 
                             {/* Name */}
-                            <div style={{ textAlign: 'center', marginBottom: '4px' }}>
-                              <span style={{ fontSize: '22pt', fontWeight: 'bold', fontFamily: 'Playfair Display, Georgia, serif', letterSpacing: '2px', textTransform: 'uppercase' }}>{resumeData.name}</span>
+                            <div style={{ textAlign: 'center', marginBottom: '2px' }}>
+                              <span style={{ fontSize: `${baseFontSize * 2.1}pt`, fontWeight: 'bold', fontFamily: 'Playfair Display, Georgia, serif', letterSpacing: '1.5px', textTransform: 'uppercase' }}>{resumeData.name}</span>
                             </div>
 
                             {/* Contact */}
                             {contactParts.length > 0 && (
-                              <div style={{ textAlign: 'center', fontSize: '8.5pt', fontFamily: 'Inter, sans-serif', color: '#444', marginBottom: '14px' }}>
+                              <div style={{ textAlign: 'center', fontSize: `${baseFontSize - 0.5}pt`, fontFamily: 'Inter, sans-serif', color: '#444', marginBottom: '8px' }}>
                                 {contactParts.join('  |  ')}
                               </div>
                             )}
@@ -544,18 +592,18 @@ const JdResumeDetail = () => {
                             {/* Summary */}
                             {resumeData.summary && (
                               <>
-                                <SectionRule title="Summary" />
-                                <p style={{ fontSize: '9.5pt', marginBottom: '10px' }}>{resumeData.summary}</p>
+                                <SectionRule title="Summary" fontSize={baseFontSize + 0.5} />
+                                <p style={{ fontSize: `${baseFontSize}pt`, marginBottom: '6px', textAlign: 'justify' }}>{resumeData.summary}</p>
                               </>
                             )}
 
                             {/* Skills */}
                             {resumeData.skills?.length > 0 && (
                               <>
-                                <SectionRule title="Technical Skills" />
-                                <div style={{ marginBottom: '10px' }}>
+                                <SectionRule title="Technical Skills" fontSize={baseFontSize + 0.5} />
+                                <div style={{ marginBottom: '6px' }}>
                                   {resumeData.skills.map((s, i) => (
-                                    <div key={i} style={{ fontSize: '9.5pt', marginBottom: '2px' }}>
+                                    <div key={i} style={{ fontSize: `${baseFontSize}pt`, marginBottom: '2px' }}>
                                       <strong>{s.category}:</strong> {s.items}
                                     </div>
                                   ))}
@@ -566,16 +614,16 @@ const JdResumeDetail = () => {
                             {/* Experience */}
                             {resumeData.experience?.length > 0 && (
                               <>
-                                <SectionRule title="Experience" />
+                                <SectionRule title="Experience" fontSize={baseFontSize + 0.5} />
                                 {resumeData.experience.map((exp, i) => (
-                                  <div key={i} style={{ marginBottom: '10px' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '10pt' }}>
-                                      <span>{exp.company}</span><span style={{ fontWeight: 'normal', fontSize: '9pt' }}>{exp.dates}</span>
+                                  <div key={i} style={{ marginBottom: '6px' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: `${baseFontSize}pt` }}>
+                                      <span>{exp.company}</span><span style={{ fontWeight: 'normal', fontSize: `${baseFontSize - 0.5}pt` }}>{exp.dates}</span>
                                     </div>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontStyle: 'italic', fontSize: '9pt', marginBottom: '3px' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontStyle: 'italic', fontSize: `${baseFontSize - 0.5}pt`, marginBottom: '2px' }}>
                                       <span>{exp.role}</span><span>{exp.location}</span>
                                     </div>
-                                    {exp.bullets?.map((b, j) => <div key={j} style={{ fontSize: '9pt', paddingLeft: '14px' }}>• {b}</div>)}
+                                    {exp.bullets?.map((b, j) => <div key={j} style={{ fontSize: `${baseFontSize - 0.5}pt`, paddingLeft: '12px' }}>• {b}</div>)}
                                   </div>
                                 ))}
                               </>
@@ -584,13 +632,13 @@ const JdResumeDetail = () => {
                             {/* Projects */}
                             {resumeData.projects?.length > 0 && (
                               <>
-                                <SectionRule title="Projects" />
+                                <SectionRule title="Projects" fontSize={baseFontSize + 0.5} />
                                 {resumeData.projects.map((proj, i) => (
-                                  <div key={i} style={{ marginBottom: '10px' }}>
-                                    <div style={{ fontWeight: 'bold', fontSize: '10pt', marginBottom: '2px' }}>
-                                      {proj.name} <span style={{ fontWeight: 'normal', fontSize: '9pt' }}>— {proj.technologies}</span>
+                                  <div key={i} style={{ marginBottom: '6px' }}>
+                                    <div style={{ fontWeight: 'bold', fontSize: `${baseFontSize}pt`, marginBottom: '1px' }}>
+                                      {proj.name} <span style={{ fontWeight: 'normal', fontSize: `${baseFontSize - 0.5}pt` }}>— {proj.technologies}</span>
                                     </div>
-                                    {proj.bullets?.map((b, j) => <div key={j} style={{ fontSize: '9pt', paddingLeft: '14px' }}>• {b}</div>)}
+                                    {proj.bullets?.map((b, j) => <div key={j} style={{ fontSize: `${baseFontSize - 0.5}pt`, paddingLeft: '12px' }}>• {b}</div>)}
                                   </div>
                                 ))}
                               </>
@@ -599,9 +647,9 @@ const JdResumeDetail = () => {
                             {/* Achievements */}
                             {resumeData.achievements?.length > 0 && (
                               <>
-                                <SectionRule title="Achievements" />
-                                <div style={{ marginBottom: '10px' }}>
-                                  {resumeData.achievements.map((a, i) => <div key={i} style={{ fontSize: '9pt', paddingLeft: '14px' }}>• {a}</div>)}
+                                <SectionRule title="Achievements" fontSize={baseFontSize + 0.5} />
+                                <div style={{ marginBottom: '6px' }}>
+                                  {resumeData.achievements.map((a, i) => <div key={i} style={{ fontSize: `${baseFontSize - 0.5}pt`, paddingLeft: '12px' }}>• {a}</div>)}
                                 </div>
                               </>
                             )}
@@ -609,13 +657,13 @@ const JdResumeDetail = () => {
                             {/* Education */}
                             {resumeData.education?.length > 0 && (
                               <>
-                                <SectionRule title="Education" />
+                                <SectionRule title="Education" fontSize={baseFontSize + 0.5} />
                                 {resumeData.education.map((edu, i) => (
-                                  <div key={i} style={{ marginBottom: '8px' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '10pt' }}>
-                                      <span>{edu.institution}</span><span style={{ fontWeight: 'normal', fontSize: '9pt' }}>{edu.dates}</span>
+                                  <div key={i} style={{ marginBottom: '4px' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: `${baseFontSize}pt` }}>
+                                      <span>{edu.institution}</span><span style={{ fontWeight: 'normal', fontSize: `${baseFontSize - 0.5}pt` }}>{edu.dates}</span>
                                     </div>
-                                    <div style={{ fontStyle: 'italic', fontSize: '9pt' }}>{edu.degree} | {edu.location}</div>
+                                    <div style={{ fontStyle: 'italic', fontSize: `${baseFontSize - 0.5}pt` }}>{edu.degree} | {edu.location}</div>
                                   </div>
                                 ))}
                               </>
