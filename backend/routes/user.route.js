@@ -15,6 +15,12 @@ const {
   getInterviewPrep,
   deleteInterviewPrep,
   generateMoreQuestions,
+  createJdResume,
+  getJdResumes,
+  getJdResumeById,
+  deleteJdResume,
+  analyzeExistingResumeForJd,
+  generateAtsResume
 } = require("../controllers/user.controller");
 const upload = require("../middleware/multer");
 const router = express.Router();
@@ -53,5 +59,13 @@ router.post("/create-interviewprep", isAuthenticated, createInterviewPrep);
 router.get("/get-interviewPrep", isAuthenticated, getInterviewPrep);
 router.post("/deleteInterviewPrep", isAuthenticated, deleteInterviewPrep);
 router.post("/generate-more-questions", isAuthenticated, generateMoreQuestions);
+
+// Job Description wise Resume routes
+router.post("/jd-resume/create", isAuthenticated, createJdResume);
+router.get("/jd-resume/all", isAuthenticated, getJdResumes);
+router.get("/jd-resume/:id", isAuthenticated, getJdResumeById);
+router.delete("/jd-resume/:id", isAuthenticated, deleteJdResume);
+router.post("/jd-resume/:id/analyze", isAuthenticated, analyzeExistingResumeForJd);
+router.post("/jd-resume/:id/generate", isAuthenticated, generateAtsResume);
 
 module.exports = router;

@@ -23,7 +23,7 @@ async function generateEmbedding(contents) {
                 outputDimensionality: 368,
             },
         });
-        
+
         return response.embeddings.map(item => item.values);
     } catch (err) {
         console.error("Gemini Embedding Error:", err.message);

@@ -6,8 +6,20 @@ const cloudinary = require("../utils/cloudinary");
 const Job = require("../models/job.model");
 const Notification = require("../models/notification.model");
 const DashBoardPosition = require("../models/dashboard.model");
+const JobDescriptionWiseResume = require("../models/jobDescriptionWiseResume.model");
+const { extractText, getDocumentProxy } = require("unpdf");
+
 const { aiApi, parseGeminiJSON } = require("./ai.controller");
 require("dotenv").config({ quiet: true });
+
+// Helper to fetch and extract text from a PDF URL
+const extractTextFromPdf = async (url) => {
+  const buffer = await fetch(url).then(res => res.arrayBuffer());
+  const pdf = await getDocumentProxy(new Uint8Array(buffer));
+  const { text } = await extractText(pdf, { mergePages: true });
+  return text;
+};
+
 
 const register = async (req, res) => {
   try {
@@ -278,7 +290,7 @@ const applyJobs = async (req, res) => {
             newMessageCount: 1,
           });
           
-          const updatedRecruiter = await User.findByIdAndUpdate(recruiterId, { recruiterNotification: newNotification._id }, { new: true });
+          const updatedRecruiter = await User.findByIdAndUpdate(recruiterId, { recruiterNotification: newNotification._id }, { returnDocument: 'after' });
         } else {
           notificationSchema.allMessages.push({
             message: messageText,
@@ -428,7 +440,7 @@ const getNotifications = async (req, res) => {
     const notifications = await Notification.findByIdAndUpdate(
       notificationId,
       { $set: { newMessageCount: 0 } },
-      { new: true }
+      { returnDocument: 'after' }
     );
 
     if (!notifications) {
@@ -512,7 +524,7 @@ const createInterviewPrep = async (req, res) => {
     await User.findByIdAndUpdate(
       id,
       { $push: { interviewPrep: newPosition._id } },
-      { new: true }
+      { returnDocument: 'after' }
     );
 
     const prompt = `
@@ -607,7 +619,7 @@ const deleteInterviewPrep = async (req, res) => {
     await User.findByIdAndUpdate(
       userId,
       { $pull: { interviewPrep: dashboardId } },
-      { new: true }
+      { returnDocument: 'after' }
     );
 
     return res.status(200).json({
@@ -732,6 +744,351 @@ const uploadResume = async (req, res) => {
   }
 };
 
+const createJdResume = async (req, res) => { //This is for create folder on JD page
+  try {
+    const { companyName, jobDescription } = req.body;
+    const userId = req.id;
+
+    if (!companyName || !jobDescription) {
+      return res.status(400).json({
+        success: false,
+        message: "Company name and job description are required",
+      });
+    }
+
+    const newJdResume = await JobDescriptionWiseResume.create({
+      companyName,
+      jobDescription,
+      userId,
+    });
+
+    await User.findByIdAndUpdate(
+      userId,
+      { $push: { jobDescriptionWiseResume: newJdResume._id } },
+      { returnDocument: 'after' }
+    );
+
+    return res.status(201).json({
+      success: true,
+      message: "Job description entry created successfully",
+      data: newJdResume,
+    });
+  } catch (error) {
+    console.error("Error creating JD resume:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message,
+    });
+  }
+};
+
+const getJdResumes = async (req, res) => {
+  try {
+    const userId = req.id;
+    const resumes = await JobDescriptionWiseResume.find({ userId }).sort({ createdAt: -1 });
+    return res.status(200).json({
+      success: true,
+      data: resumes,
+    });
+  } catch (error) {
+    console.error("Error fetching JD resumes:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message,
+    });
+  }
+};
+
+const getJdResumeById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const resume = await JobDescriptionWiseResume.findById(id);
+    if (!resume) {
+      return res.status(404).json({
+        success: false,
+        message: "Job Description wise resume entry not found",
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      data: resume,
+    });
+  } catch (error) {
+    console.error("Error fetching JD resume by id:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message,
+    });
+  }
+};
+
+const deleteJdResume = async (req, res) => {
+  try {
+    const userId = req.id;
+    const { id } = req.params;
+
+    const deleted = await JobDescriptionWiseResume.findByIdAndDelete(id);
+    if (!deleted) {
+      return res.status(404).json({
+        success: false,
+        message: "Job Description wise resume entry not found",
+      });
+    }
+
+    await User.findByIdAndUpdate(
+      userId,
+      { $pull: { jobDescriptionWiseResume: id } },
+      { returnDocument: 'after' }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Job description entry deleted successfully",
+    });
+  } catch (error) {
+    console.error("Error deleting JD resume:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message,
+    });
+  }
+};
+
+const analyzeExistingResumeForJd = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.id;
+
+    const jdResume = await JobDescriptionWiseResume.findById(id);
+    if (!jdResume) {
+      return res.status(404).json({
+        success: false,
+        message: "Job description entry not found",
+      });
+    }
+
+    const user = await User.findById(userId);
+    if (!user || !user.profile.resume) {
+      return res.status(400).json({
+        success: false,
+        message: "NO_RESUME",
+      });
+    }
+
+    // Extract text from the existing user resume
+    const rawResumeText = await extractTextFromPdf(user.profile.resume);
+    // Truncate to avoid Gemini token overflow (500 Internal Error)
+    const resumeText = rawResumeText.slice(0, 3000);
+    const jobDescText = jdResume.jobDescription.slice(0, 2000);
+
+    const prompt = `
+You are an expert ATS (Applicant Tracking System) parser and career coach.
+Analyze the user's resume against the target Job Description.
+
+User Resume Text:
+${resumeText}
+
+Job Description:
+${jobDescText}
+
+Provide a detailed evaluation in JSON format:
+{
+  "atsScore": 75,
+  "weakSpots": "List of areas where the resume is lacking skills, keywords, or structure relative to the job description."
+}
+
+Return ONLY raw JSON. Do not include markdown code block styling like \`\`\`json or \`\`\`.
+`;
+
+    const aiResponse = await aiApi(prompt);
+    const parsed = parseGeminiJSON(aiResponse);
+
+    jdResume.initialATSScore = parsed.atsScore ?? 0;
+    const weakSpots = parsed.weakSpots ?? "None identified.";
+    jdResume.WeakSpotInResume = weakSpots;
+    
+    // SECOND API CALL: Dedicated explicitly for generating highly detailed learning recommendations
+    const learningPrompt = `
+You are an elite Tech Career Coach. Based on the following weak spots identified in a candidate's resume for a specific job, recommend highly detailed YouTube searches to bridge the gap.
+
+Job Description:
+${jobDescText}
+
+Identified Weak Spots:
+${weakSpots}
+
+CRITICAL: Do NOT focus on generic paid courses. Focus heavily on YouTube. You MUST provide at least 10-15 highly specific YouTube search titles/queries that the candidate can search to learn these exact skills.
+
+Return ONLY raw JSON. Do not include markdown code block styling.
+{
+  "recommendedYoutubeSearchesAndCourses": "Provide a highly detailed, markdown-formatted list of 10-15 YouTube searches. Use numbers and bullets. Format exactly like this:\\n\\n### Recommended Courses\\n1. **[Course Name]** on [Platform] - *[1-sentence reason]*\\n\\n### What to Search on YouTube (10-15 exact queries)\\n1. **\\\"[Exact Search Query 1]\\\"** - *[Detailed explanation of what this will teach you and why it is vital for this specific job description]*\\n2. **\\\"[Exact Search Query 2]\\\"** - *[Detailed explanation]*"
+}
+`;
+
+    const learningResponse = await aiApi(learningPrompt);
+    const learningParsed = parseGeminiJSON(learningResponse);
+
+    // Ensure it's a string even if Gemini returns an array
+    let recommended = learningParsed.recommendedYoutubeSearchesAndCourses || "None recommended.";
+    if (Array.isArray(recommended)) {
+      recommended = recommended.join('\\n');
+    }
+    jdResume.recomendedYoutubeSearchesAndCourses = recommended;
+    await jdResume.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Analysis completed successfully",
+      data: jdResume,
+    });
+  } catch (error) {
+    console.error("Error analyzing resume:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error during analysis",
+      error: error.message,
+    });
+  }
+};
+
+const generateAtsResume = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.id;
+
+    const jdResume = await JobDescriptionWiseResume.findById(id);
+    if (!jdResume) {
+      return res.status(404).json({
+        success: false,
+        message: "Job description entry not found",
+      });
+    }
+
+    const user = await User.findById(userId);
+    if (!user || !user.profile.resume) {
+      return res.status(400).json({
+        success: false,
+        message: "NO_RESUME",
+      });
+    }
+
+    const rawResumeText = await extractTextFromPdf(user.profile.resume);
+    const resumeText = rawResumeText.slice(0, 3000);
+    const jobDescText = jdResume.jobDescription.slice(0, 2000);
+
+    // Ask Gemini for structured JSON resume data (no LaTeX/binary deps needed)
+    const jsonPrompt = `You are a world-class Executive Resume Writer and ATS (Applicant Tracking System) Expert.
+Your objective is to completely overhaul and tailor the candidate's existing resume to flawlessly match the target Job Description, aiming for a 95+ ATS score.
+
+Existing Resume Text:
+${resumeText}
+
+Target Job Description:
+${jobDescText}
+
+CRITICAL INSTRUCTIONS:
+1. DEEP KEYWORD INTEGRATION: Analyze the Job Description for hard skills, soft skills, tools, methodologies, and exact phrasing. Embed these exact keywords naturally throughout the Summary, Skills, and Experience bullets.
+2. ACTION-ORIENTED BULLETS: Rewrite experience bullets using strong action verbs. Quantify achievements (e.g., increased by X%, managed $Y budget) wherever plausible based on the original text.
+3. SKILL REORGANIZATION: Reorder and categorize the skills section to exactly mirror the requirements prioritized in the JD.
+4. SUMMARY REVAMP: Craft a high-impact, 3-sentence professional summary that immediately positions the candidate as the perfect fit for this specific role, heavily utilizing JD keywords.
+5. NO HALLUCINATIONS: Do not invent new jobs or degrees. Only enhance and rephrase existing experience to highlight relevance to the JD.
+6. STRICT ONE-PAGE LIMIT (CONCISENESS): The generated content MUST fit on a single A4 page. Be extremely concise. Limit to the 2-3 most relevant experiences (max 2-3 bullets each) and top 2 projects (max 2-4 bullets each). Delete older or irrelevant filler completely.
+
+Return ONLY a valid JSON object with this exact structure (no markdown, no explanation):
+{
+  "name": "Candidate Full Name",
+  "contact": { "phone": "+91-XXXXXXXXXX", "email": "email@example.com", "linkedin": "linkedin.com/in/profile", "github": "github.com/username", "portfolio": "" },
+  "summary": "High-impact summary saturated with JD keywords.",
+  "skills": [
+    { "category": "Languages", "items": "Python, JavaScript, Java" }
+  ],
+  "experience": [
+    { "company": "Company", "location": "City", "role": "Role", "dates": "Month Year – Month Year", "bullets": ["Action-driven bullet with metrics and JD keywords"] }
+  ],
+  "projects": [
+    { "name": "Project", "technologies": "React, Node.js", "bullets": ["Keyword-rich description"] }
+  ],
+  "achievements": ["Achievement 1"],
+  "education": [
+    { "institution": "University", "location": "City", "degree": "B.Tech CS | CGPA: X.X", "dates": "Month Year – Month Year" }
+  ]
+}`;
+
+    const rawJson = await aiApi(jsonPrompt);
+    const resumeData = parseGeminiJSON(rawJson);
+
+    // ATS evaluation using the structured JSON content
+    const evaluationPrompt = `You are an expert ATS parser and HR Recruiter. Evaluate this highly-tailored resume JSON against the job description.
+
+Resume Data:
+${JSON.stringify(resumeData, null, 2)}
+
+Job Description:
+${jdResume.jobDescription}
+
+Since this resume was just specifically tailored for this JD using deep keyword integration, your goal is to award an ATS score of 95-100%. Evaluate strictly but fairly based on the presence of JD keywords in the Resume Data.
+
+Return ONLY raw JSON with this exact structure (no markdown formatting outside the string values):
+{ 
+  "atsScore": 98, 
+  "weakSpots": "Any remaining minor gaps or missing extremely specific niche tools."
+}`;
+
+    const evalResponse = await aiApi(evaluationPrompt);
+    const parsedEval = parseGeminiJSON(evalResponse);
+
+    jdResume.AtsResumeJson = JSON.stringify(resumeData, null, 2);
+    jdResume.ATSScoreOfResume = parsedEval.atsScore ?? 0;
+    const finalWeakSpots = parsedEval.weakSpots ?? "None identified.";
+    jdResume.WeakSpotInResume = finalWeakSpots;
+    
+    // SECOND API CALL: Dedicated explicitly for generating highly detailed learning recommendations
+    const learningPrompt = `
+You are an elite Tech Career Coach. Based on the following weak spots identified in a candidate's highly-tailored resume for a specific job, recommend highly detailed YouTube searches to bridge the gap.
+
+Job Description:
+${jdResume.jobDescription}
+
+Identified Weak Spots:
+${finalWeakSpots}
+
+CRITICAL: Do NOT focus on generic paid courses. Focus heavily on YouTube. You MUST provide at least 10-30 highly specific YouTube search titles/queries that the candidate can search to learn these exact skills.
+
+Return ONLY raw JSON. Do not include markdown code block styling.
+{
+  "recommendedYoutubeSearchesAndCourses": "Provide a highly detailed, markdown-formatted list of 10-15 YouTube searches to bridge the remaining gaps. Use numbers and bullets. Format exactly like this:\\n\\n### Recommended Courses\\n1. **[Course Name]** on [Platform] - *[1-sentence reason]*\\n\\n### What to Search on YouTube (10-15 exact queries)\\n1. **\\\"[Exact Search Query 1]\\\"** - *[Detailed explanation of what this will teach you and why it is vital for this specific job description]*\\n2. **\\\"[Exact Search Query 2]\\\"** - *[Detailed explanation]*" 
+}
+`;
+
+    const learningResponse = await aiApi(learningPrompt);
+    const learningParsed = parseGeminiJSON(learningResponse);
+
+    let recommended = learningParsed.recommendedYoutubeSearchesAndCourses || "None recommended.";
+    if (Array.isArray(recommended)) {
+      recommended = recommended.join('\\n');
+    }
+    jdResume.recomendedYoutubeSearchesAndCourses = recommended;
+    await jdResume.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Tailored ATS Resume created successfully",
+      data: jdResume,
+    });
+  } catch (error) {
+    console.error("Error generating ATS resume:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error during ATS resume generation",
+      error: error.message,
+    });
+  }
+};
+
 
 module.exports = {
   register,
@@ -747,5 +1104,11 @@ module.exports = {
   createInterviewPrep,
   getInterviewPrep,
   deleteInterviewPrep,
-  generateMoreQuestions
+  generateMoreQuestions,
+  createJdResume,
+  getJdResumes,
+  getJdResumeById,
+  deleteJdResume,
+  analyzeExistingResumeForJd,
+  generateAtsResume
 };

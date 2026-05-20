@@ -24,6 +24,8 @@ import InterviewPrep from "./components/shared/InterviewPrep";
 import Dashboard from "./components/shared/Dashboard";
 import InterviewQAPage from "./components/shared/InterviewQAPage";
 import AiRecommendations from "./components/shared/AiRecommendations";
+import JdResumeList from "./components/shared/JdResumeList";
+import JdResumeDetail from "./components/shared/JdResumeDetail";
 
 const appRouter = createBrowserRouter([
   { path: "/", element: <Homepage /> },
@@ -45,6 +47,8 @@ const appRouter = createBrowserRouter([
   { path: "/interviewPrep", element: <InterviewPrep/>},
   { path: "/interviewPrep/dashboard", element: <Dashboard/>},
   { path: "/interviewPrep/dashboard/:id", element: <InterviewQAPage/>},
+  { path: "/interviewPrep/jd-resume", element: <JdResumeList /> },
+  { path: "/interviewPrep/jd-resume/:id", element: <JdResumeDetail /> },
   { path: "/ai-recommendation", element: <AiRecommendations />}
 ]);
 

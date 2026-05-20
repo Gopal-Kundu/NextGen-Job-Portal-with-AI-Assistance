@@ -35,6 +35,9 @@ const InterviewPrep = () => {
                                 <button onClick={user ? ()=>navigate("/interviewPrep/dashboard") : ()=>navigate("/login")} className="cursor-pointer w-full sm:w-auto shrink-0 px-6 py-3 bg-[#a286e3] text-white rounded-xl font-semibold hover:bg-purple-500 transition">
                                     Start Prepration
                                 </button>
+                                <button onClick={user ? ()=>navigate("/interviewPrep/jd-resume") : ()=>navigate("/login")} className="cursor-pointer w-full sm:w-auto shrink-0 px-6 py-3 bg-[#a286e3] text-white rounded-xl font-semibold hover:bg-purple-500 transition">
+                                    Create Job Description wise Resume
+                                </button>
                             </div>
                 </section>
             </div>

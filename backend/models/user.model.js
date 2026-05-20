@@ -80,6 +80,10 @@ const userSchema = new mongoose.Schema(
     recomend: {
       type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Job" }],
       default: [],
+    },
+    jobDescriptionWiseResume: {
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "JobDescriptionWiseResume" }],
+      default: [],
     }
   },
   { timestamps: true }
