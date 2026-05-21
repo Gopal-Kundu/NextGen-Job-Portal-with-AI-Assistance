@@ -172,9 +172,9 @@ const JdResumeList = () => {
                   </div>
                   
                   <div className="flex items-center justify-between text-yellow-800 text-xs font-semibold z-10">
-                    <span>ATS: {resume.ATSScoreOfResume ? `${resume.ATSScoreOfResume}%` : 'N/A'}</span>
+                    <span>ATS: {resume.initialATSScore ? `${resume.initialATSScore}%` : 'N/A'}</span>
                     <span className="bg-yellow-950/15 px-2 py-0.5 rounded text-[10px]">
-                      {resume.resumeLink ? 'Tailored' : 'Initial'}
+                      {resume.AtsResumeJson ? 'Tailored' : 'Initial'}
                     </span>
                   </div>
                 </div>

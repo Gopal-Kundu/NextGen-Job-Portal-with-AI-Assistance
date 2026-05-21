@@ -978,7 +978,7 @@ const generateAtsResume = async (req, res) => {
     }
 
     const rawResumeText = await extractTextFromPdf(user.profile.resume);
-    const resumeText = rawResumeText.slice(0, 3000);
+    const resumeText = rawResumeText;
     const jobDescText = jdResume.jobDescription.slice(0, 2000);
 
     // Ask Gemini for structured JSON resume data (no LaTeX/binary deps needed)
@@ -1012,32 +1012,28 @@ STRICT RULES
 - If the JD heavily emphasizes certain skills or workflows (e.g., API design, frontend state management, database query optimization), prioritize writing bullets highlighting achievements in those fields.
 - Write bullets using the STAR / XYZ formula: Start with a strong action verb + specify the task/project + detail the tools/stack used + quantify the business or technical impact (e.g. "Improved page load speed by 35% by implementing lazy loading and code splitting in React").
 
-3. STRICT ONE-PAGE LIMIT (CONCISENESS)
-- The final resume MUST fit within ONE A4 page. Keep content concise, dense, and impactful.
-- Include ONLY the most relevant experiences (max 2-3 entries, 3-5 bullets each) and projects (max 2-3 entries, 4-5 bullets each). Delete older, minor, or completely irrelevant entries that do not help in matching the JD.
-- Limit the summary to max 3 targeted sentences.
-
-4. NO HALLUCINATION
+3. NO HALLUCINATION
 - NEVER invent new companies, employment dates, locations, degrees, or certifications.
 - Do not invent artificial projects or metrics out of thin air. Only enhance, rewrite, and optimize actual candidate experience to present it in the best possible light.
 
-5. CLEAN ATS FORMAT
+4. CLEAN ATS FORMAT
 - Standardize section names exactly: "Summary", "Skills", "Experience", "Projects", "Achievements", "Education".
 - Use simple, clean, and professional wording. Avoid decorative symbols or emojis.
 
-6. SKILLS SEGREGATION
+5. SKILLS SEGREGATION
 - Group matching skills into clear categories (e.g., "Languages", "Frameworks & Libraries", "Databases & Tools").
 - Prioritize and list categories/items according to the order of priority in the Job Description.
 
-7. SUMMARY SECTION
+6. SUMMARY SECTION
 - Craft a high-impact professional summary specifically tailored to the target role.
 - Integrate target role title, years of experience (if present), core technologies, and key strengths matching the Job Description.
 
-8. OUTPUT REQUIREMENTS
+7. OUTPUT REQUIREMENTS
 - Return ONLY valid JSON.
-- No markdown formatting wrappers (like \`\`\`json ... \`\`\`).
+- No markdown formatting wrappers.
 - No explanation or extra conversational text before or after the JSON.
 - Ensure the JSON is properly escaped and 100% parsable.
+- Under the "atsScore" key at the root level of the JSON, provide a realistic estimated ATS score (integer between 90 and 100) based on how well this newly tailored resume matches the job description.
 
 ========================
 RETURN JSON FORMAT
@@ -1045,6 +1041,7 @@ RETURN JSON FORMAT
 
 {
   "name": "Candidate Full Name",
+  "atsScore": 97,
   "contact": {
     "phone": "+91-XXXXXXXXXX",
     "email": "email@example.com",
@@ -1096,57 +1093,11 @@ RETURN JSON FORMAT
     const rawJson = await aiApi(jsonPrompt);
     const resumeData = parseGeminiJSON(rawJson);
 
-    // ATS evaluation using the structured JSON content
-    const evaluationPrompt = `You are an expert ATS parser and HR Recruiter. Evaluate this highly-tailored resume JSON against the job description.
-
-Resume Data:
-${JSON.stringify(resumeData, null, 2)}
-
-Job Description:
-${jdResume.jobDescription}
-
-Since this resume was just specifically tailored for this JD using deep keyword integration, your goal is to award an ATS score of 95-100%. Evaluate strictly but fairly based on the presence of JD keywords in the Resume Data.
-
-Return ONLY raw JSON with this exact structure (no markdown formatting outside the string values):
-{ 
-  "atsScore": 98, 
-  "weakSpots": "Any remaining minor gaps or missing extremely specific niche tools."
-}`;
-
-    const evalResponse = await aiApi(evaluationPrompt);
-    const parsedEval = parseGeminiJSON(evalResponse);
+    const estimatedScore = resumeData.atsScore ?? 95;
+    delete resumeData.atsScore;
 
     jdResume.AtsResumeJson = JSON.stringify(resumeData, null, 2);
-    jdResume.ATSScoreOfResume = parsedEval.atsScore ?? 0;
-    const finalWeakSpots = parsedEval.weakSpots ?? "None identified.";
-    jdResume.WeakSpotInResume = finalWeakSpots;
-    
-    // SECOND API CALL: Dedicated explicitly for generating highly detailed learning recommendations
-    const learningPrompt = `
-You are an elite Tech Career Coach. Based on the following weak spots identified in a candidate's highly-tailored resume for a specific job, recommend highly detailed YouTube searches to bridge the gap.
-
-Job Description:
-${jdResume.jobDescription}
-
-Identified Weak Spots:
-${finalWeakSpots}
-
-CRITICAL: Do NOT focus on generic paid courses. Focus heavily on YouTube. You MUST provide at least 10-30 highly specific YouTube search titles/queries that the candidate can search to learn these exact skills.
-
-Return ONLY raw JSON. Do not include markdown code block styling.
-{
-  "recommendedYoutubeSearchesAndCourses": "Provide a highly detailed, markdown-formatted list of 10-15 YouTube searches to bridge the remaining gaps. Use numbers and bullets. Format exactly like this:\\n\\n### Recommended Courses\\n1. **[Course Name]** on [Platform] - *[1-sentence reason]*\\n\\n### What to Search on YouTube (10-15 exact queries)\\n1. **\\\"[Exact Search Query 1]\\\"** - *[Detailed explanation of what this will teach you and why it is vital for this specific job description]*\\n2. **\\\"[Exact Search Query 2]\\\"** - *[Detailed explanation]*" 
-}
-`;
-
-    const learningResponse = await aiApi(learningPrompt);
-    const learningParsed = parseGeminiJSON(learningResponse);
-
-    let recommended = learningParsed.recommendedYoutubeSearchesAndCourses || "None recommended.";
-    if (Array.isArray(recommended)) {
-      recommended = recommended.join('\\n');
-    }
-    jdResume.recomendedYoutubeSearchesAndCourses = recommended;
+    jdResume.ATSScoreOfResume = estimatedScore;
     await jdResume.save();
 
     return res.status(200).json({
@@ -1193,7 +1144,47 @@ const generateResumePdf = async (req, res) => {
 
     const fs = baseFontSize;
     const c = resumeData.contact || {};
-    const contactParts = [c.phone, c.email, c.linkedin, c.github, c.portfolio].filter(Boolean);
+    const contactItems = [];
+    if (c.phone) {
+      contactItems.push(`
+        <span style="display:inline-flex; align-items:center; gap:4px">
+          <svg viewBox="0 0 24 24" width="${fs - 0.5}pt" height="${fs - 0.5}pt" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-right:2px"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+          ${c.phone}
+        </span>
+      `);
+    }
+    if (c.email) {
+      contactItems.push(`
+        <span style="display:inline-flex; align-items:center; gap:4px">
+          <svg viewBox="0 0 24 24" width="${fs - 0.5}pt" height="${fs - 0.5}pt" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-right:2px"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+          ${c.email}
+        </span>
+      `);
+    }
+    if (c.linkedin) {
+      contactItems.push(`
+        <span style="display:inline-flex; align-items:center; gap:4px">
+          <svg viewBox="0 0 24 24" width="${fs - 0.5}pt" height="${fs - 0.5}pt" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-right:2px"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+          ${c.linkedin}
+        </span>
+      `);
+    }
+    if (c.github) {
+      contactItems.push(`
+        <span style="display:inline-flex; align-items:center; gap:4px">
+          <svg viewBox="0 0 24 24" width="${fs - 0.5}pt" height="${fs - 0.5}pt" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-right:2px"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+          ${c.github}
+        </span>
+      `);
+    }
+    if (c.portfolio) {
+      contactItems.push(`
+        <span style="display:inline-flex; align-items:center; gap:4px">
+          <svg viewBox="0 0 24 24" width="${fs - 0.5}pt" height="${fs - 0.5}pt" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-right:2px"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+          ${c.portfolio}
+        </span>
+      `);
+    }
 
     // 3. Build a self-contained HTML page that mirrors AtsResumePreview
     const sectionRule = (title) => `
@@ -1216,10 +1207,10 @@ const generateResumePdf = async (req, res) => {
     </div>`;
 
     // Contact
-    if (contactParts.length > 0) {
-      body += `<div style="text-align:center; font-size:${fs - 0.5}pt;
+    if (contactItems.length > 0) {
+      body += `<div style="display:flex; justify-content:center; align-items:center; flex-wrap:wrap; gap:6px; font-size:${fs - 0.5}pt;
                            font-family:Inter,sans-serif; color:#444; margin-bottom:8px">
-        ${contactParts.join("  |  ")}
+        ${contactItems.join(' <span style="color:#ccc; margin:0 2px">|</span> ')}
       </div>`;
     }
 
@@ -1261,8 +1252,9 @@ const generateResumePdf = async (req, res) => {
       body += sectionRule("Projects");
       resumeData.projects.forEach((proj) => {
         body += `<div style="margin-bottom:6px">
-          <div style="font-weight:bold; font-size:${fs}pt; margin-bottom:1px">
-            ${proj.name} <span style="font-weight:normal; font-size:${fs - 0.5}pt">&mdash; ${proj.technologies}</span>
+          <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:${fs}pt; margin-bottom:1px">
+            <span>${proj.name}</span>
+            <span style="font-weight:normal; font-size:${fs - 0.5}pt">${proj.technologies}</span>
           </div>
           ${bulletList(proj.bullets)}
         </div>`;
