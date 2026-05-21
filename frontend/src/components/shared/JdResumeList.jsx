@@ -207,7 +207,7 @@ const JdResumeList = () => {
                 <label className="block text-sm font-semibold text-gray-700 mb-1">Company Name</label>
                 <input
                   type="text"
-                  placeholder="e.g. Google, Netflix, Bakery Corp"
+                  placeholder="e.g. Google, Netflix, Meta, TCS"
                   value={companyName}
                   onChange={(e) => setCompanyName(e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"

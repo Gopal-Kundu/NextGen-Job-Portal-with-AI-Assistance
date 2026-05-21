@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import Sidebar from './Sidebar';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import { USER_API_END_POINT } from '@/utils/address';
+import { setUser } from '@/redux/authSlice';
 import { toast } from 'sonner';
 import Skeleton from '@mui/material/Skeleton';
 import ReactMarkdown from 'react-markdown';
@@ -15,6 +16,7 @@ const JdResumeDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const user = useSelector((store) => store.auth.user);
+  const dispatch = useDispatch();
 
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -25,6 +27,56 @@ const JdResumeDetail = () => {
   const [showCourses, setShowCourses] = useState(true);
   const [showResumePreview, setShowResumePreview] = useState(true);
   const [baseFontSize, setBaseFontSize] = useState(8.5);
+
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [uploadLoading, setUploadLoading] = useState(false);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.type !== 'application/pdf') {
+        toast.error('Please select a PDF file. Only PDF format is supported.');
+        return;
+      }
+      setSelectedFile(file);
+    }
+  };
+
+  const handleUploadResume = async (e) => {
+    e.preventDefault();
+    if (!selectedFile) {
+      toast.error('Please select a resume file first.');
+      return;
+    }
+
+    try {
+      setUploadLoading(true);
+      const form = new FormData();
+      form.append("resume", selectedFile);
+
+      const res = await axios.post(
+        `${USER_API_END_POINT}/resume/upload`,
+        form,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+          withCredentials: true,
+        }
+      );
+
+      if (res.data.success) {
+        dispatch(setUser(res.data.user));
+        toast.success("Resume uploaded successfully!");
+        setSelectedFile(null);
+      } else {
+        toast.error(res.data.message || "Failed to upload resume.");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Something went wrong. Please try again later.");
+    } finally {
+      setUploadLoading(false);
+    }
+  };
   const fetchDetail = async () => {
     try {
       setLoading(true);
@@ -238,8 +290,78 @@ const JdResumeDetail = () => {
               </div>
             </div>
 
-            {/* Main Action Banner if Resume is Empty */}
-            {actionLoading ? (
+            {/* Main Action Banner or Resume Upload Option */}
+            {!user?.profile?.resume ? (
+              <div className="bg-white border border-purple-100 rounded-2xl p-8 shadow-sm text-center flex flex-col items-center justify-center">
+                <div className="w-16 h-16 bg-purple-50 rounded-full flex items-center justify-center mb-4 text-purple-600">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                  </svg>
+                </div>
+                <h2 className="text-xl font-bold text-gray-800">Upload Your Resume</h2>
+                <p className="text-gray-500 text-sm mt-1 mb-6 max-w-md">
+                  Please upload your resume in <span className="font-semibold text-purple-600">PDF format</span>. Once uploaded, you can generate an ATS-friendly resume or analyze your match score for this job description.
+                </p>
+                <form onSubmit={handleUploadResume} className="w-full max-w-md space-y-4">
+                  <div className="w-full">
+                    <input
+                      type="file"
+                      id="resume-upload"
+                      accept="application/pdf"
+                      onChange={handleFileChange}
+                      disabled={uploadLoading}
+                      className="hidden"
+                    />
+                    <label
+                      htmlFor={uploadLoading ? undefined : "resume-upload"}
+                      className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-purple-300 rounded-xl cursor-pointer hover:bg-purple-50/50 transition ${uploadLoading ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''}`}
+                    >
+                      {selectedFile ? (
+                        <div className="flex flex-col items-center px-4">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-emerald-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <span className="text-sm font-semibold text-gray-800 text-center truncate max-w-xs">
+                            {selectedFile.name}
+                          </span>
+                          <span className="text-xs text-gray-400 mt-0.5">
+                            {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center">
+                          <span className="text-purple-600 font-semibold hover:underline">
+                            Click to select resume file
+                          </span>
+                          <span className="text-xs text-gray-400 mt-1">
+                            Only PDF files are supported
+                          </span>
+                        </div>
+                      )}
+                    </label>
+                  </div>
+                  {selectedFile && (
+                    <div className="flex items-center justify-center gap-3">
+                      <button
+                        type="submit"
+                        disabled={uploadLoading}
+                        className="px-5 py-2.5 rounded-xl bg-purple-600 text-white font-medium hover:bg-purple-700 active:scale-95 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm cursor-pointer"
+                      >
+                        {uploadLoading ? "Uploading..." : "Upload Resume"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedFile(null)}
+                        disabled={uploadLoading}
+                        className="px-5 py-2.5 rounded-xl bg-gray-100 text-gray-700 font-medium hover:bg-gray-200 active:scale-95 transition disabled:opacity-50 disabled:cursor-not-allowed text-sm cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  )}
+                </form>
+              </div>
+            ) : actionLoading ? (
               <div className="bg-white border border-purple-200 rounded-2xl p-10 shadow-sm text-center flex flex-col items-center justify-center space-y-4">
                 <div className="relative flex items-center justify-center">
                   <div className="animate-spin rounded-full h-12 w-12 border-4 border-purple-200 border-t-purple-600"></div>
@@ -391,7 +513,7 @@ const JdResumeDetail = () => {
                         onClick={handleShowAtsScore}
                         className="cursor-pointer bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold px-3.5 py-2 rounded-xl transition text-xs"
                       >
-                        Re-run Initial Score
+                        Re-calculate current resume ATS score
                       </button>
                     </div>
                   </div>
