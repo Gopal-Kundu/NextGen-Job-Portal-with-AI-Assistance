@@ -8,7 +8,6 @@ const Notification = require("../models/notification.model");
 const DashBoardPosition = require("../models/dashboard.model");
 const JobDescriptionWiseResume = require("../models/jobDescriptionWiseResume.model");
 const { extractText, getDocumentProxy } = require("unpdf");
-const puppeteer = require("puppeteer-core");
 const chromium = require("@sparticuz/chromium");
 const { aiApi, parseGeminiJSON } = require("./ai.controller");
 require("dotenv").config({ quiet: true });
@@ -1127,6 +1126,8 @@ const generateResumePdf = async (req, res) => {
   try {
     const { id } = req.params;
     const { baseFontSize = 8.5 } = req.body;
+
+    const { default: puppeteer } = await import("puppeteer-core");
 
     // 1. Fetch the JD-resume record
     const jdResume = await JobDescriptionWiseResume.findById(id);
