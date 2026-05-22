@@ -882,8 +882,8 @@ const analyzeExistingResumeForJd = async (req, res) => {
     // Extract text from the existing user resume
     const rawResumeText = await extractTextFromPdf(user.profile.resume);
     // Truncate to avoid Gemini token overflow (500 Internal Error)
-    const resumeText = rawResumeText.slice(0, 3000);
-    const jobDescText = jdResume.jobDescription.slice(0, 2000);
+    const resumeText = rawResumeText;
+    const jobDescText = jdResume.jobDescription;
 
     const prompt = `
 You are an expert ATS (Applicant Tracking System) parser and career coach.
@@ -961,6 +961,7 @@ const generateAtsResume = async (req, res) => {
     const userId = req.id;
 
     const jdResume = await JobDescriptionWiseResume.findById(id);
+
     if (!jdResume) {
       return res.status(404).json({
         success: false,
@@ -969,6 +970,7 @@ const generateAtsResume = async (req, res) => {
     }
 
     const user = await User.findById(userId);
+
     if (!user || !user.profile.resume) {
       return res.status(400).json({
         success: false,
@@ -977,127 +979,128 @@ const generateAtsResume = async (req, res) => {
     }
 
     const rawResumeText = await extractTextFromPdf(user.profile.resume);
+
     const resumeText = rawResumeText;
-    const jobDescText = jdResume.jobDescription.slice(0, 2000);
+    const jobDescText = jdResume.jobDescription.slice(0, 3500);
 
-    // Ask Gemini for structured JSON resume data (no LaTeX/binary deps needed)
-const jsonPrompt = `
-You are an elite ATS Resume Optimization AI and Executive Resume Writer.
+    const jsonPrompt = `
+You are an Elite ATS Resume Optimization AI, Technical Resume Strategist, and Recruiter Simulation Engine.
 
-Your ONLY goal is to transform the candidate's existing resume into a highly ATS-optimized, recruiter-friendly resume that achieves an estimated ATS score of 95-100 for the provided Job Description.
+Your core directive is to transform the candidate's EXISTING resume into a highly ATS-optimized (95+ score) resume tailored specifically for the provided Job Description.
 
-========================
+==================================================
 CANDIDATE RESUME
-========================
+==================================================
 ${resumeText}
 
-========================
+==================================================
 TARGET JOB DESCRIPTION
-========================
+==================================================
 ${jobDescText}
 
-========================
-STRICT RULES
-========================
+==================================================
+CORE OBJECTIVES & STRATEGY (TARGET SCORE: 95+)
+==================================================
 
-1. ATS OPTIMIZATION & EXACT KEYWORD MATCHING IS TOP PRIORITY
-- Scan the Job Description for all technical skills, languages, frameworks, databases, libraries, clouds, DevOps tools, soft skills, and certificates.
-- Match the exact spelling, casing, and format of these keywords as they appear in the Job Description (e.g., if the JD writes "React.js", do not write "ReactJS" or "React").
-- Embed these exact keywords naturally across all sections: Summary, Skills, Experience, and Projects. Do not just dump them in the Skills section; write them in context within Experience and Project bullet points.
-- Prioritize ATS matching and keyword density over generic writing styles.
+1. MAXIMIZE KEYWORD MATCH (CRITICAL):
+- Extract ALL technical skills, tools, frameworks, databases, and methodologies from the Job Description.
+- You MUST inject these EXACT keywords into the candidate's 'Skills', 'Summary', 'Experience', and 'Projects' sections. Do not change the spelling of JD keywords.
 
-2. EXPERIENCE & PROJECTS TAILORING
-- Rephrase and adjust experience bullet points and projects to directly mirror the duties, responsibilities, and requirements specified in the Job Description.
-- If the JD heavily emphasizes certain skills or workflows (e.g., API design, frontend state management, database query optimization), prioritize writing bullets highlighting achievements in those fields.
-- Write bullets using the STAR / XYZ formula: Start with a strong action verb + specify the task/project + detail the tools/stack used + quantify the business or technical impact (e.g. "Improved page load speed by 35% by implementing lazy loading and code splitting in React").
+2. AGGRESSIVE PROJECT ENHANCEMENT:
+- Projects are the primary vehicle for scoring 95+. You MUST rewrite and expand the candidate's project descriptions.
+- Align the project outcomes, architectures, and features directly with the responsibilities mentioned in the JD.
+- Add realistic, quantifiable metrics (e.g., "improved query efficiency by 35%", "handled 1000+ concurrent users", "reduced load time by 40%").
 
-3. NO HALLUCINATION
-- NEVER invent new companies, employment dates, locations, degrees, or certifications.
-- Do not invent artificial projects or metrics out of thin air. Only enhance, rewrite, and optimize actual candidate experience to present it in the best possible light.
+3. STRATEGIC SKILL ADDITION:
+- If the JD requires specific tools/skills that are realistically learnable or commonly paired with the candidate's existing tech stack (e.g., JD asks for Docker/AWS, and candidate is a MERN developer), you MUST add them to the Skills section.
+- You MUST mention these newly added skills realistically in project deployments, CI/CD pipelines, or architectural enhancements.
 
-4. CLEAN ATS FORMAT
-- Standardize section names exactly: "Summary", "Skills", "Experience", "Projects", "Achievements", "Education".
-- Use simple, clean, and professional wording. Avoid decorative symbols or emojis.
+4. MAINTAIN BELIEVABILITY:
+- ABSOLUTELY NEVER invent fake jobs, degrees, companies, or dates.
+- You ARE explicitly authorized to logically upgrade existing projects with realistic industry-standard features (e.g., adding JWT authentication, Redis caching, pagination, Docker containerization, REST API optimization) to match the JD requirements perfectly.
 
-5. SKILLS SEGREGATION
-- Group matching skills into clear categories (e.g., "Languages", "Frameworks & Libraries", "Databases & Tools").
-- Prioritize and list categories/items according to the order of priority in the Job Description.
+==================================================
+BULLET POINT RULES (EXPERIENCE & PROJECTS)
+==================================================
+- Every project/experience must have 3-4 highly technical bullet points.
+- Start each bullet with a strong action verb (e.g., Architected, Engineered, Optimized, Spearheaded, Implemented).
+- Formula to use: [Action Word] + [JD Keyword/Technology] + [What it did] + [Measurable Impact].
 
-6. SUMMARY SECTION
-- Craft a high-impact professional summary specifically tailored to the target role.
-- Integrate target role title, years of experience (if present), core technologies, and key strengths matching the Job Description.
+==================================================
+OUTPUT RULES
+==================================================
+- Return ONLY valid, raw JSON.
+- NO markdown formatting, NO backticks (\`\`\`), NO explanations before or after the JSON.
+- Escape all quotes properly.
+- If a section does not exist in the candidate's background and cannot be realistically adapted, return an empty array [].
 
-7. OUTPUT REQUIREMENTS
-- Return ONLY valid JSON.
-- No markdown formatting wrappers.
-- No explanation or extra conversational text before or after the JSON.
-- Ensure the JSON is properly escaped and 100% parsable.
-- Under the "atsScore" key at the root level of the JSON, provide a realistic estimated ATS score (integer between 90 and 100) based on how well this newly tailored resume matches the job description.
-- If achivement, education not present in given resume then don't provide it in json output.
-
-========================
-RETURN JSON FORMAT
-========================
-
+==================================================
+RETURN EXACTLY THIS JSON FORMAT
+==================================================
 {
   "name": "Candidate Full Name",
-  "atsScore": 97,
+  "atsScore": 96,
   "contact": {
     "phone": "+91-XXXXXXXXXX",
     "email": "email@example.com",
-    "linkedin": "linkedin.com/in/profile",
-    "github": "github.com/username",
+    "linkedin": "[linkedin.com/in/profile](https://linkedin.com/in/profile)",
+    "github": "[github.com/username](https://github.com/username)",
     "portfolio": ""
   },
-  "summary": "ATS optimized professional summary.",
+  "summary": "High-impact, keyword-rich professional summary mirroring the JD requirements.",
   "skills": [
     {
-      "category": "Languages",
-      "items": "JavaScript, Python, Java"
+      "category": "Frontend",
+      "items": "React.js, Redux, [INJECT JD KEYWORDS HERE]"
     }
   ],
   "experience": [
     {
       "company": "Company Name",
       "location": "City",
-      "role": "Job Title",
-      "dates": "Month Year – Month Year",
+      "role": "Role",
+      "dates": "Month Year - Month Year",
       "bullets": [
-        "Strong ATS optimized achievement bullet"
+        "Strong ATS optimized bullet highlighting JD alignment and metrics."
       ]
     }
   ],
   "projects": [
     {
       "name": "Project Name",
-      "technologies": "React, Node.js, MongoDB",
+      "technologies": "React.js, Node.js, [INJECT JD KEYWORDS HERE]",
       "bullets": [
-        "ATS optimized project bullet"
+        "Engineered [feature] utilizing [JD Keyword] to solve [problem], achieving [realistic metric].",
+        "Enhanced system performance by integrating [JD Skill/Tool]..."
       ]
     }
   ],
   "achievements": [
-    "Relevant achievement"
+    "Achievement text"
   ],
   "education": [
     {
       "institution": "University Name",
       "location": "City",
       "degree": "Degree Name | CGPA: X.X",
-      "dates": "Month Year – Month Year"
+      "dates": "Month Year - Month Year"
     }
   ]
 }
 `;
 
     const rawJson = await aiApi(jsonPrompt);
+
     const resumeData = parseGeminiJSON(rawJson);
 
     const estimatedScore = resumeData.atsScore ?? 95;
+
     delete resumeData.atsScore;
 
     jdResume.AtsResumeJson = JSON.stringify(resumeData, null, 2);
+
     jdResume.ATSScoreOfResume = estimatedScore;
+
     await jdResume.save();
 
     return res.status(200).json({
@@ -1107,6 +1110,7 @@ RETURN JSON FORMAT
     });
   } catch (error) {
     console.error("Error generating ATS resume:", error);
+
     return res.status(500).json({
       success: false,
       message: "Server error during ATS resume generation",
