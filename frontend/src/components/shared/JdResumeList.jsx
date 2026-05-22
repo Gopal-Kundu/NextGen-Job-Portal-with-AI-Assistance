@@ -97,8 +97,8 @@ const JdResumeList = () => {
       <div className="relative min-h-screen bg-gray-50 p-6 md:p-10 font-sans flex flex-col items-center pb-24">
         <div className="max-w-6xl w-full flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-800">Job Description Wise Resumes</h1>
-            <p className="text-gray-500 text-sm mt-1">Manage and create tailored resumes for specific job descriptions.</p>
+            <h1 className="text-3xl font-bold text-gray-800">Create ATS Resumes</h1>
+            <p className="text-gray-500 text-sm mt-1">Manage and create tailored resumes for specific job descriptions or get score of current resume.</p>
           </div>
           <button
             onClick={() => setOpenModal(true)}
@@ -107,7 +107,7 @@ const JdResumeList = () => {
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
             </svg>
-            Add New JD
+            Create New Resume
           </button>
         </div>
 
@@ -128,13 +128,13 @@ const JdResumeList = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
               </svg>
             </div>
-            <h2 className="text-xl font-semibold text-gray-700">No Job Description Resumes Yet</h2>
+            <h2 className="text-xl font-semibold text-gray-700">Create New Resume </h2>
             <p className="text-gray-400 mt-2 max-w-sm">Create a new folder using a Job Description and Company Name to build an ATS tailored resume.</p>
             <button
               onClick={() => setOpenModal(true)}
               className="cursor-pointer mt-4 bg-purple-600 hover:bg-purple-700 text-white font-medium px-4 py-2 rounded-lg transition"
             >
-              Add First JD Folder
+              Add First Folder
             </button>
           </div>
         ) : (
@@ -189,7 +189,7 @@ const JdResumeList = () => {
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[99999] p-4">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in duration-200">
             <div className="bg-purple-600 text-white px-6 py-4 flex items-center justify-between">
-              <h3 className="font-bold text-lg">Create JD Wise Resume Folder</h3>
+              <h3 className="font-bold text-lg">Create Folder</h3>
               <button
                 onClick={() => setOpenModal(false)}
                 className="text-white hover:text-gray-200 transition"
@@ -201,7 +201,7 @@ const JdResumeList = () => {
             </div>
             
             <form onSubmit={handleCreate} className="p-6 space-y-4">
-              <p className="text-gray-500 text-sm">Please provide the Job Description and the Company Name to start tracking.</p>
+              <p className="text-gray-500 text-sm">Please provide the Job Description and the Company Name to start.</p>
               
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1">Company Name</label>

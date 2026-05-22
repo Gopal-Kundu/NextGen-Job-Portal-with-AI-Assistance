@@ -1033,6 +1033,7 @@ STRICT RULES
 - No explanation or extra conversational text before or after the JSON.
 - Ensure the JSON is properly escaped and 100% parsable.
 - Under the "atsScore" key at the root level of the JSON, provide a realistic estimated ATS score (integer between 90 and 100) based on how well this newly tailored resume matches the job description.
+- If achivement, education not present in given resume then don't provide it in json output.
 
 ========================
 RETURN JSON FORMAT
