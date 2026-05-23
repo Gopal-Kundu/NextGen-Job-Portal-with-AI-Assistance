@@ -140,7 +140,7 @@ const login = async (req, res) => {
 
     if (role !== user.role) {
       return res.status(400).json({
-        message: `This account is registered as a ${user.role}. Please select the correct role.`,
+        message: `No account exist with current role.`,
         success: false,
       });
     }
@@ -323,13 +323,13 @@ const applyJobs = async (req, res) => {
 
       if (recruiter) {
         let notificationSchemaId = recruiter.recruiterNotification;
-        
+
         let notificationSchema = null;
         if (notificationSchemaId) {
           notificationSchema = await Notification.findById(notificationSchemaId);
         }
 
-        const messageText = `Student ${user?.fullname || "Someone"} applied for the job "${job?.title || "Untitled"}" at "${job?.company || "Unknown Company"}"`;
+        const messageText = `${user?.fullname || "Someone"} applied for the job "${job?.title || "Untitled"}" at "${job?.company || "Unknown Company"}"`;
         const senderPhoto = user?.profile?.profilePhoto || "https://www.refugee-action.org.uk/wp-content/uploads/2016/10/anonymous-user.png";
 
         if (!notificationSchema) {
@@ -341,7 +341,7 @@ const applyJobs = async (req, res) => {
             }],
             newMessageCount: 1,
           });
-          
+
           const updatedRecruiter = await User.findByIdAndUpdate(recruiterId, { recruiterNotification: newNotification._id }, { returnDocument: 'after' });
         } else {
           notificationSchema.allMessages.push({
@@ -442,7 +442,7 @@ const remember = async (req, res) => {
     if (user.role === "recruiter") {
       userData.notifications = user.recruiterNotification;
     }
-    
+
     return res.status(200).json({
       success: true,
       user: userData
@@ -962,7 +962,7 @@ Return ONLY raw JSON. Do not include markdown code block styling like \`\`\`json
     jdResume.initialATSScore = parsed.atsScore ?? 0;
     const weakSpots = parsed.weakSpots ?? "None identified.";
     jdResume.WeakSpotInResume = weakSpots;
-    
+
     // SECOND API CALL: Dedicated explicitly for generating highly detailed learning recommendations
     const learningPrompt = `
 You are an elite Tech Career Coach. Based on the following weak spots identified in a candidate's resume for a specific job, recommend highly detailed YouTube searches to bridge the gap.
@@ -1134,7 +1134,8 @@ RETURN EXACTLY THIS JSON FORMAT
     "email": "email@example.com",
     "linkedin": "[linkedin.com/in/profile](https://linkedin.com/in/profile)",
     "github": "[github.com/username](https://github.com/username)",
-    "portfolio": ""
+    "portfolio": "",
+    "codingprofile": "",
   },
   "summary": "High-impact, keyword-rich professional summary mirroring the JD requirements.",
   "skills": [
@@ -1299,6 +1300,29 @@ const generateResumePdf = async (req, res) => {
       `);
     }
 
+    if (c.codingprofile) {
+      contactItems.push(`
+    <span style="display:inline-flex; align-items:center; gap:4px">
+      <svg 
+        viewBox="0 0 24 24" 
+        width="${fs - 0.5}pt" 
+        height="${fs - 0.5}pt" 
+        stroke="currentColor" 
+        stroke-width="2" 
+        fill="none" 
+        stroke-linecap="round" 
+        stroke-linejoin="round" 
+        style="margin-right:2px"
+      >
+        <polyline points="16 18 22 12 16 6"></polyline>
+        <polyline points="8 6 2 12 8 18"></polyline>
+      </svg>
+
+      ${parseLinkMarkdownHtml(c.codingprofile)}
+    </span>
+  `);
+    }
+
     // 3. Build a self-contained HTML page that mirrors AtsResumePreview
     const sectionRule = (title) => `
       <div style="margin-bottom:2px; margin-top:6px">
@@ -1392,14 +1416,45 @@ const generateResumePdf = async (req, res) => {
     // Education
     if (resumeData.education?.length > 0) {
       body += sectionRule("Education");
+
       resumeData.education.forEach((edu) => {
-        body += `<div style="margin-bottom:4px">
-          <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:${fs}pt">
-            <span>${edu.institution}</span>
-            <span style="font-weight:normal; font-size:${fs - 0.5}pt">${edu.dates}</span>
-          </div>
-          <div style="font-style:italic; font-size:${fs - 0.5}pt">${edu.degree} | ${edu.location}</div>
-        </div>`;
+        body += `
+      <div style="margin-bottom:4px">
+
+        <div 
+          style="
+            display:flex;
+            justify-content:space-between;
+            font-weight:bold;
+            font-size:${fs}pt
+          "
+        >
+          <span>${edu.institution}</span>
+
+          <span 
+            style="
+              font-weight:normal;
+              font-size:${fs - 0.5}pt
+            "
+          >
+            ${edu.dates}
+          </span>
+        </div>
+
+        <div 
+          style="
+            display:flex;
+            justify-content:space-between;
+            font-style:italic;
+            font-size:${fs - 0.5}pt
+          "
+        >
+          <span>${edu.degree}</span>
+          <span>${edu.location}</span>
+        </div>
+
+      </div>
+    `;
       });
     }
 
@@ -1426,12 +1481,12 @@ const generateResumePdf = async (req, res) => {
 
     // 4. Launch puppeteer-core with system Chrome
     browser = await puppeteer.launch({
-  args: chromium.args,
-  defaultViewport: chromium.defaultViewport,
-  executablePath: await chromium.executablePath(),
-  headless: chromium.headless,
-});
-    
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath: await chromium.executablePath(),
+      headless: chromium.headless,
+    });
+
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: "networkidle0" });
     // Wait for all web fonts to load completely before generating the PDF
@@ -1453,7 +1508,7 @@ const generateResumePdf = async (req, res) => {
 
   } catch (error) {
     if (browser) {
-      try { await browser.close(); } catch (_) {}
+      try { await browser.close(); } catch (_) { }
     }
     console.error("PDF generation error:", error);
     return res.status(500).json({

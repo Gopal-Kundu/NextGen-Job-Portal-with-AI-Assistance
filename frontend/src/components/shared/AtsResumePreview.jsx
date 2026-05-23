@@ -111,6 +111,36 @@ const AtsResumePreview = ({ resumeData, baseFontSize = 8.5, innerRef }) => {
     );
   }
 
+  if (c.codingprofile) {
+    contactItems.push(
+      <span
+        key="codingprofile"
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '4px',
+        }}
+      >
+        <svg
+          viewBox="0 0 24 24"
+          width={`${baseFontSize - 0.5}pt`}
+          height={`${baseFontSize - 0.5}pt`}
+          stroke="currentColor"
+          strokeWidth="2"
+          fill="none"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          style={{ marginRight: '1px' }}
+        >
+          <polyline points="16 18 22 12 16 6" />
+          <polyline points="8 6 2 12 8 18" />
+        </svg>
+
+        {parseLinkMarkdownReact(c.codingprofile)}
+      </span>
+    );
+  }
+
   return (
     <div
       ref={innerRef}
@@ -322,8 +352,10 @@ const AtsResumePreview = ({ resumeData, baseFontSize = 8.5, innerRef }) => {
       {resumeData.education?.length > 0 && (
         <>
           <SectionRule title="Education" fontSize={baseFontSize + 0.5} />
+
           {resumeData.education.map((edu, i) => (
             <div key={i} style={{ marginBottom: '4px' }}>
+
               <div
                 style={{
                   display: 'flex',
@@ -333,13 +365,29 @@ const AtsResumePreview = ({ resumeData, baseFontSize = 8.5, innerRef }) => {
                 }}
               >
                 <span>{edu.institution}</span>
-                <span style={{ fontWeight: 'normal', fontSize: `${baseFontSize - 0.5}pt` }}>
+
+                <span
+                  style={{
+                    fontWeight: 'normal',
+                    fontSize: `${baseFontSize - 0.5}pt`,
+                  }}
+                >
                   {edu.dates}
                 </span>
               </div>
-              <div style={{ fontStyle: 'italic', fontSize: `${baseFontSize - 0.5}pt` }}>
-                {edu.degree} | {edu.location}
+
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  fontStyle: 'italic',
+                  fontSize: `${baseFontSize - 0.5}pt`,
+                }}
+              >
+                <span>{edu.degree}</span>
+                <span>{edu.location}</span>
               </div>
+
             </div>
           ))}
         </>
