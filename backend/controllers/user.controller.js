@@ -983,6 +983,28 @@ const generateAtsResume = async (req, res) => {
     const resumeText = rawResumeText;
     const jobDescText = jdResume.jobDescription.slice(0, 3500);
 
+    const weakSpotsPrompt = `
+You are an expert ATS parser and career coach.
+Analyze the user's resume against the target Job Description.
+
+User Resume Text:
+${resumeText}
+
+Job Description:
+${jobDescText}
+
+Provide a detailed evaluation in JSON format:
+{
+  "weakSpots": "List of areas where the resume is lacking skills, keywords, or structure relative to the job description."
+}
+
+Return ONLY raw JSON. Do not include markdown code block styling like \`\`\`json or \`\`\`.
+`;
+
+    const weakSpotsResponse = await aiApi(weakSpotsPrompt);
+    const weakSpotsParsed = parseGeminiJSON(weakSpotsResponse);
+    const weakSpots = weakSpotsParsed.weakSpots ?? "None identified.";
+
     const jsonPrompt = `
 You are an Elite ATS Resume Optimization AI, Technical Resume Strategist, and Recruiter Simulation Engine.
 
@@ -999,11 +1021,17 @@ TARGET JOB DESCRIPTION
 ${jobDescText}
 
 ==================================================
+IDENTIFIED WEAK SPOTS TO IMPROVE
+==================================================
+${weakSpots}
+
+==================================================
 CORE OBJECTIVES & STRATEGY (TARGET SCORE: 95+)
 ==================================================
 
-1. MAXIMIZE KEYWORD MATCH (CRITICAL):
+1. MAXIMIZE KEYWORD MATCH & FIX WEAK SPOTS (CRITICAL):
 - Extract ALL technical skills, tools, frameworks, databases, and methodologies from the Job Description.
+- Address the IDENTIFIED WEAK SPOTS by naturally integrating those missing skills and requirements into the candidate's projects and experience.
 - You MUST inject these EXACT keywords into the candidate's 'Skills', 'Summary', 'Experience', and 'Projects' sections. Do not change the spelling of JD keywords.
 
 2. AGGRESSIVE PROJECT ENHANCEMENT:
