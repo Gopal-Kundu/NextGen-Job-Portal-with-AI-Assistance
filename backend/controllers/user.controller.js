@@ -12,12 +12,64 @@ const chromium = require("@sparticuz/chromium");
 const { aiApi, parseGeminiJSON } = require("./ai.controller");
 require("dotenv").config({ quiet: true });
 
-// Helper to fetch and extract text from a PDF URL
+// Helper to fetch and extract text and links from a PDF URL
 const extractTextFromPdf = async (url) => {
   const buffer = await fetch(url).then(res => res.arrayBuffer());
   const pdf = await getDocumentProxy(new Uint8Array(buffer));
   const { text } = await extractText(pdf, { mergePages: true });
-  return text;
+
+  const links = new Set();
+
+  // 1. Try to extract from annotations
+  try {
+    const numPages = pdf.numPages;
+    for (let i = 1; i <= numPages; i++) {
+      const page = await pdf.getPage(i);
+      const annotations = await page.getAnnotations();
+      if (annotations && Array.isArray(annotations)) {
+        for (const annot of annotations) {
+          if (annot && annot.subtype === 'Link' && annot.url) {
+            links.add(annot.url);
+          }
+        }
+      }
+    }
+  } catch (err) {
+    console.error("Error extracting PDF annotations:", err);
+  }
+
+  if (text) {
+    // 2. Extract using regex from text
+    const urlMatches = text.match(/https?:\/\/[^\s"'()]+/gi) || [];
+    urlMatches.forEach(url => {
+      const cleaned = url.replace(/[.,;:]+$/, '');
+      if (cleaned) links.add(cleaned);
+    });
+
+    const githubMatches = text.match(/(?:https?:\/\/)?(?:www\.)?github\.com\/[a-zA-Z0-9-_\.]+(?:\/[a-zA-Z0-9-_\.]+)?/gi) || [];
+    githubMatches.forEach(url => {
+      let cleaned = url.replace(/[.,;:]+$/, '');
+      if (cleaned) {
+        if (!cleaned.startsWith('http')) {
+          cleaned = 'https://' + cleaned;
+        }
+        links.add(cleaned);
+      }
+    });
+
+    const linkedinMatches = text.match(/(?:https?:\/\/)?(?:www\.)?linkedin\.com\/in\/[a-zA-Z0-9-_\.]+/gi) || [];
+    linkedinMatches.forEach(url => {
+      let cleaned = url.replace(/[.,;:]+$/, '');
+      if (cleaned) {
+        if (!cleaned.startsWith('http')) {
+          cleaned = 'https://' + cleaned;
+        }
+        links.add(cleaned);
+      }
+    });
+  }
+
+  return { text, links: Array.from(links) };
 };
 
 
@@ -880,7 +932,7 @@ const analyzeExistingResumeForJd = async (req, res) => {
     }
 
     // Extract text from the existing user resume
-    const rawResumeText = await extractTextFromPdf(user.profile.resume);
+    const { text: rawResumeText } = await extractTextFromPdf(user.profile.resume);
     // Truncate to avoid Gemini token overflow (500 Internal Error)
     const resumeText = rawResumeText;
     const jobDescText = jdResume.jobDescription;
@@ -978,7 +1030,7 @@ const generateAtsResume = async (req, res) => {
       });
     }
 
-    const rawResumeText = await extractTextFromPdf(user.profile.resume);
+    const { text: rawResumeText, links: extractedLinks } = await extractTextFromPdf(user.profile.resume);
 
     const resumeText = rawResumeText;
     const jobDescText = jdResume.jobDescription.slice(0, 3500);
@@ -1016,6 +1068,11 @@ CANDIDATE RESUME
 ${resumeText}
 
 ==================================================
+EXTRACTED LINKS FROM CANDIDATE RESUME
+==================================================
+${extractedLinks && extractedLinks.length > 0 ? extractedLinks.join('\n') : 'None identified'}
+
+==================================================
 TARGET JOB DESCRIPTION
 ==================================================
 ${jobDescText}
@@ -1043,7 +1100,11 @@ CORE OBJECTIVES & STRATEGY (TARGET SCORE: 95+)
 - If the JD requires specific tools/skills that are realistically learnable or commonly paired with the candidate's existing tech stack (e.g., JD asks for Docker/AWS, and candidate is a MERN developer), you MUST add them to the Skills section.
 - You MUST mention these newly added skills realistically in project deployments, CI/CD pipelines, or architectural enhancements.
 
-4. MAINTAIN BELIEVABILITY:
+4. LINK MAPPING & PRESERVATION:
+- Map and preserve the actual candidate's contact information (email, phone, linkedin, github, portfolio) from the candidate's resume/links. Do not use placeholder contact info unless missing.
+- For each project in the "projects" list, you MUST include "github" and "liveLink" fields. Match them with any relevant project links found in the candidate's resume or EXTRACTED LINKS. If no specific repository or deployment link can be found or inferred for a project, leave them as empty strings "".
+
+5. MAINTAIN BELIEVABILITY:
 - ABSOLUTELY NEVER invent fake jobs, degrees, companies, or dates.
 - You ARE explicitly authorized to logically upgrade existing projects with realistic industry-standard features (e.g., adding JWT authentication, Redis caching, pagination, Docker containerization, REST API optimization) to match the JD requirements perfectly.
 
@@ -1097,6 +1158,8 @@ RETURN EXACTLY THIS JSON FORMAT
     {
       "name": "Project Name",
       "technologies": "React.js, Node.js, [INJECT JD KEYWORDS HERE]",
+      "github": "https://github.com/...",
+      "liveLink": "https://...",
       "bullets": [
         "Engineered [feature] utilizing [JD Keyword] to solve [problem], achieving [realistic metric].",
         "Enhanced system performance by integrating [JD Skill/Tool]..."
@@ -1176,30 +1239,46 @@ const generateResumePdf = async (req, res) => {
       return res.status(400).json({ success: false, message: "Invalid resume JSON stored" });
     }
 
+    const parseLinkMarkdownHtml = (val) => {
+      if (!val) return '';
+      const match = val.match(/\[([^\]]+)\]\(([^)]+)\)/);
+      if (match) {
+        const cleanText = match[1].replace(/^https?:\/\/(www\.)?/, '');
+        return `<a href="${match[2]}" target="_blank" style="text-decoration:none; color:inherit">${cleanText}</a>`;
+      }
+      let url = val;
+      if (!url.startsWith('http') && (url.includes('.com') || url.includes('.org') || url.includes('.me') || url.includes('.in') || url.includes('github.io'))) {
+        url = 'https://' + url;
+      }
+      const cleanText = val.replace(/^https?:\/\/(www\.)?/, '');
+      return `<a href="${url}" target="_blank" style="text-decoration:none; color:inherit">${cleanText}</a>`;
+    };
+
     const fs = baseFontSize;
     const c = resumeData.contact || {};
     const contactItems = [];
     if (c.phone) {
+      const cleanPhone = c.phone.replace(/[^0-9]/g, '');
       contactItems.push(`
-        <span style="display:inline-flex; align-items:center; gap:4px">
+        <a href="https://wa.me/${cleanPhone}" target="_blank" style="text-decoration:none; color:inherit; display:inline-flex; align-items:center; gap:4px">
           <svg viewBox="0 0 24 24" width="${fs - 0.5}pt" height="${fs - 0.5}pt" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-right:2px"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
           ${c.phone}
-        </span>
+        </a>
       `);
     }
     if (c.email) {
       contactItems.push(`
-        <span style="display:inline-flex; align-items:center; gap:4px">
+        <a href="mailto:${c.email}" style="text-decoration:none; color:inherit; display:inline-flex; align-items:center; gap:4px">
           <svg viewBox="0 0 24 24" width="${fs - 0.5}pt" height="${fs - 0.5}pt" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-right:2px"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
           ${c.email}
-        </span>
+        </a>
       `);
     }
     if (c.linkedin) {
       contactItems.push(`
         <span style="display:inline-flex; align-items:center; gap:4px">
           <svg viewBox="0 0 24 24" width="${fs - 0.5}pt" height="${fs - 0.5}pt" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-right:2px"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
-          ${c.linkedin}
+          ${parseLinkMarkdownHtml(c.linkedin)}
         </span>
       `);
     }
@@ -1207,7 +1286,7 @@ const generateResumePdf = async (req, res) => {
       contactItems.push(`
         <span style="display:inline-flex; align-items:center; gap:4px">
           <svg viewBox="0 0 24 24" width="${fs - 0.5}pt" height="${fs - 0.5}pt" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-right:2px"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
-          ${c.github}
+          ${parseLinkMarkdownHtml(c.github)}
         </span>
       `);
     }
@@ -1215,7 +1294,7 @@ const generateResumePdf = async (req, res) => {
       contactItems.push(`
         <span style="display:inline-flex; align-items:center; gap:4px">
           <svg viewBox="0 0 24 24" width="${fs - 0.5}pt" height="${fs - 0.5}pt" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-right:2px"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-          ${c.portfolio}
+          ${parseLinkMarkdownHtml(c.portfolio)}
         </span>
       `);
     }
@@ -1285,9 +1364,18 @@ const generateResumePdf = async (req, res) => {
     if (resumeData.projects?.length > 0) {
       body += sectionRule("Projects");
       resumeData.projects.forEach((proj) => {
+        let nameAndLinks = `<span>${proj.name}`;
+        if (proj.github) {
+          nameAndLinks += ` <span style="font-weight:normal; color:#ccc; margin:0 4px">|</span> <a href="${proj.github}" target="_blank" style="font-weight:normal; font-size:${fs - 0.5}pt; color:#6b21a8; text-decoration:underline">GitHub</a>`;
+        }
+        if (proj.liveLink) {
+          nameAndLinks += ` <span style="font-weight:normal; color:#ccc; margin:0 4px">|</span> <a href="${proj.liveLink}" target="_blank" style="font-weight:normal; font-size:${fs - 0.5}pt; color:#6b21a8; text-decoration:underline">Live Link</a>`;
+        }
+        nameAndLinks += `</span>`;
+
         body += `<div style="margin-bottom:6px">
           <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:${fs}pt; margin-bottom:1px">
-            <span>${proj.name}</span>
+            ${nameAndLinks}
             <span style="font-weight:normal; font-size:${fs - 0.5}pt">${proj.technologies}</span>
           </div>
           ${bulletList(proj.bullets)}
