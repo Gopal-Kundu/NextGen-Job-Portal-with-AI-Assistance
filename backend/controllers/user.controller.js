@@ -1134,8 +1134,8 @@ RETURN EXACTLY THIS JSON FORMAT
     "email": "email@example.com",
     "linkedin": "[linkedin.com/in/profile](https://linkedin.com/in/profile)",
     "github": "[github.com/username](https://github.com/username)",
-    "portfolio": "",
-    "codingprofile": "",
+    "portfolio": "https://anyName",
+    "codingprofile": "https://...",
   },
   "summary": "High-impact, keyword-rich professional summary mirroring the JD requirements.",
   "skills": [
