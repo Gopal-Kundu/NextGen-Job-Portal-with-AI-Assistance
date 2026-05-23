@@ -11,16 +11,17 @@ export default function Sidebar({ highlightIndex }) {
 
   return (
     <>
-      <div className="bg-gray-50 h-14">
+      <div className="bg-gray-50 h-14 md:hidden">
         <Menu
           onClick={() => setIsOpen(true)}
-          className="bg-transparent cursor-pointer text-xl m-3 md:hidden"
+          className="bg-transparent cursor-pointer text-xl m-3"
         />
       </div>
 
       <div
-        className={`fixed top-0 left-0 h-screen z-[9999] w-64 bg-gray-100 transform transition-transform duration-300 select-none ${isOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
+        className={`fixed top-0 left-0 h-screen z-[9999] w-64 bg-gray-100 transform transition-transform duration-300 select-none md:hidden ${
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
       >
         <div className="flex h-screen bg-gray-50">
           <aside className="w-64 bg-gray-50 shadow-lg flex flex-col">
