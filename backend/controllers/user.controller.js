@@ -1408,7 +1408,7 @@ const generateResumePdf = async (req, res) => {
 <head>
   <meta charset="UTF-8" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Lora&family=Inter:wght@400;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet" />
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -1434,6 +1434,8 @@ const generateResumePdf = async (req, res) => {
     
     const page = await browser.newPage();
     await page.setContent(html, { waitUntil: "networkidle0" });
+    // Wait for all web fonts to load completely before generating the PDF
+    await page.evaluateHandle('document.fonts.ready');
     await page.emulateMediaType("screen");
     const pdfBuffer = await page.pdf({
       format: "A4",
