@@ -30,6 +30,9 @@ const JdResumeDetail = () => {
 
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploadLoading, setUploadLoading] = useState(false);
+  const [editedJson, setEditedJson] = useState('');
+  const [saveJsonLoading, setSaveJsonLoading] = useState(false);
+  const [optimizeJsonLoading, setOptimizeJsonLoading] = useState(false);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -205,6 +208,69 @@ const JdResumeDetail = () => {
       }
     } finally {
       setActionLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (data?.AtsResumeJson) {
+      setEditedJson(data.AtsResumeJson);
+    }
+  }, [data]);
+
+  const handleModifyExistingResume = async () => {
+    try {
+      JSON.parse(editedJson);
+    } catch (e) {
+      toast.error('Invalid JSON format. Please correct it before saving.');
+      return;
+    }
+
+    try {
+      setSaveJsonLoading(true);
+      const res = await axios.put(
+        `${USER_API_END_POINT}/jd-resume/${id}/update-json`,
+        { AtsResumeJson: editedJson },
+        { withCredentials: true }
+      );
+
+      if (res.data.success) {
+        setData(res.data.data);
+        toast.success('Resume JSON updated successfully!');
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.message || 'Failed to update resume JSON.');
+    } finally {
+      setSaveJsonLoading(false);
+    }
+  };
+
+  const handleOptimizeAtsFriendlyResume = async () => {
+    try {
+      JSON.parse(editedJson);
+    } catch (e) {
+      toast.error('Invalid JSON format. Please correct it before optimizing.');
+      return;
+    }
+
+    try {
+      setOptimizeJsonLoading(true);
+      toast.info('Gemini is optimizing your modified resume JSON...', { duration: 6000 });
+      const res = await axios.post(
+        `${USER_API_END_POINT}/jd-resume/${id}/optimize-json`,
+        { AtsResumeJson: editedJson },
+        { withCredentials: true }
+      );
+
+      if (res.data.success) {
+        setData(res.data.data);
+        toast.success('Resume JSON optimized for ATS by Gemini!');
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.message || 'Failed to optimize resume JSON.');
+    } finally {
+      setOptimizeJsonLoading(false);
     }
   };
 
@@ -620,75 +686,125 @@ const JdResumeDetail = () => {
                   try { resumeData = JSON.parse(data.AtsResumeJson); } catch (e) { }
                   if (!resumeData) return null;
                   return (
-                    <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
-                      <div className="w-full flex items-center justify-between">
-                        <button
-                          onClick={() => setShowResumePreview(!showResumePreview)}
-                          className="flex items-center gap-2 text-left font-bold text-gray-800 focus:outline-none"
-                        >
-                          <span>New Resume</span>
-                          {/* <svg xmlns="http://www.w3.org/2000/svg" className={`h-5 w-5 transition-transform duration-200 ${showResumePreview ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                          </svg> */}
-                        </button>
-                        {data.AtsResumeJson && (
-                          <div className="flex items-center gap-3 flex-wrap">
-                            {/* Dynamic Font Size Control Panel */}
-                            <div className="flex items-center gap-1.5 bg-gray-50 border border-gray-200 px-2 py-1 rounded-lg text-[10px] sm:text-xs">
-                              <span className="text-gray-500 font-medium select-none">Font Size:</span>
+                    <>
+                      <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+                        <div className="w-full flex items-center justify-between">
+                          <button
+                            onClick={() => setShowResumePreview(!showResumePreview)}
+                            className="flex items-center gap-2 text-left font-bold text-gray-800 focus:outline-none"
+                          >
+                            <span>New Resume</span>
+                          </button>
+                          {data.AtsResumeJson && (
+                            <div className="flex items-center gap-3 flex-wrap">
+                              {/* Dynamic Font Size Control Panel */}
+                              <div className="flex items-center gap-1.5 bg-gray-50 border border-gray-200 px-2 py-1 rounded-lg text-[10px] sm:text-xs">
+                                <span className="text-gray-500 font-medium select-none">Font Size:</span>
+                                <button
+                                  onClick={() => setBaseFontSize(prev => Math.max(7.0, +(prev - 0.5).toFixed(1)))}
+                                  className="w-5 h-5 flex items-center justify-center bg-white border border-gray-200 rounded font-bold text-gray-600 hover:bg-gray-100 hover:text-gray-900 active:scale-90 transition select-none cursor-pointer"
+                                  title="Decrease font size"
+                                >
+                                  -
+                                </button>
+                                <span className="font-bold text-gray-800 w-9 text-center select-none">{baseFontSize}pt</span>
+                                <button
+                                  onClick={() => setBaseFontSize(prev => Math.min(12.0, +(prev + 0.5).toFixed(1)))}
+                                  className="w-5 h-5 flex items-center justify-center bg-white border border-gray-200 rounded font-bold text-gray-600 hover:bg-gray-100 hover:text-gray-900 active:scale-90 transition select-none cursor-pointer"
+                                  title="Increase font size"
+                                >
+                                  +
+                                </button>
+                              </div>
+
                               <button
-                                onClick={() => setBaseFontSize(prev => Math.max(7.0, +(prev - 0.5).toFixed(1)))}
-                                className="w-5 h-5 flex items-center justify-center bg-white border border-gray-200 rounded font-bold text-gray-600 hover:bg-gray-100 hover:text-gray-900 active:scale-90 transition select-none cursor-pointer"
-                                title="Decrease font size"
+                                onClick={() => downloadPreviewAsPdf()}
+                                disabled={pdfLoading}
+                                className="bg-purple-600 hover:bg-purple-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold px-3 py-1.5 rounded-lg transition text-xs flex items-center gap-1.5 shadow cursor-pointer"
                               >
-                                -
-                              </button>
-                              <span className="font-bold text-gray-800 w-9 text-center select-none">{baseFontSize}pt</span>
-                              <button
-                                onClick={() => setBaseFontSize(prev => Math.min(12.0, +(prev + 0.5).toFixed(1)))}
-                                className="w-5 h-5 flex items-center justify-center bg-white border border-gray-200 rounded font-bold text-gray-600 hover:bg-gray-100 hover:text-gray-900 active:scale-90 transition select-none cursor-pointer"
-                                title="Increase font size"
-                              >
-                                +
+                                {pdfLoading ? (
+                                  <>
+                                    <svg className="animate-spin h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                                    </svg>
+                                    Generating...
+                                  </>
+                                ) : (
+                                  <>
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                    </svg>
+                                    Download PDF
+                                  </>
+                                )}
                               </button>
                             </div>
+                          )}
+                        </div>
 
-                            <button
-                              onClick={() => downloadPreviewAsPdf()}
-                              disabled={pdfLoading}
-                              className="bg-purple-600 hover:bg-purple-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold px-3 py-1.5 rounded-lg transition text-xs flex items-center gap-1.5 shadow cursor-pointer"
-                            >
-                              {pdfLoading ? (
-                                <>
-                                  <svg className="animate-spin h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-                                  </svg>
-                                  Generating...
-                                </>
-                              ) : (
-                                <>
-                                  <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                  </svg>
-                                  Download PDF
-                                </>
-                              )}
-                            </button>
-                          </div>
-                        )}
-                      </div>
-
-                      <div
-                        className={`grid transition-all duration-300 ease-in-out ${showResumePreview ? 'grid-rows-[1fr] opacity-100 mt-4' : 'grid-rows-[0fr] opacity-0 mt-0'}`}
-                      >
-                        <div className="overflow-hidden">
-                          <div className="pt-4 border-t border-gray-100 overflow-x-auto">
-                            <AtsResumePreview resumeData={resumeData} baseFontSize={baseFontSize} />
+                        <div
+                          className={`grid transition-all duration-300 ease-in-out ${showResumePreview ? 'grid-rows-[1fr] opacity-100 mt-4' : 'grid-rows-[0fr] opacity-0 mt-0'}`}
+                        >
+                          <div className="overflow-hidden">
+                            <div className="pt-4 border-t border-gray-100 overflow-x-auto">
+                              <AtsResumePreview resumeData={resumeData} baseFontSize={baseFontSize} />
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
+
+                      {/* Edit JSON Section */}
+                      <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm flex flex-col space-y-4">
+                        <div className="flex items-center gap-2 text-purple-600 font-bold">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                          </svg>
+                          <span>Modify ATS Resume JSON Data</span>
+                        </div>
+                        <p className="text-gray-500 text-xs leading-relaxed">
+                          Directly edit the structured resume fields below. Click <strong>MODIFY EXISTING RESUME</strong> to save your manual edits, or click <strong>MODIFY TO ATS FRIENDLY RESUME BY GEMINI AI</strong> to have Gemini analyze and optimize your updates.
+                        </p>
+                        <div className="relative">
+                          <textarea
+                            value={editedJson}
+                            onChange={(e) => setEditedJson(e.target.value)}
+                            className="w-full h-96 font-mono text-xs p-4 bg-slate-950 text-emerald-400 rounded-xl border border-slate-800 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent leading-relaxed resize-y"
+                            spellCheck="false"
+                          />
+                        </div>
+                        <div className="flex flex-wrap gap-3 pt-2">
+                          <button
+                            onClick={handleModifyExistingResume}
+                            disabled={saveJsonLoading || optimizeJsonLoading}
+                            className="cursor-pointer bg-purple-600 hover:bg-purple-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold px-4 py-2.5 rounded-xl transition text-xs flex items-center gap-2 shadow"
+                          >
+                            {saveJsonLoading ? (
+                              <>
+                                <div className="animate-spin rounded-full h-3 w-3 border-2 border-white border-t-transparent animate-spin mr-1"></div>
+                                Saving...
+                              </>
+                            ) : (
+                              "MODIFY EXISTING RESUME"
+                            )}
+                          </button>
+                          <button
+                            onClick={handleOptimizeAtsFriendlyResume}
+                            disabled={saveJsonLoading || optimizeJsonLoading}
+                            className="cursor-pointer bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold px-4 py-2.5 rounded-xl transition text-xs flex items-center gap-2 shadow"
+                          >
+                            {optimizeJsonLoading ? (
+                              <>
+                                <div className="animate-spin rounded-full h-3 w-3 border-2 border-white border-t-transparent animate-spin mr-1"></div>
+                                Optimizing with Gemini...
+                              </>
+                            ) : (
+                              "MODIFY TO ATS FRIENDLY RESUME BY GEMINI AI"
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    </>
                   );
                 })()}
               </div>

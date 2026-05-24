@@ -21,7 +21,9 @@ const {
   deleteJdResume,
   analyzeExistingResumeForJd,
   generateAtsResume,
-  generateResumePdf
+  generateResumePdf,
+  updateJdResumeJson,
+  optimizeJdResumeJson
 } = require("../controllers/user.controller");
 const upload = require("../middleware/multer");
 const router = express.Router();
@@ -69,5 +71,7 @@ router.delete("/jd-resume/:id", isAuthenticated, deleteJdResume);
 router.post("/jd-resume/:id/analyze", isAuthenticated, analyzeExistingResumeForJd);
 router.post("/jd-resume/:id/generate", isAuthenticated, generateAtsResume);
 router.post("/jd-resume/:id/pdf", isAuthenticated, generateResumePdf);
+router.put("/jd-resume/:id/update-json", isAuthenticated, updateJdResumeJson);
+router.post("/jd-resume/:id/optimize-json", isAuthenticated, optimizeJdResumeJson);
 
 module.exports = router;

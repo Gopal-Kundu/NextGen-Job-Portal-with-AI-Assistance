@@ -1158,7 +1158,7 @@ RETURN EXACTLY THIS JSON FORMAT
   "projects": [
     {
       "name": "Project Name",
-      "technologies": "React.js, Node.js, [INJECT JD KEYWORDS HERE]",
+      "technologies": "[3-4 most relevent technologies used]",
       "github": "https://github.com/...",
       "liveLink": "https://...",
       "bullets": [
@@ -1519,6 +1519,208 @@ const generateResumePdf = async (req, res) => {
   }
 };
 
+const updateJdResumeJson = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { AtsResumeJson } = req.body;
+
+    if (!AtsResumeJson) {
+      return res.status(400).json({
+        success: false,
+        message: "AtsResumeJson is required",
+      });
+    }
+
+    // Verify it is valid JSON
+    try {
+      JSON.parse(AtsResumeJson);
+    } catch (e) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid JSON format",
+      });
+    }
+
+    const jdResume = await JobDescriptionWiseResume.findById(id);
+    if (!jdResume) {
+      return res.status(404).json({
+        success: false,
+        message: "Job Description wise resume entry not found",
+      });
+    }
+
+    jdResume.AtsResumeJson = AtsResumeJson;
+    await jdResume.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Resume updated successfully",
+      data: jdResume,
+    });
+  } catch (error) {
+    console.error("Error updating resume JSON:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message,
+    });
+  }
+};
+
+const optimizeJdResumeJson = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { AtsResumeJson } = req.body;
+
+    if (!AtsResumeJson) {
+      return res.status(400).json({
+        success: false,
+        message: "AtsResumeJson is required",
+      });
+    }
+
+    // Verify it is valid JSON
+    try {
+      JSON.parse(AtsResumeJson);
+    } catch (e) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid JSON format",
+      });
+    }
+
+    const jdResume = await JobDescriptionWiseResume.findById(id);
+    if (!jdResume) {
+      return res.status(404).json({
+        success: false,
+        message: "Job Description wise resume entry not found",
+      });
+    }
+
+    const jobDescText = jdResume.jobDescription.slice(0, 3500);
+
+    const jsonPrompt = `
+You are an Elite ATS Resume Optimization AI, Technical Resume Strategist, and Recruiter Simulation Engine.
+
+Your core directive is to optimize the provided resume JSON to make it highly ATS-friendly (95+ score) specifically tailored for the target Job Description.
+
+==================================================
+CURRENT RESUME JSON
+==================================================
+${AtsResumeJson}
+
+==================================================
+TARGET JOB DESCRIPTION
+==================================================
+${jobDescText}
+
+==================================================
+CORE OBJECTIVES & STRATEGY (TARGET SCORE: 95+)
+==================================================
+1. Naturally integrate missing skills, keywords, and frameworks from the Job Description into the skills, summary, experience, and projects of the JSON structure.
+2. Rewrite and expand project descriptions and experience bullet points to align with the responsibilities in the Job Description, incorporating quantitative metrics where appropriate (e.g. "improved query efficiency by 35%", "reduced load time by 40%").
+3. Ensure contact info and basic structure remains intact. Do not change the JSON schema.
+4. If a section does not exist in the candidate's background and cannot be realistically adapted, return an empty array [].
+
+==================================================
+BULLET POINT RULES (EXPERIENCE & PROJECTS)
+==================================================
+- Every project/experience must have 3-4 highly technical bullet points, if user input has many points, experience then optimized them sumup them.
+- Start each bullet with a strong action verb (e.g., Architected, Engineered, Optimized, Spearheaded, Implemented).
+- Formula to use: [Action Word] + [JD Keyword/Technology] + [What it did] + [Measurable Impact].
+-whenever possible use numbers, measures to pass ats system.
+
+==================================================
+OUTPUT RULES
+==================================================
+- Return ONLY valid, raw JSON.
+- NO markdown formatting, NO backticks (\`\`\`), NO explanations before or after the JSON.
+- Escape all quotes properly.
+
+==================================================
+RETURN EXACTLY THIS JSON FORMAT (include "atsScore" key representing the new estimated matching score out of 100):
+==================================================
+{
+  "name": "Candidate Full Name",
+  "atsScore": 96,
+  "contact": {
+    "phone": "+91-XXXXXXXXXX",
+    "email": "email@example.com",
+    "linkedin": "[linkedin.com/in/profile](https://linkedin.com/in/profile)",
+    "github": "[github.com/username](https://github.com/username)",
+    "portfolio": "https://anyName",
+    "codingprofile": "https://..."
+  },
+  "summary": "High-impact, keyword-rich professional summary mirroring the JD requirements.",
+  "skills": [
+    {
+      "category": "Frontend",
+      "items": "React.js, Redux, [INJECT JD KEYWORDS HERE]"
+    }
+  ],
+  "experience": [
+    {
+      "company": "Company Name",
+      "location": "City",
+      "role": "Role",
+      "dates": "Month Year - Month Year",
+      "bullets": [
+        "Strong ATS optimized bullet highlighting JD alignment and metrics."
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "name": "Project Name",
+      "technologies": "3-4 most relevent technologies used",
+      "github": "https://github.com/...",
+      "liveLink": "https://...",
+      "bullets": [
+        "Engineered [feature] utilizing [JD Keyword] to solve [problem], achieving [realistic metric].",
+        "Enhanced system performance by integrating [JD Skill/Tool]..."
+      ]
+    }
+  ],
+  "achievements": [
+    "Achievement text"
+  ],
+  "education": [
+    {
+      "institution": "University Name",
+      "location": "City",
+      "degree": "Degree Name | CGPA: X.X",
+      "dates": "Month Year - Month Year"
+    }
+  ]
+}
+`;
+
+    const rawJson = await aiApi(jsonPrompt);
+    const resumeData = parseGeminiJSON(rawJson);
+
+    const estimatedScore = resumeData.atsScore ?? 95;
+    delete resumeData.atsScore;
+
+    jdResume.AtsResumeJson = JSON.stringify(resumeData, null, 2);
+    jdResume.ATSScoreOfResume = estimatedScore;
+
+    await jdResume.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Tailored ATS Resume optimized successfully",
+      data: jdResume,
+    });
+  } catch (error) {
+    console.error("Error optimizing ATS resume JSON:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error during ATS resume optimization",
+      error: error.message,
+    });
+  }
+};
+
 
 module.exports = {
   register,
@@ -1541,5 +1743,7 @@ module.exports = {
   deleteJdResume,
   analyzeExistingResumeForJd,
   generateAtsResume,
-  generateResumePdf
+  generateResumePdf,
+  updateJdResumeJson,
+  optimizeJdResumeJson
 };
