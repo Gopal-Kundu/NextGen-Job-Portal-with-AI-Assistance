@@ -1,4 +1,4 @@
-# 💼 AI-Powered MERN Job Portal
+# 💼 AI-Recruitment-Platform
 
 An advanced, full-stack Job Portal Web Application designed to connect job seekers and recruiters through an intelligent, AI-driven hiring pipeline. The platform integrates **Google Gemini AI** and **Pinecone Vector Database** to deliver semantic search recommendations, automated resume optimizing, precise job-fit matching, and dynamic interview preparations.
 
